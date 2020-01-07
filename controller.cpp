@@ -8,7 +8,7 @@ using namespace Alignment;
 using namespace std::chrono_literals;
 
 Controller::Controller()
-: Node("turtlebot3_drive_node")
+: Node("TBOT01_controller_node")
 {
   /************************************************************
   ** Initialise variables
@@ -39,12 +39,12 @@ Controller::Controller()
   ************************************************************/
   update_timer_ = this->create_wall_timer(10ms, std::bind(&Controller::update_callback, this));
 
-  RCLCPP_INFO(this->get_logger(), "Turtlebot3 simulation node has been initialised");
+  RCLCPP_INFO(this->get_logger(), "TBOT01 controller node has been initialised");
 }
 
 Controller::~Controller()
 {
-  RCLCPP_INFO(this->get_logger(), "Turtlebot3 simulation node has been terminated");
+  RCLCPP_INFO(this->get_logger(), "TBOT01 controller node has been terminated");
 }
 
 /********************************************************************************
