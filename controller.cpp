@@ -1,11 +1,6 @@
-#include "TBOT01Dev.h"
+#include "dev.h"
 
 using namespace Alignment;
-using namespace TBOT01;
-using namespace std;
-
-typedef std::chrono::duration<double> sec; 
-typedef std::chrono::high_resolution_clock clk;
 
 // https://github.com/ROBOTIS-GIT/turtlebot3_simulations/tree/ros2-devel/turtlebot3_gazebo/src
 
