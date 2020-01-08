@@ -5,9 +5,15 @@ using namespace Alignment;
 // https://github.com/ROBOTIS-GIT/turtlebot3_simulations/tree/ros2-devel/turtlebot3_gazebo/src
 
 #include "controller.h"
+#include <iostream>
+#include <sstream>
+
 using namespace std::chrono_literals;
 
-Controller::Controller()
+typedef std::chrono::duration<double> sec;
+typedef std::chrono::high_resolution_clock clk;
+
+Controller::Controller(const std::string& filename, std::chrono::milliseconds record_interval, double x, double y, double z, double ox, double oy, double oz, double ow)
 : Node("TBOT01_controller_node")
 {
   /************************************************************
@@ -19,6 +25,33 @@ Controller::Controller()
 
   robot_pose_ = 0.0;
   prev_robot_pose_ = 0.0;
+
+  sensor_pose_initial_[0] = x;
+  sensor_pose_initial_[1] = y;
+  sensor_pose_initial_[2] = z;
+  sensor_pose_initial_[3] = ox;
+  sensor_pose_initial_[4] = oy;
+  sensor_pose_initial_[5] = oz;
+  sensor_pose_initial_[6] = ow;
+
+  for (std::size_t i = 0; i < 7; i++)
+      sensor_pose_[i] = 0.0;
+
+  sensor_pose_updated = false;
+
+  for (std::size_t i = 0; i < 360; i++)
+      sensor_scan_[i] = 0.0;
+
+  sensor_scan_updated = false;
+
+  action_linear_ = 0.0;
+  action_angular_ = 0.0;
+
+  action_updated = false;
+
+  record_id_ = 0;
+  record_start_ = clk::now();
+  record_out_ = std::ofstream(filename, std::ios::binary);
 
   /************************************************************
   ** Initialise ROS publishers and subscribers
@@ -38,12 +71,14 @@ Controller::Controller()
   ** Initialise ROS timers
   ************************************************************/
   update_timer_ = this->create_wall_timer(10ms, std::bind(&Controller::update_callback, this));
+  record_timer_ = this->create_wall_timer(record_interval, std::bind(&Controller::record_callback, this));
 
   RCLCPP_INFO(this->get_logger(), "TBOT01 controller node has been initialised");
 }
 
 Controller::~Controller()
 {
+  record_out_.close();
   RCLCPP_INFO(this->get_logger(), "TBOT01 controller node has been terminated");
 }
 
@@ -60,8 +95,16 @@ void Controller::odom_callback(const nav_msgs::msg::Odometry::SharedPtr msg)
   tf2::Matrix3x3 m(q);
   double roll, pitch, yaw;
   m.getRPY(roll, pitch, yaw);
-
   robot_pose_ = yaw;
+
+  sensor_pose_[0] = sensor_pose_initial_[0] + msg->pose.pose.position.x;
+  sensor_pose_[1] = sensor_pose_initial_[1] + msg->pose.pose.position.y;
+  sensor_pose_[2] = sensor_pose_initial_[2] + msg->pose.pose.position.z;
+  sensor_pose_[3] = sensor_pose_initial_[3] + msg->pose.pose.orientation.x;
+  sensor_pose_[4] = sensor_pose_initial_[4] + msg->pose.pose.orientation.y;
+  sensor_pose_[5] = sensor_pose_initial_[5] + msg->pose.pose.orientation.z;
+  sensor_pose_[6] = sensor_pose_initial_[6] + msg->pose.pose.orientation.w;
+  sensor_pose_updated = true;
 }
 
 void Controller::scan_callback(const sensor_msgs::msg::LaserScan::SharedPtr msg)
@@ -79,6 +122,15 @@ void Controller::scan_callback(const sensor_msgs::msg::LaserScan::SharedPtr msg)
       scan_data_[num] = msg->ranges.at(scan_angle[num]);
     }
   }
+
+  for (std::size_t i = 0; i < 360; i++)
+  {
+      if (std::isinf(msg->ranges.at(i)))
+	  sensor_scan_[i] = msg->range_max;
+      else
+	  sensor_scan_[i] = msg->ranges.at(i);
+  }
+  sensor_scan_updated = true;
 }
 
 void Controller::update_cmd_vel(double linear, double angular)
@@ -88,6 +140,10 @@ void Controller::update_cmd_vel(double linear, double angular)
   cmd_vel.angular.z = angular;
 
   cmd_vel_pub_->publish(cmd_vel);
+
+  action_linear_ = cmd_vel.linear.x;
+  action_angular_ = cmd_vel.angular.z;
+  action_updated = true;
 }
 
 /********************************************************************************
@@ -153,15 +209,43 @@ void Controller::update_callback()
   }
 }
 
+void Controller::record_callback()
+{
+    if (sensor_pose_updated && sensor_scan_updated && action_updated)
+    {
+	double ts = ((sec)(clk::now() - record_start_)).count();
+	record_out_.write(reinterpret_cast<char*>(&record_id_), sizeof(std::size_t));
+	record_out_.write(reinterpret_cast<char*>(&ts), sizeof(double));
+	for (std::size_t i = 0; i < 7; i++)
+	    record_out_.write(reinterpret_cast<char*>(&sensor_pose_[i]), sizeof(double));
+	for (std::size_t i = 0; i < 360; i++)
+	    record_out_.write(reinterpret_cast<char*>(&sensor_scan_[i]), sizeof(double));
+	record_out_.write(reinterpret_cast<char*>(&action_linear_), sizeof(double));
+	record_out_.write(reinterpret_cast<char*>(&action_angular_), sizeof(double));
+	record_id_++;
+    }
+}
+
+
 /*******************************************************************************
 ** Main
 *******************************************************************************/
 int main(int argc, char** argv)
 {
-  rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<Controller>());
-  rclcpp::shutdown();
+    std::string filename(argc >= 2 ? std::string(argv[1]) : "TBOT01.bin");
+    std::chrono::milliseconds record_interval(argc >= 3 ? std::atol(argv[2]) : 0);
+    double x(argc >= 4 ? std::stod(argv[3]) : 0.0);
+    double y(argc >= 5 ? std::stod(argv[4]) : 0.0);
+    double z(argc >= 6 ? std::stod(argv[5]) : 0.0);
+    double ox(argc >= 7 ? std::stod(argv[6]) : 0.0);
+    double oy(argc >= 8 ? std::stod(argv[7]) : 0.0);
+    double oz(argc >= 9 ? std::stod(argv[8]) : 0.0);
+    double ow(argc >= 10 ? std::stod(argv[9]) : 0.0);
 
-  return 0;
+    rclcpp::init(argc, argv);
+    rclcpp::spin(std::make_shared<Controller>(filename, record_interval, x, y, z, ox, oy, oz, ow));
+    rclcpp::shutdown();
+
+    return 0;
 }
 

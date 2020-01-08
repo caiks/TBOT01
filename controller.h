@@ -32,7 +32,7 @@
 class Controller : public rclcpp::Node
 {
 public:
-    Controller();
+    Controller(const std::string&, std::chrono::milliseconds, double, double, double, double, double, double, double);
     ~Controller();
 
 private:
@@ -43,16 +43,33 @@ private:
     rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr scan_sub_;
     rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odom_sub_;
 
+    // ROS timers
+    rclcpp::TimerBase::SharedPtr update_timer_;
+    rclcpp::TimerBase::SharedPtr record_timer_;
+
     // Variables
     double robot_pose_;
     double prev_robot_pose_;
     double scan_data_[3];
 
-    // ROS timer
-    rclcpp::TimerBase::SharedPtr update_timer_;
+    double sensor_pose_initial_[7];
+    double sensor_pose_[7];
+    bool sensor_pose_updated;
+    double sensor_scan_[360];
+    bool sensor_scan_updated;
+
+    double action_linear_;
+    double action_angular_;
+    bool action_updated;
+
+    std::size_t record_id_;
+    std::chrono::time_point<std::chrono::high_resolution_clock> record_start_;
+
+    std::ofstream record_out_;
 
     // Function prototypes
     void update_callback();
+    void record_callback();
     void update_cmd_vel(double linear, double angular);
     void scan_callback(const sensor_msgs::msg::LaserScan::SharedPtr msg);
     void odom_callback(const nav_msgs::msg::Odometry::SharedPtr msg);
