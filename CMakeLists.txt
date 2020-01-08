@@ -19,9 +19,17 @@ ENDIF ()
 
 add_executable(controller controller.cpp)
 
+add_executable(TBOT01 main.cpp dev.cpp )
+
 target_link_libraries(controller PUBLIC AlignmentRepaC AlignmentC Threads::Threads)
 
 target_include_directories(controller PUBLIC
+                          "${PROJECT_BINARY_DIR}"
+                          )
+
+target_link_libraries(TBOT01 PUBLIC AlignmentRepaC AlignmentC Threads::Threads)
+
+target_include_directories(TBOT01 PUBLIC
                           "${PROJECT_BINARY_DIR}"
                           )
 

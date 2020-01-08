@@ -24,6 +24,35 @@
 #include <ctime>
 #include <string>
 
+namespace TBOT01
+{
+    struct Record
+    {
+	Record() {
+	    id = 0;
+	    ts = 0.0;
+	    for (std::size_t i = 0; i < 7; i++)
+		sensor_pose[i] = 0.0;
+	    for (std::size_t i = 0; i < 360; i++)
+		sensor_scan[i] = 0.0;
+	    action_linear = 0.0;
+	    action_angular = 0.0;
+	}
+	std::size_t id;
+	double ts;
+	double sensor_pose[7];
+	double sensor_scan[360];
+	double action_linear;
+	double action_angular;
+    };
+    typedef std::vector<Record> RecordList;
 
+    void recordListsPersistent(RecordList&, std::ostream&);
+
+    std::unique_ptr<RecordList> persistentsRecordList(std::istream&);
+}
+
+std::ostream& operator<<(std::ostream& out, const TBOT01::Record&);
+std::ostream& operator<<(std::ostream& out, const TBOT01::RecordList&);
 
 #endif
