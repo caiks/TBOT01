@@ -10,6 +10,8 @@
 #include <tf2/LinearMath/Matrix3x3.h>
 #include <tf2/LinearMath/Quaternion.h>
 
+#include <fstream>
+
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
