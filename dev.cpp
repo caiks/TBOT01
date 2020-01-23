@@ -62,3 +62,24 @@ std::ostream& operator<<(std::ostream& out, const RecordList& rr)
 	out << r << std::endl;
     return out;
 }
+
+
+std::ostream& operator<<(std::ostream& out, std::istream& in)
+{
+    while (true)
+    {
+	Record r;
+	in.read(reinterpret_cast<char*>(&r.id), sizeof(std::size_t));
+	if (in.eof())
+	    break;
+	in.read(reinterpret_cast<char*>(&r.ts), sizeof(double));
+	for (std::size_t i = 0; i < 7; i++)
+	    in.read(reinterpret_cast<char*>(&r.sensor_pose[i]), sizeof(double));
+	for (std::size_t i = 0; i < 360; i++)
+	    in.read(reinterpret_cast<char*>(&r.sensor_scan[i]), sizeof(double));
+	in.read(reinterpret_cast<char*>(&r.action_linear), sizeof(double));
+	in.read(reinterpret_cast<char*>(&r.action_angular), sizeof(double));
+	out << r << std::endl;
+    }
+    return out;
+}

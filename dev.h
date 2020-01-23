@@ -54,5 +54,6 @@ namespace TBOT01
 
 std::ostream& operator<<(std::ostream& out, const TBOT01::Record&);
 std::ostream& operator<<(std::ostream& out, const TBOT01::RecordList&);
+std::ostream& operator<<(std::ostream& out, std::istream&);
 
 #endif

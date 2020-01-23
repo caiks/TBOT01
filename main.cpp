@@ -9,7 +9,7 @@ typedef std::chrono::high_resolution_clock clk;
 
 int main(int argc, char **argv)
 {
-    if (true)
+    if (false)
     {
 	RecordList rr(3);
 	rr[0].id = 0;
@@ -33,7 +33,26 @@ int main(int argc, char **argv)
 	cout << "rr2" << endl
 	    << *rr2 << endl << endl;
 
+	std::ifstream in2("test.bin", std::ios::binary);
+	cout << in2 << endl;
+	in2.close();
     }
+
+    if (true)
+    {
+	std::ifstream in("202001222010_2.TBOT01.bin", std::ios::binary);
+	auto rr = persistentsRecordList(in);
+	in.close();
+	cout << *rr << endl;
+    }
+
+    if (false)
+    {
+	std::ifstream in("202001222010_2.TBOT01.bin", std::ios::binary);
+	cout << in;
+	in.close();
+    }
+
 
     return 0;
 }
