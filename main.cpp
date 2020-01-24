@@ -253,7 +253,7 @@ int main(int argc, char **argv)
 	EVALL(*hrsel(*hr, SizeList{0}));
 	EVALL(*hrsel(*hr, SizeList{hr->size-1}));
 
-	auto bm = hrbm(8, *hr);
+	auto bm = hrbm(8, 3, *hr);
 	bmwrite("202001222010_2.TBOT01.bmp", bm);
     }
 

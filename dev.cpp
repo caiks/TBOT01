@@ -245,18 +245,21 @@ void TBOT01::bmwrite(string imageFileName, const Bitmap& bm)
     }
 }
 
-Bitmap TBOT01::hrbm(int d, const HistoryRepa& hr)
+Bitmap TBOT01::hrbm(int d, int c, const HistoryRepa& hr)
 {
     auto n = hr.dimension;
     auto z = hr.size;
-    Bitmap bm(z, n);
+    Bitmap bm(z*c, n);
     auto rr = hr.arr;
     std::size_t p = 0;
     for (int j = 0; j< bm.width; j++) {
-	for (int i = 0; i < bm.height; i++) {
-	    int k = i*bm.width * 3 + j * 3;
-	    for (int l = 0; l<3; l++)
-		bm.image[k + l] = 255 - rr[p]*255/d;
+	for (int i = 0; i < z; i++) {
+	    for (int m = 0; m < c; m++)
+	    {
+		int k = (i*3+m)*bm.width * 3 + j * 3;
+		for (int l = 0; l<3; l++)
+		    bm.image[k + l] = 255 - rr[p]*255/d;
+	    }
 	    p++;
 	}
     }
