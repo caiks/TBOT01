@@ -8,8 +8,9 @@ typedef std::chrono::duration<double> sec;
 typedef std::chrono::high_resolution_clock clk;
 
 #define ECHO(x) cout << #x << endl; x
-#define EVAL(x) cout << #x << " = " << (x) << endl
-#define TRUTH(x) cout << #x << " = " << ((x) ? "true" : "false") << endl
+#define EVAL(x) cout << #x << ": " << (x) << endl
+#define EVALL(x) cout << #x << ": " << endl << (x) << endl
+#define TRUTH(x) cout << #x << ": " << ((x) ? "true" : "false") << endl
 
 int main(int argc, char **argv)
 {
@@ -57,7 +58,7 @@ int main(int argc, char **argv)
 	in.close();
     }
 
-    if (true)
+    if (false)
     {
 	auto rr = std::make_unique<RecordList>();
 	try
@@ -225,6 +226,35 @@ int main(int argc, char **argv)
 	action_angular_dist = {-1.5,0,1.5}
 	*/
 
+    }
+
+    if (true)
+    {
+	auto hrsel = [](const HistoryRepa& hr, const SizeList& ll)
+	{
+	    return eventsHistoryRepasHistoryRepaSelection_u(ll.size(), (std::size_t*)ll.data(), hr);
+	};
+
+	std::ifstream in("202001222010_2.TBOT01.bin", std::ios::binary);
+	auto qq = persistentsRecordList(in);
+	in.close();
+
+	std::unique_ptr<Alignment::System> uu;
+	std::unique_ptr<Alignment::SystemRepa> ur;
+	std::unique_ptr<Alignment::HistoryRepa> hr;
+	{
+	    auto xx = recordListsHistoryRepa(8, *qq);
+	    uu = std::move(std::get<0>(xx));
+	    ur = std::move(std::get<1>(xx));
+	    hr = std::move(std::get<2>(xx));
+	}
+	EVALL(*uu);
+	EVALL(*ur);
+	EVALL(*hrsel(*hr, SizeList{0}));
+	EVALL(*hrsel(*hr, SizeList{hr->size-1}));
+
+	auto bm = hrbm(8, *hr);
+	bmwrite("202001222010_2.TBOT01.bmp", bm);
     }
 
     return 0;
