@@ -168,12 +168,23 @@ int main(int argc, char **argv)
 		    sensor_scan_dist[x]++;
 		    break;
 		}
+	EVAL(sensor_scan.size());
 	EVAL(sensor_scan_dist);
 	/*
+	sensor_scan.size() = 100440
 	sensor_scan_dist = {(0.5,4391),(1,17001),(1.5,8267),(2,5194),(2.5,2919),(3,2160),(3.5,60508),(4,0)}
 	*/
 
-	for (std::size_t i = 0; i < sensor_scan.size() - 60508; i += (sensor_scan.size() - 60508) / 7)
+	std::size_t sensor_scan_limit = 0;
+	for (auto y : sensor_scan)
+	    if (y == 3.5)
+		sensor_scan_limit++;
+	EVAL(sensor_scan_limit);
+	/*
+	sensor_scan_limit = 58317
+	*/
+
+	for (std::size_t i = 0; i < sensor_scan.size() - sensor_scan_limit; i += (sensor_scan.size() - sensor_scan_limit) / 7)
 	{
 	    EVAL(i);
 	    EVAL(sensor_scan[i]);
@@ -181,20 +192,20 @@ int main(int argc, char **argv)
 	/*
 	i = 0
 	sensor_scan[i] = 0.12
-	i = 5704
-	sensor_scan[i] = 0.519557
-	i = 11408
-	sensor_scan[i] = 0.629643
-	i = 17112
-	sensor_scan[i] = 0.811073
-	i = 22816
-	sensor_scan[i] = 1.07406
-	i = 28520
-	sensor_scan[i] = 1.42758
-	i = 34224
-	sensor_scan[i] = 1.91638
-	i = 39928
-	sensor_scan[i] = 2.99914
+	i = 6017
+	sensor_scan[i] = 0.524778
+	i = 12034
+	sensor_scan[i] = 0.644876
+	i = 18051
+	sensor_scan[i] = 0.848718
+	i = 24068
+	sensor_scan[i] = 1.1434
+	i = 30085
+	sensor_scan[i] = 1.53067
+	i = 36102
+	sensor_scan[i] = 2.18768
+	i = 42119
+	sensor_scan[i] = 3.49977
 	*/
 
 	std::set<double> action_linear_dist;
