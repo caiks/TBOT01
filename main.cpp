@@ -59,15 +59,34 @@ int main(int argc, char **argv)
 
     if (true)
     {
-	std::ifstream in("202001222010_2.TBOT01.bin", std::ios::binary);
-	auto rr = persistentsRecordList(in);
-	in.close();
+	auto rr = std::make_unique<RecordList>();
+	try
+	{
+	    std::ifstream in("202001222010_2.TBOT01.bin", std::ios::binary);
+	    if (in.is_open())
+	    {
+		rr = persistentsRecordList(in);
+		in.close();
+	    }
+	    else
+	    {
+		cout << "cannot open file" << endl;
+		return 1;
+	    }
+	}
+	catch (const exception&)
+	{
+	    cout << "cannot read file" << endl;
+	    return 1;
+	}
 
 	EVAL(rr->size());
 	EVAL(rr->front().id);
 	EVAL(rr->front().ts);
+	EVAL(rr->front());
 	EVAL(rr->back().id);
 	EVAL(rr->back().ts);
+	EVAL(rr->back());
 
 	/*
 	rr->size() = 279
