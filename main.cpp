@@ -27,25 +27,25 @@ int main(int argc, char **argv)
 	cout << "rr" << endl
 	    << rr << endl << endl;
 
-	std::ofstream out("test.bin", std::ios::binary);
+	std::ofstream out("test.hr", std::ios::binary);
 	recordListsPersistent(rr, out); cout << endl;
 	out.close();
 
-	std::ifstream in("test.bin", std::ios::binary);
+	std::ifstream in("test.hr", std::ios::binary);
 	auto rr2 = persistentsRecordList(in);
 	in.close();
 
 	cout << "rr2" << endl
 	    << *rr2 << endl << endl;
 
-	std::ifstream in2("test.bin", std::ios::binary);
+	std::ifstream in2("test.hr", std::ios::binary);
 	cout << in2 << endl;
 	in2.close();
     }
 
     if (false)
     {
-	std::ifstream in("202001222010_2.TBOT01.bin", std::ios::binary);
+	std::ifstream in("202001222010_2.TBOT01.hr", std::ios::binary);
 	auto rr = persistentsRecordList(in);
 	in.close();
 	cout << *rr << endl;
@@ -53,7 +53,7 @@ int main(int argc, char **argv)
 
     if (false)
     {
-	std::ifstream in("202001222010_2.TBOT01.bin", std::ios::binary);
+	std::ifstream in("202001222010_2.TBOT01.hr", std::ios::binary);
 	cout << in;
 	in.close();
     }
@@ -63,7 +63,7 @@ int main(int argc, char **argv)
 	auto rr = std::make_unique<RecordList>();
 	try
 	{
-	    std::ifstream in("202001222010_2.TBOT01.bin", std::ios::binary);
+	    std::ifstream in("202001222010_2.TBOT01.hr", std::ios::binary);
 	    if (in.is_open())
 	    {
 		rr = persistentsRecordList(in);
@@ -235,7 +235,7 @@ int main(int argc, char **argv)
 	    return eventsHistoryRepasHistoryRepaSelection_u(ll.size(), (std::size_t*)ll.data(), hr);
 	};
 
-	std::ifstream in("202001222010_2.TBOT01.bin", std::ios::binary);
+	std::ifstream in("202001222010_2.TBOT01.hr", std::ios::binary);
 	auto qq = persistentsRecordList(in);
 	in.close();
 
@@ -262,7 +262,7 @@ int main(int argc, char **argv)
 	auto rr = std::make_unique<RecordList>();
 	try
 	{
-	    std::ifstream in(string(argv[2])+".bin", std::ios::binary);
+	    std::ifstream in(string(argv[2])+".hr", std::ios::binary);
 	    if (in.is_open())
 	    {
 		rr = persistentsRecordList(in);
@@ -364,7 +364,7 @@ int main(int argc, char **argv)
 	    return eventsHistoryRepasHistoryRepaSelection_u(ll.size(), (std::size_t*)ll.data(), hr);
 	};
 
-	std::ifstream in(string(argv[2]) + ".bin", std::ios::binary);
+	std::ifstream in(string(argv[2]) + ".hr", std::ios::binary);
 	auto qq = persistentsRecordList(in);
 	in.close();
 
@@ -389,7 +389,7 @@ int main(int argc, char **argv)
 	    return eventsHistoryRepasHistoryRepaSelection_u(ll.size(), (std::size_t*)ll.data(), hr);
 	};
 
-	std::ifstream in(string(argv[2]) + ".bin", std::ios::binary);
+	std::ifstream in(string(argv[2]) + ".hr", std::ios::binary);
 	auto qq = persistentsRecordList(in);
 	in.close();
 
@@ -423,13 +423,13 @@ int main(int argc, char **argv)
 	std::unique_ptr<Alignment::SystemRepa> ur;
 
 	std::vector<std::string> files{
-	    "202001271320_room1.TBOT01.bin",
-	    "202001271320_room2.TBOT01.bin",
-	    "202001271320_room2_2.TBOT01.bin",
-	    "202001271320_room3.TBOT01.bin",
-	    "202001271320_room4.TBOT01.bin",
-	    "202001271320_room5.TBOT01.bin",
-	    "202001271320_room5_2.TBOT01.bin"
+	    "202001271320_room1.TBOT01.hr",
+	    "202001271320_room2.TBOT01.hr",
+	    "202001271320_room2_2.TBOT01.hr",
+	    "202001271320_room3.TBOT01.hr",
+	    "202001271320_room4.TBOT01.hr",
+	    "202001271320_room5.TBOT01.hr",
+	    "202001271320_room5_2.TBOT01.hr"
 	};
 	HistoryRepaPtrList ll;
 	for (auto& f : files)
@@ -468,7 +468,7 @@ int main(int argc, char **argv)
 	size_t mult = 1;
 	size_t seed = 5;
 	auto dr = applicationer(wmax, lmax, xmax, znnmax, omax, bmax, mmax, umax, pmax, fmax, mult, 0, seed, tint, vvk1, FudRepa(), *hr, 0, *ur);
-	std::ofstream out("model001.bin", std::ios::binary);
+	std::ofstream out("model001.dr", std::ios::binary);
 	systemRepasPersistent(*ur, out); cout << endl;
 	applicationRepasPersistent(*dr, out); cout << endl;
 	out.close();
