@@ -5,7 +5,7 @@ http://emanual.robotis.com/docs/en/platform/turtlebot3/overview/
 
 https://index.ros.org/doc/ros2/
 
-
+```
 cd /d C:\zzz\caiks
 mkdir AlignmentC_build AlignmentRepaC_build TBOT01_build
 cd /d TBOT01_build
@@ -23,3 +23,4 @@ cd /d TBOT01_ws
 ..\TBOT01_build\Release\TBOT01.exe stats 202001222010_2.TBOT01.bin
 
 ..\TBOT01_build\Release\TBOT01.exe stats 202001271320_room1.TBOT01.bin
+```
