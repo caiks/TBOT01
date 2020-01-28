@@ -26,6 +26,8 @@ cd /d TBOT01_ws
 
 ..\TBOT01_build\Release\TBOT01.exe bitmap 202001222010_2.TBOT01
 
+..\TBOT01_build\Release\TBOT01.exe bitmap 202001222010_2.TBOT01 3
+
 ..\TBOT01_build\Release\TBOT01.exe bitmap 202001271320_room1.TBOT01
 
 
