@@ -474,6 +474,121 @@ int main(int argc, char **argv)
 	out.close();
     }
 
+    if (argc >= 3 && string(argv[1]) == "bitmap_model")
+    {
+	auto uvars = systemsSetVar;
+	auto single = histogramSingleton_u;
+	auto aahr = [](const System& uu, const SystemRepa& ur, const Histogram& aa)
+	{
+	    return systemsHistoriesHistoryRepa_u(uu, ur, *histogramsHistory_u(aa));
+	};
+	auto hrsel = eventsHistoryRepasHistoryRepaSelection_u;
+	auto hrhrred = setVarsHistoryRepasHistoryRepaReduced_u;
+	auto hrred = setVarsHistoryRepasReduce_u;
+	auto frmul = historyRepasFudRepasMultiply_u;
+	auto frvars = fudRepasSetVar;
+	auto frder = fudRepasDerived;
+	auto frund = fudRepasUnderlying;
+	auto frdep = fudRepasSetVarsDepends;
+	auto hrbm = historyRepasBitmapAverage;
+
+	string model = string(argv[2]);
+	int zmin = argc >= 4 ? atoi(argv[3]) : 5;
+
+	std::unique_ptr<Alignment::System> uu;
+	std::unique_ptr<Alignment::SystemRepa> ur;
+	std::unique_ptr<Alignment::HistoryRepa> hr;
+
+	{
+	    std::vector<std::string> files{
+		"202001271320_room1.TBOT01.hr",
+		"202001271320_room2.TBOT01.hr",
+		"202001271320_room2_2.TBOT01.hr",
+		"202001271320_room3.TBOT01.hr",
+		"202001271320_room4.TBOT01.hr",
+		"202001271320_room5.TBOT01.hr",
+		"202001271320_room5_2.TBOT01.hr"
+	    };
+	    HistoryRepaPtrList ll;
+	    for (auto& f : files)
+	    {
+		std::ifstream in(f, std::ios::binary);
+		auto qq = persistentsRecordList(in);
+		in.close();
+		auto xx = recordListsHistoryRepa(8, *qq);
+		uu = std::move(std::get<0>(xx));
+		ur = std::move(std::get<1>(xx));
+		ll.push_back(std::move(std::get<2>(xx)));
+	    }
+	    hr = vectorHistoryRepasConcat_u(ll);
+	}
+
+	EVAL(hr->dimension);
+	EVAL(hr->size);
+
+	auto vvk = *uvars(*uu);
+
+	auto& vvi = ur->mapVarSize();
+	auto vvk0 = sorted(vvk);
+	SizeList vvk1;
+	for (auto& v : vvk0)
+	    vvk1.push_back(vvi[v]);
+
+	StrVarPtrMap m;
+	std::ifstream in(model + ".dr", std::ios::binary);
+	auto ur1 = persistentsSystemRepa(in, m);
+	auto dr = persistentsApplicationRepa(in);
+	in.close();
+
+	EVAL(frder(*dr->fud)->size());
+	EVAL(frund(*dr->fud)->size());
+	EVAL(frvars(*dr->fud)->size());
+
+	auto hr1 = frmul(*hr, *dr->fud);
+	if (hr1->evient)
+	    hr1->transpose();
+	auto z = hr1->size;
+	auto& mvv = hr1->mapVarInt();
+	auto sl = treesElements(*dr->slices);
+	std::map<std::size_t, std::shared_ptr<HistoryRepa>> shr;
+	for (auto s : *sl)
+	{
+	    SizeList ev;
+	    auto pk = mvv[s];
+	    for (std::size_t j = 0; j < z; j++)
+	    {
+		std::size_t u = hr1->arr[pk*z + j];
+		if (u)
+		    ev.push_back(j);
+	    }
+	    shr[s] = move(hrhrred(vvk1.size(), vvk1.data(), *hrsel(ev.size(), ev.data(), *hr1)));
+	}
+	auto ll = treesPaths(*dr->slices);
+	vector<vector<pair<double, size_t>>> ll1;
+	for (auto pp : *ll)
+	{
+	    vector<pair<double, size_t>> pp1;
+	    for (auto s : pp)
+		if (shr[s]->size >= zmin)
+		    pp1.push_back(pair<double, size_t>((double)shr[s]->size, s));
+	    if (pp1.size())
+		ll1.push_back(pp1);
+	}
+	auto ll0 = *treesPaths(*pathsTree(ll1));
+	sort(ll0.begin(), ll0.end());
+	reverse(ll0.begin(), ll0.end());
+	std::vector<Bitmap> ll2;
+	for (auto pp : ll0)
+	{
+	    std::vector<Bitmap> pp1;
+	    for (auto p : pp)
+		if (p.first > 0)
+		    pp1.push_back(hrbm(20, 8, *shr[p.second]));
+	    if (pp1.size())
+		ll2.push_back(bmhstack(pp1));
+	}
+	bmwrite(model + ".bmp", bmvstack(ll2));
+    }
 
 
     return 0;
