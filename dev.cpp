@@ -256,7 +256,7 @@ Bitmap TBOT01::historyRepasBitmap(int c, int d, const HistoryRepa& hr)
 	for (int i = 0; i < z; i++) {
 	    for (int m = 0; m < c; m++)
 	    {
-		int k = (i*c+m)*n * 3 + ((j + n/2) % n) * 3;
+		int k = (i*c+m)*n * 3 + (n-1 - ((j + n/2) % n)) * 3;
 		for (int l = 0; l<3; l++)
 		    bm.image[k + l] = 255 - rr[p]*255/d;
 	    }
@@ -282,7 +282,7 @@ Bitmap TBOT01::historyRepasBitmapAverage(int c, int d, const HistoryRepa& hr)
 	for (int m = 0; m < c; m++)
 	{
 	    unsigned char x = (unsigned char)av[i];
-	    int k = m*n * 3 + ((i + n / 2) % n) * 3;
+	    int k = m*n * 3 + (n-1 - ((i + n / 2) % n)) * 3;
 	    for (int l = 0; l<3; l++)
 		bm.image[k + l] = x;
 	}
