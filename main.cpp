@@ -228,7 +228,7 @@ int main(int argc, char **argv)
 
     }
 
-    if (true)
+    if (false)
     {
 	auto hrsel = [](const HistoryRepa& hr, const SizeList& ll)
 	{
@@ -256,6 +256,132 @@ int main(int argc, char **argv)
 	auto bm = hrbm(8, 3, *hr);
 	bmwrite("202001222010_2.TBOT01.bmp", bm);
     }
+
+    if (argc >= 3 && string(argv[1]) == "stats")
+    {
+	auto rr = std::make_unique<RecordList>();
+	try
+	{
+	    std::ifstream in(string(argv[2])+".bin", std::ios::binary);
+	    if (in.is_open())
+	    {
+		rr = persistentsRecordList(in);
+		in.close();
+	    }
+	    else
+	    {
+		cout << "cannot open file" << endl;
+		return 1;
+	    }
+	}
+	catch (const exception&)
+	{
+	    cout << "cannot read file" << endl;
+	    return 1;
+	}
+
+	EVAL(rr->size());
+	EVAL(rr->front().id);
+	EVAL(rr->front().ts);
+	EVAL(rr->front());
+	EVAL(rr->back().id);
+	EVAL(rr->back().ts);
+	EVAL(rr->back());
+
+	std::vector<double> sensor_pose[7];
+	std::vector<double> sensor_scan;
+	std::vector<double> action_linear;
+	std::vector<double> action_angular;
+	for (auto& r : *rr)
+	{
+	    for (std::size_t i = 0; i < 7; i++)
+		sensor_pose[i].push_back(r.sensor_pose[i]);
+	    for (std::size_t i = 0; i < 360; i++)
+		sensor_scan.push_back(r.sensor_scan[i]);
+	    action_linear.push_back(r.action_linear);
+	    action_angular.push_back(r.action_angular);
+	}
+	for (std::size_t i = 0; i < 7; i++)
+	    std::sort(sensor_pose[i].begin(), sensor_pose[i].end());
+	std::sort(sensor_scan.begin(), sensor_scan.end());
+	std::sort(action_linear.begin(), action_linear.end());
+	std::sort(action_angular.begin(), action_angular.end());
+	for (std::size_t i = 0; i < 7; i++)
+	{
+	    EVAL(i);
+	    EVAL(sensor_pose[i].front());
+	    EVAL(sensor_pose[i].back());
+	}
+	EVAL(sensor_scan.front());
+	EVAL(sensor_scan.back());
+	EVAL(action_linear.front());
+	EVAL(action_linear.back());
+	EVAL(action_angular.front());
+	EVAL(action_angular.back());
+
+	std::vector<double> sensor_scan_range{ 0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0 };
+	std::map<double, std::size_t> sensor_scan_dist;
+	for (auto x : sensor_scan_range)
+	    sensor_scan_dist[x] = 0;
+	for (auto y : sensor_scan)
+	    for (auto x : sensor_scan_range)
+		if (y <= x)
+		{
+		    sensor_scan_dist[x]++;
+		    break;
+		}
+	EVAL(sensor_scan.size());
+	EVAL(sensor_scan_dist);
+
+	std::size_t sensor_scan_limit = 0;
+	for (auto y : sensor_scan)
+	    if (y == 3.5)
+		sensor_scan_limit++;
+	EVAL(sensor_scan_limit);
+
+	for (std::size_t i = 0; i < sensor_scan.size() - sensor_scan_limit; i += (sensor_scan.size() - sensor_scan_limit) / 7)
+	{
+	    EVAL(i);
+	    EVAL(sensor_scan[i]);
+	}
+
+	std::set<double> action_linear_dist;
+	for (auto y : action_linear)
+	    action_linear_dist.insert(y);
+	EVAL(action_linear_dist);
+
+	std::set<double> action_angular_dist;
+	for (auto y : action_angular)
+	    action_angular_dist.insert(y);
+	EVAL(action_angular_dist);
+
+    }
+
+    if (argc >= 3 && string(argv[1]) == "bitmap")
+    {
+	auto hrsel = [](const HistoryRepa& hr, const SizeList& ll)
+	{
+	    return eventsHistoryRepasHistoryRepaSelection_u(ll.size(), (std::size_t*)ll.data(), hr);
+	};
+
+	std::ifstream in(string(argv[2]) + ".bin", std::ios::binary);
+	auto qq = persistentsRecordList(in);
+	in.close();
+
+	std::unique_ptr<Alignment::System> uu;
+	std::unique_ptr<Alignment::SystemRepa> ur;
+	std::unique_ptr<Alignment::HistoryRepa> hr;
+	{
+	    auto xx = recordListsHistoryRepa(8, *qq);
+	    uu = std::move(std::get<0>(xx));
+	    ur = std::move(std::get<1>(xx));
+	    hr = std::move(std::get<2>(xx));
+	}
+
+	auto bm = hrbm(8, (argc >= 4 ? atoi(argv[3]) : 1), *hr);
+	bmwrite(string(argv[2]) + ".bmp", bm);
+    }
+
 
     return 0;
 }

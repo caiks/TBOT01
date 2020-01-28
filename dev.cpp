@@ -256,7 +256,7 @@ Bitmap TBOT01::hrbm(int d, int c, const HistoryRepa& hr)
 	for (int i = 0; i < z; i++) {
 	    for (int m = 0; m < c; m++)
 	    {
-		int k = (i*3+m)*n * 3 + ((j + n/2) % n) * 3;
+		int k = (i*c+m)*n * 3 + ((j + n/2) % n) * 3;
 		for (int l = 0; l<3; l++)
 		    bm.image[k + l] = 255 - rr[p]*255/d;
 	    }
