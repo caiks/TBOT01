@@ -245,10 +245,10 @@ void TBOT01::bmwrite(string imageFileName, const Bitmap& bm)
     }
 }
 
-Bitmap TBOT01::hrbm(int d, int c, const HistoryRepa& hr)
+Bitmap TBOT01::historyRepasBitmap(int c, int d, const HistoryRepa& hr)
 {
-    auto n = hr.dimension;
-    auto z = hr.size;
+    int n = (int)hr.dimension;
+    int z = (int)hr.size;
     Bitmap bm(z*c, n);
     auto rr = hr.arr;
     std::size_t p = 0;
@@ -261,6 +261,30 @@ Bitmap TBOT01::hrbm(int d, int c, const HistoryRepa& hr)
 		    bm.image[k + l] = 255 - rr[p]*255/d;
 	    }
 	    p++;
+	}
+    }
+    return bm;
+}
+
+Bitmap TBOT01::historyRepasBitmapAverage(int c, int d, const HistoryRepa& hr)
+{
+    int n = (int)hr.dimension;
+    int z = (int)hr.size;
+    Bitmap bm(c, n);
+    auto rr = hr.arr;
+    vector<size_t> av(n);
+    for (std::size_t j = 0; j < z; j++)
+	for (std::size_t i = 0; i < n; i++)
+	    av[i] += rr[hr.evient ? j*n + i : i*z + j];
+    for (std::size_t i = 0; i < n; i++)
+	av[i] = 255 - av[i] * 255 / (d - 1) / z;
+    for (int i = 0; i < n; i++) {
+	for (int m = 0; m < c; m++)
+	{
+	    unsigned char x = (unsigned char)av[i];
+	    int k = m*n * 3 + ((i + n / 2) % n) * 3;
+	    for (int l = 0; l<3; l++)
+		bm.image[k + l] = x;
 	}
     }
     return bm;

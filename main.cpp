@@ -253,7 +253,7 @@ int main(int argc, char **argv)
 	EVALL(*hrsel(*hr, SizeList{0}));
 	EVALL(*hrsel(*hr, SizeList{hr->size-1}));
 
-	auto bm = hrbm(8, 3, *hr);
+	auto bm = historyRepasBitmap(3, 8, *hr);
 	bmwrite("202001222010_2.TBOT01.bmp", bm);
     }
 
@@ -378,9 +378,35 @@ int main(int argc, char **argv)
 	    hr = std::move(std::get<2>(xx));
 	}
 
-	auto bm = hrbm(8, (argc >= 4 ? atoi(argv[3]) : 1), *hr);
+	auto bm = historyRepasBitmap((argc >= 4 ? atoi(argv[3]) : 1), 8, *hr);
 	bmwrite(string(argv[2]) + ".bmp", bm);
     }
+
+    if (argc >= 3 && string(argv[1]) == "bitmap_average")
+    {
+	auto hrsel = [](const HistoryRepa& hr, const SizeList& ll)
+	{
+	    return eventsHistoryRepasHistoryRepaSelection_u(ll.size(), (std::size_t*)ll.data(), hr);
+	};
+
+	std::ifstream in(string(argv[2]) + ".bin", std::ios::binary);
+	auto qq = persistentsRecordList(in);
+	in.close();
+
+	std::unique_ptr<Alignment::System> uu;
+	std::unique_ptr<Alignment::SystemRepa> ur;
+	std::unique_ptr<Alignment::HistoryRepa> hr;
+	{
+	    auto xx = recordListsHistoryRepa(8, *qq);
+	    uu = std::move(std::get<0>(xx));
+	    ur = std::move(std::get<1>(xx));
+	    hr = std::move(std::get<2>(xx));
+	}
+
+	auto bm = historyRepasBitmapAverage((argc >= 4 ? atoi(argv[3]) : 10), 8, *hr);
+	bmwrite(string(argv[2]) + "_average.bmp", bm);
+    }
+
 
     if (argc >= 3 && string(argv[1]) == "induce" && string(argv[2]) == "model001")
     {
