@@ -30,6 +30,6 @@ cd /d TBOT01_ws
 
 ..\TBOT01_build\Release\TBOT01.exe bitmap 202001271320_room1.TBOT01
 
-..\TBOT01_build\Release\TBOT01.exe induce model001 4
+..\TBOT01_build\Release\TBOT01.exe induce model001 4 >model001.log
 
 ```
