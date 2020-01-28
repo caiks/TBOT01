@@ -20,7 +20,8 @@ cd /d TBOT01_ws
 
 ..\TBOT01_build\Release\TBOT01.exe
 
-..\TBOT01_build\Release\TBOT01.exe stats 202001222010_2.TBOT01.bin
+..\TBOT01_build\Release\TBOT01.exe stats 202001222010_2.TBOT01
 
-..\TBOT01_build\Release\TBOT01.exe stats 202001271320_room1.TBOT01.bin
+..\TBOT01_build\Release\TBOT01.exe stats 202001271320_room1.TBOT01
+
 ```
