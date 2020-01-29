@@ -56,4 +56,9 @@ cd /d TBOT01_ws
 
 ..\TBOT01_build\Release\TBOT01.exe bitmap_model model005 
 
+..\TBOT01_build\Release\TBOT01.exe condition model006 4 >model006.log
+
+..\TBOT01_build\Release\TBOT01.exe bitmap_model model006 
+
+
 ```
