@@ -375,3 +375,50 @@ SystemHistoryRepaTuple TBOT01::recordListsHistoryRepaRegion(int d, int n, int s,
     return SystemHistoryRepaTuple(move(uu), move(ur), move(hr));
 }
 
+SystemHistoryRepaTuple TBOT01::recordListsHistoryRepa_2(int d, const RecordList& qq)
+{
+    auto lluu = listsSystem_u;
+    auto uuur = systemsSystemRepa;
+
+    std::size_t n = 360 + 1;
+    std::size_t z = qq.size();
+    ValSet buckets;
+    for (int i = 0; i < d; i++)
+	buckets.insert(Value(i));
+    ValSet actions;
+    for (int i = 0; i < 3; i++)
+	actions.insert(Value(i));
+    vector<VarValSetPair> ll;
+    auto vscan = std::make_shared<Variable>("scan");
+    for (std::size_t i = 0; i < n - 1; i++)
+	ll.push_back(VarValSetPair(Variable(vscan, std::make_shared<Variable>((int)i + 1)), buckets));
+    ll.push_back(VarValSetPair(Variable("motor"), actions));
+    auto uu = lluu(ll);
+    auto ur = uuur(*uu);
+    auto hr = make_unique<HistoryRepa>();
+    hr->dimension = n;
+    hr->vectorVar = new size_t[n];
+    auto vv = hr->vectorVar;
+    hr->shape = new size_t[n];
+    auto sh = hr->shape;
+    hr->size = z;
+    hr->evient = true;
+    hr->arr = new unsigned char[z*n];
+    auto rr = hr->arr;
+    for (size_t i = 0; i < n; i++)
+	vv[i] = i;
+    for (size_t i = 0; i < n-1; i++)
+	sh[i] = d;
+    sh[n-1] = 3;
+    double f = (double)d / 4.0;
+    for (size_t j = 0; j < z; j++)
+    {
+	size_t jn = j*n;
+	auto& r = qq[j];
+	for (size_t i = 0; i < n-1; i++)
+	    rr[jn + i] = (unsigned char)(r.sensor_scan[i] * f);
+	rr[jn + n-1] = (unsigned char)(r.action_angular == -1.5 ? 0 : (r.action_angular == 1.5 ? 2 : 1));
+    }
+    hr->transpose();
+    return SystemHistoryRepaTuple(move(uu), move(ur), move(hr));
+}

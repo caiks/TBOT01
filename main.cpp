@@ -468,7 +468,7 @@ int main(int argc, char **argv)
 	out.close();
     }
 
-    if (argc >= 3 && string(argv[1]) == "bitmap_model" && (string(argv[2]) == "model001" || string(argv[2]) == "model005"))
+    if (argc >= 3 && string(argv[1]) == "bitmap_model" && (string(argv[2]) == "model001" || string(argv[2]) == "model005" || string(argv[2]) == "model006"))
     {
 	auto uvars = systemsSetVar;
 	auto single = histogramSingleton_u;
@@ -1153,6 +1153,71 @@ int main(int argc, char **argv)
 	applicationRepasPersistent(*dr3, out); cout << endl;
 	out.close();
     }
+
+    if (argc >= 3 && string(argv[1]) == "condition" && string(argv[2]) == "model006")
+    {
+	auto uvars = systemsSetVar;
+	auto hrsel = eventsHistoryRepasHistoryRepaSelection_u;
+	auto frmul = historyRepasFudRepasMultiply_u;
+	auto drcopy = applicationRepasApplicationRepa_u;
+	auto drjoin = applicationRepaPairsJoin_u;
+	auto applicationer = parametersSystemsHistoryRepasApplicationerCondMultinomialFmaxIORepa_up;
+
+	string model = string(argv[2]);
+	size_t tint = argc >= 4 ? atoi(argv[3]) : 1;
+
+	std::unique_ptr<Alignment::System> uu;
+	std::unique_ptr<Alignment::SystemRepa> ur;
+	std::unique_ptr<Alignment::HistoryRepa> hr;
+
+	{
+	    std::vector<std::string> files{
+		"202001271320_room1.TBOT01.hr",
+		"202001271320_room2.TBOT01.hr",
+		"202001271320_room2_2.TBOT01.hr",
+		"202001271320_room3.TBOT01.hr",
+		"202001271320_room4.TBOT01.hr",
+		"202001271320_room5.TBOT01.hr",
+		"202001271320_room5_2.TBOT01.hr"
+	    };
+	    HistoryRepaPtrList ll;
+	    for (auto& f : files)
+	    {
+		std::ifstream in(f, std::ios::binary);
+		auto qq = persistentsRecordList(in);
+		in.close();
+		auto xx = recordListsHistoryRepa_2(8, *qq);
+		uu = std::move(std::get<0>(xx));
+		ur = std::move(std::get<1>(xx));
+		ll.push_back(std::move(std::get<2>(xx)));
+	    }
+	    hr = vectorHistoryRepasConcat_u(ll);
+	}
+
+	EVAL(hr->dimension);
+	EVAL(hr->size);
+
+	Variable motor("motor");
+	auto vv = *uvars(*uu);
+	auto vvl = VarUSet();
+	vvl.insert(motor);
+	auto vvk = VarUSet(vv);
+	vvk.erase(motor);
+
+	auto& vvi = ur->mapVarSize();
+	SizeList vvk1;
+	for (auto& v : sorted(vvk))
+	    vvk1.push_back(vvi[v]);
+
+	size_t fmax = 127;
+	auto dr = applicationer(fmax, tint, vvk1, vvi[motor], *hr, 1, *ur);
+	std::ofstream out(model + ".dr", std::ios::binary);
+	systemRepasPersistent(*ur, out); cout << endl;
+	applicationRepasPersistent(*dr, out); cout << endl;
+	out.close();
+    }
+
+
 
 
     return 0;

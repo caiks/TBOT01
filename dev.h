@@ -78,6 +78,7 @@ namespace TBOT01
 
     SystemHistoryRepaTuple recordListsHistoryRepa(int, const RecordList&);
     SystemHistoryRepaTuple recordListsHistoryRepaRegion(int, int, int, const RecordList&);
+    SystemHistoryRepaTuple recordListsHistoryRepa_2(int, const RecordList&);
 
 }
 
