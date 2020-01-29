@@ -42,4 +42,15 @@ cd /d TBOT01_ws
 
 ..\TBOT01_build\Release\TBOT01.exe induce model002 4 >model002.log
 
+..\TBOT01_build\Release\TBOT01.exe bitmap_model model002 
+
+..\TBOT01_build\Release\TBOT01.exe induce model003 4 >model003.log
+
+..\TBOT01_build\Release\TBOT01.exe bitmap_model model003 
+
+..\TBOT01_build\Release\TBOT01.exe induce model004 4 >model004.log
+
+..\TBOT01_build\Release\TBOT01.exe bitmap_model model004 
+
+
 ```
