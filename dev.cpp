@@ -333,3 +333,45 @@ SystemHistoryRepaTuple TBOT01::recordListsHistoryRepa(int d, const RecordList& q
     return SystemHistoryRepaTuple(move(uu), move(ur), move(hr));
 }
 
+SystemHistoryRepaTuple TBOT01::recordListsHistoryRepaRegion(int d, int n, int s, const RecordList& qq)
+{
+    auto lluu = listsSystem_u;
+    auto uuur = systemsSystemRepa;
+
+    std::size_t z = qq.size();
+    ValSet buckets;
+    for (int i = 0; i < d; i++)
+	buckets.insert(Value(i));
+    vector<VarValSetPair> ll;
+    auto vscan = std::make_shared<Variable>("scan");
+    for (std::size_t i = 0; i < n; i++)
+	ll.push_back(VarValSetPair(Variable(vscan, std::make_shared<Variable>((int)i + 1)), buckets));
+    auto uu = lluu(ll);
+    auto ur = uuur(*uu);
+    auto hr = make_unique<HistoryRepa>();
+    hr->dimension = n;
+    hr->vectorVar = new size_t[n];
+    auto vv = hr->vectorVar;
+    hr->shape = new size_t[n];
+    auto sh = hr->shape;
+    hr->size = z;
+    hr->evient = true;
+    hr->arr = new unsigned char[z*n];
+    auto rr = hr->arr;
+    for (size_t i = 0; i < n; i++)
+	vv[i] = i;
+    for (size_t i = 0; i < n; i++)
+	sh[i] = d;
+    double f = (double)d / 4.0;
+    for (size_t j = 0; j < z; j++)
+    {
+	auto oi = rand() % (360 - n + 1);
+	size_t jn = j*n;
+	auto& r = qq[j];
+	for (size_t i = 0; i < n; i++)
+	    rr[jn + i] = (unsigned char)(r.sensor_scan[oi + i] * f);
+    }
+    hr->transpose();
+    return SystemHistoryRepaTuple(move(uu), move(ur), move(hr));
+}
+

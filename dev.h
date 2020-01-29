@@ -77,6 +77,7 @@ namespace TBOT01
     typedef std::tuple<std::unique_ptr<Alignment::System>, std::unique_ptr<Alignment::SystemRepa>, std::unique_ptr<Alignment::HistoryRepa>> SystemHistoryRepaTuple;
 
     SystemHistoryRepaTuple recordListsHistoryRepa(int, const RecordList&);
+    SystemHistoryRepaTuple recordListsHistoryRepaRegion(int, int, int, const RecordList&);
 
 }
 
