@@ -378,7 +378,6 @@ SystemHistoryRepaTuple TBOT01::recordListsHistoryRepaRegion(int d, int n, int s,
 SystemHistoryRepaTuple TBOT01::recordListsHistoryRepa_2(int d, const RecordList& qq)
 {
     auto lluu = listsSystem_u;
-    auto uuur = systemsSystemRepa;
 
     std::size_t n = 360 + 1;
     std::size_t z = qq.size();
@@ -394,7 +393,11 @@ SystemHistoryRepaTuple TBOT01::recordListsHistoryRepa_2(int d, const RecordList&
 	ll.push_back(VarValSetPair(Variable(vscan, std::make_shared<Variable>((int)i + 1)), buckets));
     ll.push_back(VarValSetPair(Variable("motor"), actions));
     auto uu = lluu(ll);
-    auto ur = uuur(*uu);
+    auto ur = std::make_unique<SystemRepa>();
+    auto& mm = ur->listVarSizePair;
+    mm.reserve(ll.size());
+    for (auto& vww : ll)
+	mm.push_back(VarSizePair(std::make_shared<Variable>(vww.first), vww.second.size()));
     auto hr = make_unique<HistoryRepa>();
     hr->dimension = n;
     hr->vectorVar = new size_t[n];
