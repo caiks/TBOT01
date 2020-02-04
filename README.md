@@ -7,6 +7,7 @@ https://index.ros.org/doc/ros2/
 
 ```
 cd /d C:\zzz\caiks
+# move TBOT01\CMakeLists_noros.txt TBOT01\CMakeLists.txt
 mkdir AlignmentC_build AlignmentRepaC_build TBOT01_build
 cd /d TBOT01_build
 "C:\Program Files\CMake\bin\cmake" -G "Visual Studio 14 2015" -A x64 ../TBOT01
@@ -63,5 +64,8 @@ cd /d TBOT01_ws
 ..\TBOT01_build\Release\TBOT01.exe condition model007 4 >model007.log
 
 ..\TBOT01_build\Release\TBOT01.exe bitmap_model model007 
+
+..\TBOT01_build\Release\TBOT01.exe induce model008 4 >model008.log
+
 
 ```
