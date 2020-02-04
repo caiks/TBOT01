@@ -22,7 +22,7 @@ find_package(turtlebot3 REQUIRED)
 
 # Build
 include_directories(
-  include include/TBOT01
+  ../TBOT01
 )
 
 set(dependencies
@@ -33,15 +33,14 @@ set(dependencies
   "tf2"
 )
 
-set(EXEC_NAME "controller")
-
-add_executable(${EXEC_NAME} src/controller.cpp)
-ament_target_dependencies(${EXEC_NAME} ${dependencies})
+add_executable(controller controller.cpp)
+ament_target_dependencies(controller ${dependencies})
 
 # Install
-install(TARGETS ${EXEC_NAME}
+install(TARGETS controller
   DESTINATION lib/${PROJECT_NAME}
 )
 
 # Macro for ament package
 ament_package()
+
