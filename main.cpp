@@ -1423,6 +1423,151 @@ int main(int argc, char **argv)
 	bmwrite(model + ".bmp", bmvstack(ll2));
     }
 
+    if (argc >= 3 && string(argv[1]) == "test_motor")
+    {
+	auto uvars = systemsSetVar;
+	auto hrhrred = setVarsHistoryRepasHistoryRepaReduced_u;
+	auto frmul = historyRepasFudRepasMultiply_u;
+	auto frvars = fudRepasSetVar;
+	auto frder = fudRepasDerived;
+	auto frund = fudRepasUnderlying;
+
+	string model = string(argv[2]);
+
+	std::unique_ptr<Alignment::System> uu;
+	std::unique_ptr<Alignment::SystemRepa> ur;
+	std::unique_ptr<Alignment::HistoryRepa> hr;
+
+	{
+	    std::vector<std::string> files{
+		"202001271320_room1.TBOT01.hr",
+		"202001271320_room2.TBOT01.hr",
+		"202001271320_room2_2.TBOT01.hr",
+		"202001271320_room3.TBOT01.hr",
+		"202001271320_room4.TBOT01.hr",
+		"202001271320_room5.TBOT01.hr",
+		"202001271320_room5_2.TBOT01.hr"
+	    };
+	    HistoryRepaPtrList ll;
+	    for (auto& f : files)
+	    {
+		std::ifstream in(f, std::ios::binary);
+		auto qq = persistentsRecordList(in);
+		in.close();
+		auto xx = recordListsHistoryRepa_2(8, *qq);
+		uu = std::move(std::get<0>(xx));
+		ur = std::move(std::get<1>(xx));
+		ll.push_back(std::move(std::get<2>(xx)));
+	    }
+	    hr = vectorHistoryRepasConcat_u(ll);
+	}
+
+	EVAL(hr->dimension);
+	EVAL(hr->size);
+
+	Variable motor("motor");
+	auto vv = *uvars(*uu);
+	auto vvl = VarUSet();
+	vvl.insert(motor);
+	auto vvk = VarUSet(vv);
+	vvk.erase(motor);
+
+	auto& vvi = ur->mapVarSize();
+	SizeList vvk1;
+	for (auto& v : sorted(vvk))
+	    vvk1.push_back(vvi[v]);
+
+	StrVarPtrMap m;
+	std::ifstream in(model + ".dr", std::ios::binary);
+	auto ur1 = persistentsSystemRepa(in, m);
+	auto dr = persistentsApplicationRepa(in);
+	in.close();
+
+	EVAL(frder(*dr->fud)->size());
+	EVAL(frund(*dr->fud)->size());
+	EVAL(frvars(*dr->fud)->size());
+
+	std::map<std::size_t, std::size_t> sp;
+	{
+	    auto hr1 = frmul(*hr, *dr->fud);
+	    if (hr1->evient)
+		hr1->transpose();
+	    auto z = hr1->size;
+	    auto& mvv = hr1->mapVarInt();
+	    auto sh = hr1->shape;
+	    auto rr = hr1->arr;
+	    auto pl = mvv[vvi[motor]];
+	    auto sl = sh[pl];
+	    auto nn = treesLeafNodes(*dr->slices);
+	    SizeList al(sl);
+	    for (auto& s : *nn)
+	    {
+		for (std::size_t k = 0; k < sl; k++)
+		    al[k] = 0;
+		auto pk = mvv[s.first];
+		for (std::size_t j = 0; j < z; j++)
+		{
+		    std::size_t u = rr[pk*z + j];
+		    if (u)
+		    {
+			std::size_t w = rr[pl*z + j];
+			al[w]++;
+		    }
+		}
+		std::size_t c = 0;
+		std::size_t cl = sl;
+		for (std::size_t k = 0; k < sl; k++)
+		{
+		    auto u = al[k];
+		    if (u > c)
+		    {
+			c = u;
+			cl = k;
+		    }
+		}
+		sp[s.first] = cl;
+	    }
+	}
+
+	std::size_t a = 0;
+	std::size_t x = 0;
+	{
+	    SizeList ww{ vvi[motor] };
+	    auto nn = treesLeafNodes(*dr->slices);
+	    for (auto& s : *nn)
+		ww.push_back(s.first);
+	    auto hr1 = hrhrred(ww.size(), ww.data(), *frmul(*hr, *dr->fud));
+	    if (!hr1->evient)
+		hr1->transpose();
+	    auto n = hr1->dimension;
+	    auto vv = hr1->vectorVar;
+	    auto sh = hr1->shape;
+	    auto z = hr1->size;
+	    auto rr = hr1->arr;
+	    auto sl = sh[0];
+	    for (std::size_t j = 0; j < z; j++)
+	    {
+		std::size_t cl = rr[j*n];
+		for (std::size_t i = 1; i < n; i++)
+		{
+		    std::size_t u = rr[j*n + i];
+		    if (u)
+		    {
+			std::size_t l = sp[vv[i]];
+			if (l == cl)
+			    a++;
+			else if (l == sl)
+			    x++;
+			break;
+		    }
+		}
+	    }
+
+	}
+	cout << "effective size: " << hr->size - x << endl;
+	cout << "matches: " << a << endl;
+
+    }
 
     return 0;
 }
