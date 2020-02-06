@@ -57,20 +57,96 @@ cd /d TBOT01_ws
 
 ..\TBOT01_build\Release\TBOT01.exe bitmap_model model005 
 
-..\TBOT01_build\Release\TBOT01.exe condition model006 4 >model006.log
+..\TBOT01_build\Release\TBOT01.exe condition model006 4 motor >model006_motor.log
 
-..\TBOT01_build\Release\TBOT01.exe bitmap_model model006 
+..\TBOT01_build\Release\TBOT01.exe bitmap_model model006_motor 
 
-..\TBOT01_build\Release\TBOT01.exe test_motor model006 
+..\TBOT01_build\Release\TBOT01.exe test model006_motor motor 
+hr->dimension: 363
+hr->size: 6054
+frder(*dr->fud)->size(): 890
+frund(*dr->fud)->size(): 97
+frvars(*dr->fud)->size(): 1113
+model: model006_motor
+label: motor
+effective size: 6054
+matches: 5849
 
-..\TBOT01_build\Release\TBOT01.exe condition model007 4 >model007.log
+..\TBOT01_build\Release\TBOT01.exe condition model006 4 location >model006_location.log
 
-..\TBOT01_build\Release\TBOT01.exe bitmap_model model007 
+..\TBOT01_build\Release\TBOT01.exe bitmap_model model006_location
 
-..\TBOT01_build\Release\TBOT01.exe test_motor model007 
+..\TBOT01_build\Release\TBOT01.exe test model006_location location 
+hr->dimension: 363
+hr->size: 6054
+frder(*dr->fud)->size(): 890
+frund(*dr->fud)->size(): 99
+frvars(*dr->fud)->size(): 1115
+model: model006_location
+label: location
+effective size: 6054
+matches: 5332
+
+..\TBOT01_build\Release\TBOT01.exe condition model006 4 position >model006_position.log
+
+..\TBOT01_build\Release\TBOT01.exe bitmap_model model006_position
+
+..\TBOT01_build\Release\TBOT01.exe test model006_position position 
+hr->dimension: 363
+hr->size: 6054
+frder(*dr->fud)->size(): 890
+frund(*dr->fud)->size(): 107
+frvars(*dr->fud)->size(): 1123
+model: model006_position
+label: position
+effective size: 6054
+matches: 5572
+
+..\TBOT01_build\Release\TBOT01.exe condition model007 4 motor >model007_motor.log
+
+..\TBOT01_build\Release\TBOT01.exe bitmap_model model007_motor 
+
+..\TBOT01_build\Release\TBOT01.exe test model007_motor motor 
+hr->dimension: 363
+hr->size: 6054
+frder(*dr->fud)->size(): 128
+frund(*dr->fud)->size(): 331
+frvars(*dr->fud)->size(): 2792
+model: model007_motor
+label: motor
+effective size: 6054
+matches: 5669
+
+..\TBOT01_build\Release\TBOT01.exe condition model007 4 location >model007_location.log
+
+..\TBOT01_build\Release\TBOT01.exe bitmap_model model007_location
+
+..\TBOT01_build\Release\TBOT01.exe test model007_location location 
+hr->dimension: 363
+hr->size: 6054
+frder(*dr->fud)->size(): 128
+frund(*dr->fud)->size(): 306
+frvars(*dr->fud)->size(): 2045
+model: model007_location
+label: location
+effective size: 6054
+matches: 4864
+
+..\TBOT01_build\Release\TBOT01.exe condition model007 4 position >model007_position.log
+
+..\TBOT01_build\Release\TBOT01.exe bitmap_model model007_position
+
+..\TBOT01_build\Release\TBOT01.exe test model007_position position 
+hr->dimension: 363
+hr->size: 6054
+frder(*dr->fud)->size(): 128
+frund(*dr->fud)->size(): 318
+frvars(*dr->fud)->size(): 2157
+model: model007_position
+label: position
+effective size: 6054
+matches: 5213
 
 ..\TBOT01_build\Release\TBOT01.exe induce model008 4 >model008.log
-
-..\TBOT01_build\Release\TBOT01.exe bitmap_model model008 
 
 ```
