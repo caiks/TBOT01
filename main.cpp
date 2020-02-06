@@ -1049,6 +1049,7 @@ int main(int argc, char **argv)
 
 	string model = string(argv[2]);
 	size_t tint = argc >= 4 ? atoi(argv[3]) : 1;
+	string label = argc >= 5 ? string(argv[4]) : "motor";
 
 	std::unique_ptr<Alignment::System> uu;
 	std::unique_ptr<Alignment::SystemRepa> ur;
@@ -1082,11 +1083,13 @@ int main(int argc, char **argv)
 	EVAL(hr->size);
 
 	Variable motor("motor");
+	Variable location("location");
+	Variable position("position");
 	auto vv = *uvars(*uu);
-	auto vvl = VarUSet();
-	vvl.insert(motor);
 	auto vvk = VarUSet(vv);
-	vvk.erase(motor);
+	vvk.erase(motor);	
+	vvk.erase(location);
+	vvk.erase(position);
 
 	auto& vvi = ur->mapVarSize();
 	SizeList vvk1;
@@ -1094,8 +1097,8 @@ int main(int argc, char **argv)
 	    vvk1.push_back(vvi[v]);
 
 	size_t fmax = 127;
-	auto dr = applicationer(fmax, tint, vvk1, vvi[motor], *hr, 1, *ur);
-	std::ofstream out(model + ".dr", std::ios::binary);
+	auto dr = applicationer(fmax, tint, vvk1, vvi[Variable(label)], *hr, 1, *ur);
+	std::ofstream out(model + "_" + label + ".dr", std::ios::binary);
 	systemRepasPersistent(*ur, out); cout << endl;
 	applicationRepasPersistent(*dr, out); cout << endl;
 	out.close();
@@ -1111,6 +1114,7 @@ int main(int argc, char **argv)
 
 	string model = string(argv[2]);
 	size_t tint = argc >= 4 ? atoi(argv[3]) : 1;
+	string label = argc >= 5 ? string(argv[4]) : "motor";
 
 	std::unique_ptr<Alignment::System> uu;
 	std::unique_ptr<Alignment::SystemRepa> ur;
@@ -1144,11 +1148,13 @@ int main(int argc, char **argv)
 	EVAL(hr->size);
 
 	Variable motor("motor");
+	Variable location("location");
+	Variable position("position");
 	auto vv = *uvars(*uu);
-	auto vvl = VarUSet();
-	vvl.insert(motor);
 	auto vvk = VarUSet(vv);
 	vvk.erase(motor);
+	vvk.erase(location);
+	vvk.erase(position);
 
 	auto& vvi = ur->mapVarSize();
 	SizeList vvk1;
@@ -1222,90 +1228,13 @@ int main(int argc, char **argv)
 	auto hr1 = frmul(tint, *hr, *dr.fud);
 	auto sl = treesElements(*dr.slices);
 	size_t fmax = 127;
-	auto dr2 = applicationer(fmax, tint, *sl, vvi[motor], *hr1, 1, *ur);
+	auto dr2 = applicationer(fmax, tint, *sl, vvi[Variable(label)], *hr1, 1, *ur);
 	auto dr3 = drjoin(dr, *dr2);
-	std::ofstream out(model + ".dr", std::ios::binary);
+	std::ofstream out(model + "_" + label + ".dr", std::ios::binary);
 	systemRepasPersistent(*ur, out); cout << endl;
 	applicationRepasPersistent(*dr3, out); cout << endl;
 	out.close();
     }
-
-    if (argc >= 3 && string(argv[1]) == "induce" && string(argv[2]) == "model008")
-    {
-	auto uvars = systemsSetVar;
-	auto frvars = fudRepasSetVar;
-	auto frder = fudRepasDerived;
-	auto frund = fudRepasUnderlying;
-	auto applicationer = parametersSystemsFudRepasHistoryRepasApplicationerSubstrateEntropyMaxRollByMExcludedSelfHighestFmaxIORepa_p;
-//	auto applicationer = parametersSystemsFudRepasHistoryRepasApplicationerSubstrateEntropyMaxRollByMExcludedSelfHighestFmaxIORepa;
-
-	string model = string(argv[2]);
-	size_t tint = argc >= 4 ? atoi(argv[3]) : 1;
-
-	std::unique_ptr<Alignment::System> uu;
-	std::unique_ptr<Alignment::SystemRepa> ur;
-	std::unique_ptr<Alignment::HistoryRepa> hr;
-
-	{
-	    std::vector<std::string> files{
-		"202001271320_room1.TBOT01.hr",
-		"202001271320_room2.TBOT01.hr",
-		"202001271320_room2_2.TBOT01.hr",
-		"202001271320_room3.TBOT01.hr",
-		"202001271320_room4.TBOT01.hr",
-		"202001271320_room5.TBOT01.hr",
-		"202001271320_room5_2.TBOT01.hr"
-	    };
-	    HistoryRepaPtrList ll;
-	    for (auto& f : files)
-	    {
-		std::ifstream in(f, std::ios::binary);
-		auto qq = persistentsRecordList(in);
-		in.close();
-		auto xx = recordListsHistoryRepa_2(8, *qq);
-		uu = std::move(std::get<0>(xx));
-		ur = std::move(std::get<1>(xx));
-		ll.push_back(std::move(std::get<2>(xx)));
-	    }
-	    hr = vectorHistoryRepasConcat_u(ll);
-	}
-
-	EVAL(hr->dimension);
-	EVAL(hr->size);
-
-	auto vvk = *uvars(*uu);
-
-	auto& vvi = ur->mapVarSize();
-	auto vvk0 = sorted(vvk);
-	SizeList vvk1;
-	for (auto& v : vvk0)
-	    vvk1.push_back(vvi[v]);
-
-	size_t wmax = 18;
-	size_t lmax = 8;
-	size_t xmax = 128;
-	double znnmax = 60000.0 * 2.0 * 100.0 * 100.0 * 4;
-	size_t omax = 10;
-	size_t bmax = 10 * 3;
-	size_t mmax = 3;
-	size_t umax = 128;
-	size_t pmax = 1;
-	size_t fmax = 127;
-	size_t mult = 1;
-	size_t seed = 5;
-	auto dr = applicationer(wmax, lmax, xmax, znnmax, omax, bmax, mmax, umax, pmax, fmax, mult, 0, seed, tint, vvk1, FudRepa(), *hr, 0, *ur);
-//	auto dr = applicationer(wmax, lmax, xmax, znnmax, omax, bmax, mmax, umax, pmax, fmax, mult, 0, seed, vvk1, FudRepa(), *hr, 0, *ur);
-	std::ofstream out(model + ".dr", std::ios::binary);
-	systemRepasPersistent(*ur, out); cout << endl;
-	applicationRepasPersistent(*dr, out); cout << endl;
-	out.close();
-
-	EVAL(frder(*dr->fud)->size());
-	EVAL(frund(*dr->fud)->size());
-	EVAL(frvars(*dr->fud)->size());
-	EVAL(sorted(*frund(*dr->fud)));
-    }
-
 
     if (argc >= 3 && string(argv[1]) == "bitmap_model")
     {
@@ -1423,16 +1352,17 @@ int main(int argc, char **argv)
 	bmwrite(model + ".bmp", bmvstack(ll2));
     }
 
-    if (argc >= 3 && string(argv[1]) == "test_motor")
+    if (argc >= 3 && string(argv[1]) == "induce" && string(argv[2]) == "model008")
     {
 	auto uvars = systemsSetVar;
-	auto hrhrred = setVarsHistoryRepasHistoryRepaReduced_u;
-	auto frmul = historyRepasFudRepasMultiply_u;
 	auto frvars = fudRepasSetVar;
 	auto frder = fudRepasDerived;
 	auto frund = fudRepasUnderlying;
+	auto applicationer = parametersSystemsFudRepasHistoryRepasApplicationerSubstrateEntropyMaxRollByMExcludedSelfHighestFmaxIORepa_p;
+	//	auto applicationer = parametersSystemsFudRepasHistoryRepasApplicationerSubstrateEntropyMaxRollByMExcludedSelfHighestFmaxIORepa;
 
 	string model = string(argv[2]);
+	size_t tint = argc >= 4 ? atoi(argv[3]) : 1;
 
 	std::unique_ptr<Alignment::System> uu;
 	std::unique_ptr<Alignment::SystemRepa> ur;
@@ -1465,17 +1395,83 @@ int main(int argc, char **argv)
 	EVAL(hr->dimension);
 	EVAL(hr->size);
 
-	Variable motor("motor");
-	auto vv = *uvars(*uu);
-	auto vvl = VarUSet();
-	vvl.insert(motor);
-	auto vvk = VarUSet(vv);
-	vvk.erase(motor);
+	auto vvk = *uvars(*uu);
 
 	auto& vvi = ur->mapVarSize();
+	auto vvk0 = sorted(vvk);
 	SizeList vvk1;
-	for (auto& v : sorted(vvk))
+	for (auto& v : vvk0)
 	    vvk1.push_back(vvi[v]);
+
+	size_t wmax = 18;
+	size_t lmax = 8;
+	size_t xmax = 128;
+	double znnmax = 60000.0 * 2.0 * 100.0 * 100.0 * 4;
+	size_t omax = 10;
+	size_t bmax = 10 * 3;
+	size_t mmax = 3;
+	size_t umax = 128;
+	size_t pmax = 1;
+	size_t fmax = 127;
+	size_t mult = 1;
+	size_t seed = 5;
+	auto dr = applicationer(wmax, lmax, xmax, znnmax, omax, bmax, mmax, umax, pmax, fmax, mult, 0, seed, tint, vvk1, FudRepa(), *hr, 0, *ur);
+	//	auto dr = applicationer(wmax, lmax, xmax, znnmax, omax, bmax, mmax, umax, pmax, fmax, mult, 0, seed, vvk1, FudRepa(), *hr, 0, *ur);
+	std::ofstream out(model + ".dr", std::ios::binary);
+	systemRepasPersistent(*ur, out); cout << endl;
+	applicationRepasPersistent(*dr, out); cout << endl;
+	out.close();
+
+	EVAL(frder(*dr->fud)->size());
+	EVAL(frund(*dr->fud)->size());
+	EVAL(frvars(*dr->fud)->size());
+	EVAL(sorted(*frund(*dr->fud)));
+    }
+
+    if (argc >= 3 && string(argv[1]) == "test")
+    {
+	auto uvars = systemsSetVar;
+	auto hrhrred = setVarsHistoryRepasHistoryRepaReduced_u;
+	auto frmul = historyRepasFudRepasMultiply_u;
+	auto frvars = fudRepasSetVar;
+	auto frder = fudRepasDerived;
+	auto frund = fudRepasUnderlying;
+
+	string model = string(argv[2]);
+	string label = argc >= 4 ? string(argv[3]) : "motor";
+
+	std::unique_ptr<Alignment::System> uu;
+	std::unique_ptr<Alignment::SystemRepa> ur;
+	std::unique_ptr<Alignment::HistoryRepa> hr;
+
+	{
+	    std::vector<std::string> files{
+		"202001271320_room1.TBOT01.hr",
+		"202001271320_room2.TBOT01.hr",
+		"202001271320_room2_2.TBOT01.hr",
+		"202001271320_room3.TBOT01.hr",
+		"202001271320_room4.TBOT01.hr",
+		"202001271320_room5.TBOT01.hr",
+		"202001271320_room5_2.TBOT01.hr"
+	    };
+	    HistoryRepaPtrList ll;
+	    for (auto& f : files)
+	    {
+		std::ifstream in(f, std::ios::binary);
+		auto qq = persistentsRecordList(in);
+		in.close();
+		auto xx = recordListsHistoryRepa_2(8, *qq);
+		uu = std::move(std::get<0>(xx));
+		ur = std::move(std::get<1>(xx));
+		ll.push_back(std::move(std::get<2>(xx)));
+	    }
+	    hr = vectorHistoryRepasConcat_u(ll);
+	}
+
+	EVAL(hr->dimension);
+	EVAL(hr->size);
+
+	auto& vvi = ur->mapVarSize();
 
 	StrVarPtrMap m;
 	std::ifstream in(model + ".dr", std::ios::binary);
@@ -1496,7 +1492,7 @@ int main(int argc, char **argv)
 	    auto& mvv = hr1->mapVarInt();
 	    auto sh = hr1->shape;
 	    auto rr = hr1->arr;
-	    auto pl = mvv[vvi[motor]];
+	    auto pl = mvv[vvi[Variable(label)]];
 	    auto sl = sh[pl];
 	    auto nn = treesLeafNodes(*dr->slices);
 	    SizeList al(sl);
@@ -1532,7 +1528,7 @@ int main(int argc, char **argv)
 	std::size_t a = 0;
 	std::size_t x = 0;
 	{
-	    SizeList ww{ vvi[motor] };
+	    SizeList ww{ vvi[Variable(label)] };
 	    auto nn = treesLeafNodes(*dr->slices);
 	    for (auto& s : *nn)
 		ww.push_back(s.first);
@@ -1564,6 +1560,8 @@ int main(int argc, char **argv)
 	    }
 
 	}
+	EVAL(model);
+	EVAL(label);
 	cout << "effective size: " << hr->size - x << endl;
 	cout << "matches: " << a << endl;
 

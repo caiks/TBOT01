@@ -375,11 +375,14 @@ SystemHistoryRepaTuple TBOT01::recordListsHistoryRepaRegion(int d, int n, int s,
     return SystemHistoryRepaTuple(move(uu), move(ur), move(hr));
 }
 
+typedef std::pair<double, double> Coord;
+typedef std::pair<Coord, Coord> CoordP;
+
 SystemHistoryRepaTuple TBOT01::recordListsHistoryRepa_2(int d, const RecordList& qq)
 {
     auto lluu = listsSystem_u;
 
-    std::size_t n = 360 + 1;
+    std::size_t n = 360 + 3;
     std::size_t z = qq.size();
     ValSet buckets;
     for (int i = 0; i < d; i++)
@@ -387,11 +390,24 @@ SystemHistoryRepaTuple TBOT01::recordListsHistoryRepa_2(int d, const RecordList&
     ValSet actions;
     for (int i = 0; i < 3; i++)
 	actions.insert(Value(i));
+    ValSet locations{ Value("door12"), Value("door13"), Value("door14"), Value("door45"), Value("door56"),
+	Value("room1"), Value("room2"), Value("room3"), Value("room4"), Value("room5"), Value("room6") };
+    ValSet positions{ Value("centre"), Value("corner"), Value("side") };
+    vector<Coord> doors{ Coord(6.2,-0.175), Coord(2.3,4.5), Coord(2.3,0.375), Coord(-5.15,3.1), Coord(-6.325,0.925) };
+    vector<CoordP> rooms{
+	CoordP(Coord(2.3,-0.175),Coord(7.5,5.27)),
+	CoordP(Coord(4.9,-5.275),Coord(7.5,-0.175)),
+	CoordP(Coord(-0.05,0.925),Coord(2.3,5.27)),
+	CoordP(Coord(-5.15,-0.175),Coord(2.3,5.27)),
+	CoordP(Coord(-7.5,-0.175),Coord(-5.15,5.27)),
+	CoordP(Coord(-7.5,-3.925),Coord(-5.15,0.925)) };
     vector<VarValSetPair> ll;
     auto vscan = std::make_shared<Variable>("scan");
-    for (std::size_t i = 0; i < n - 1; i++)
+    for (std::size_t i = 0; i < n - 3; i++)
 	ll.push_back(VarValSetPair(Variable(vscan, std::make_shared<Variable>((int)i + 1)), buckets));
     ll.push_back(VarValSetPair(Variable("motor"), actions));
+    ll.push_back(VarValSetPair(Variable("location"), locations));
+    ll.push_back(VarValSetPair(Variable("position"), positions));
     auto uu = lluu(ll);
     auto ur = std::make_unique<SystemRepa>();
     auto& mm = ur->listVarSizePair;
@@ -410,17 +426,52 @@ SystemHistoryRepaTuple TBOT01::recordListsHistoryRepa_2(int d, const RecordList&
     auto rr = hr->arr;
     for (size_t i = 0; i < n; i++)
 	vv[i] = i;
-    for (size_t i = 0; i < n-1; i++)
+    for (size_t i = 0; i < n - 3; i++)
 	sh[i] = d;
-    sh[n-1] = 3;
+    sh[n - 3] = actions.size();
+    sh[n - 2] = locations.size();
+    sh[n - 1] = positions.size();
     double f = (double)d / 4.0;
     for (size_t j = 0; j < z; j++)
     {
 	size_t jn = j*n;
 	auto& r = qq[j];
-	for (size_t i = 0; i < n-1; i++)
+	for (size_t i = 0; i < n - 3; i++)
 	    rr[jn + i] = (unsigned char)(r.sensor_scan[i] * f);
-	rr[jn + n-1] = (unsigned char)(r.action_angular == -1.5 ? 0 : (r.action_angular == 1.5 ? 2 : 1));
+	rr[jn + n - 3] = (unsigned char)(r.action_angular == -1.5 ? 0 : (r.action_angular == 1.5 ? 2 : 1));
+	double x = r.sensor_pose[0];
+	double y = r.sensor_pose[1];
+	size_t k = 0;
+	while (k < doors.size())
+	{
+	    if ((doors[k].first - x)*(doors[k].first - x) + (doors[k].second - y)*(doors[k].second - y) <= 0.25)
+		break;
+	    k++;
+	}
+	while (k >= doors.size() && k < doors.size() + rooms.size())
+	{
+	    auto room = rooms[k - doors.size()];
+	    if (room.first.first <= x && x <= room.second.first && room.first.second <= y && y <= room.second.second)
+		break;
+	    k++;
+	}
+	if (k >= doors.size() + rooms.size())
+	    k = 9;
+	rr[jn + n - 2] = (unsigned char)k;
+	k = 0;
+	while (k < rooms.size())
+	{
+	    auto room = rooms[k];
+	    if (room.first.first <= x && x <= room.second.first && room.first.second <= y && y <= room.second.second)
+		break;
+	    k++;
+	}
+	if (k < rooms.size() && ((x - rooms[k].first.first <= 1.0 && (y - rooms[k].first.second <= 1.0 || rooms[k].second.second - y <= 1.0)) || (rooms[k].second.first - x <= 1.0 && (y - rooms[k].first.second <= 1.0 || rooms[k].second.second - y <= 1.0))))
+	    rr[jn + n - 1] = (unsigned char)1;
+	else if (k < rooms.size() && (x - rooms[k].first.first <= 1.0 || rooms[k].second.first - x <= 1.0 || y - rooms[k].first.second <= 1.0 || rooms[k].second.second - y <= 1.0))
+	    rr[jn + n - 1] = (unsigned char)2;
+	else
+	    rr[jn + n - 1] = (unsigned char)0;
     }
     hr->transpose();
     return SystemHistoryRepaTuple(move(uu), move(ur), move(hr));
