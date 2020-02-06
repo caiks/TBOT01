@@ -1567,5 +1567,106 @@ int main(int argc, char **argv)
 
     }
 
+    if (false)
+    {
+	auto aall = histogramsList;
+	auto araa = systemsHistogramRepasHistogram_u;
+	auto hrred = [](const HistoryRepa& hr, const SystemRepa& ur, const VarList& kk)
+	{
+	    auto& vvi = ur.mapVarSize();
+	    std::size_t m = kk.size();
+	    SizeList kk1;
+	    for (std::size_t i = 0; i < m; i++)
+		kk1.push_back(vvi[kk[i]]);
+	    return setVarsHistoryRepasReduce_u(1.0, m, kk1.data(), hr);
+	};
+
+	std::unique_ptr<Alignment::System> uu;
+	std::unique_ptr<Alignment::SystemRepa> ur;
+	std::unique_ptr<Alignment::HistoryRepa> hr;
+
+	{
+	    std::vector<std::string> files{
+		"202001271320_room1.TBOT01.hr",
+		"202001271320_room2.TBOT01.hr",
+		"202001271320_room2_2.TBOT01.hr",
+		"202001271320_room3.TBOT01.hr",
+		"202001271320_room4.TBOT01.hr",
+		"202001271320_room5.TBOT01.hr",
+		"202001271320_room5_2.TBOT01.hr"
+	    };
+	    HistoryRepaPtrList ll;
+	    for (auto& f : files)
+	    {
+		std::ifstream in(f, std::ios::binary);
+		auto qq = persistentsRecordList(in);
+		in.close();
+		auto xx = recordListsHistoryRepa_2(8, *qq);
+		uu = std::move(std::get<0>(xx));
+		ur = std::move(std::get<1>(xx));
+		ll.push_back(std::move(std::get<2>(xx)));
+	    }
+	    hr = vectorHistoryRepasConcat_u(ll);
+	}
+
+	EVAL(hr->dimension);
+	EVAL(hr->size);
+
+	rpln(cout, sorted(*aall(*araa(*uu, *ur, *hrred(*hr, *ur, VarList{ Variable(Variable("scan"),Variable(1)) })))));
+	cout << endl;
+	rpln(cout, sorted(*aall(*araa(*uu, *ur, *hrred(*hr, *ur, VarList{ Variable(Variable("scan"),Variable(180)) })))));
+	cout << endl;
+	rpln(cout, sorted(*aall(*araa(*uu, *ur, *hrred(*hr, *ur, VarList{ Variable("motor") })))));
+	cout << endl;
+	rpln(cout, sorted(*aall(*araa(*uu, *ur, *hrred(*hr, *ur, VarList{ Variable("location") })))));
+	cout << endl;
+	rpln(cout, sorted(*aall(*araa(*uu, *ur, *hrred(*hr, *ur, VarList{ Variable("position") })))));
+
+	/*
+	hr->dimension: 363
+	hr->size: 6054
+
+	({(<scan,1>,0)},39 % 1)
+	({(<scan,1>,1)},892 % 1)
+	({(<scan,1>,2)},885 % 1)
+	({(<scan,1>,3)},825 % 1)
+	({(<scan,1>,4)},701 % 1)
+	({(<scan,1>,5)},685 % 1)
+	({(<scan,1>,6)},632 % 1)
+	({(<scan,1>,7)},1395 % 1)
+
+	({(<scan,180>,0)},33 % 1)
+	({(<scan,180>,1)},497 % 1)
+	({(<scan,180>,2)},777 % 1)
+	({(<scan,180>,3)},838 % 1)
+	({(<scan,180>,4)},737 % 1)
+	({(<scan,180>,5)},767 % 1)
+	({(<scan,180>,6)},757 % 1)
+	({(<scan,180>,7)},1648 % 1)
+
+	({(motor,0)},698 % 1)
+	({(motor,1)},5256 % 1)
+	({(motor,2)},100 % 1)
+
+	({(location,door12)},43 % 1)
+	({(location,door13)},13 % 1)
+	({(location,door14)},57 % 1)
+	({(location,door45)},42 % 1)
+	({(location,door56)},29 % 1)
+	({(location,room1)},1222 % 1)
+	({(location,room2)},572 % 1)
+	({(location,room3)},201 % 1)
+	({(location,room4)},2763 % 1)
+	({(location,room5)},350 % 1)
+	({(location,room6)},762 % 1)
+
+	({(position,centre)},1873 % 1)
+	({(position,corner)},911 % 1)
+	({(position,side)},3270 % 1)
+	*/
+
+    }
+
+
     return 0;
 }
