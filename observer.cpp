@@ -106,9 +106,6 @@ Observer::~Observer()
     RCLCPP_INFO(this->get_logger(), "TBOT01 observer node has been terminated");
 }
 
-/********************************************************************************
-** Callback functions for ROS subscribers
-********************************************************************************/
 void Observer::odom_callback(const nav_msgs::msg::Odometry::SharedPtr msg)
 {
     _record.sensor_pose[0] = msg->pose.pose.position.x;
@@ -132,7 +129,6 @@ void Observer::scan_callback(const sensor_msgs::msg::LaserScan::SharedPtr msg)
     }
     _scan_updated = true;
 }
-
 
 void Observer::observe_callback()
 {
@@ -186,10 +182,6 @@ void Observer::observe_callback()
     }
 }
 
-
-/*******************************************************************************
-** Main
-*******************************************************************************/
 int main(int argc, char** argv)
 {
     std::string model = string(argc >= 3 ? argv[2] : "model006_location");

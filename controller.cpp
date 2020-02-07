@@ -46,9 +46,6 @@ Controller::~Controller()
   RCLCPP_INFO(this->get_logger(), "TBOT01 controller node has been terminated");
 }
 
-/********************************************************************************
-** Callback functions for ROS subscribers
-********************************************************************************/
 void Controller::odom_callback(const nav_msgs::msg::Odometry::SharedPtr msg)
 {
   tf2::Quaternion q(
@@ -110,9 +107,6 @@ void Controller::update_cmd_vel(double linear, double angular)
   _action_updated = true;
 }
 
-/********************************************************************************
-** Update functions
-********************************************************************************/
 void Controller::update_callback()
 {
   static uint8_t turtlebot3_state_num = 0;
@@ -184,9 +178,6 @@ void Controller::record_callback()
 }
 
 
-/*******************************************************************************
-** Main
-*******************************************************************************/
 int main(int argc, char** argv)
 {
     std::string filename(argc >= 2 ? std::string(argv[1]) : "TBOT01.bin");
