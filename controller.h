@@ -34,7 +34,7 @@
 class Controller : public rclcpp::Node
 {
 public:
-    Controller(const std::string&, std::chrono::milliseconds);
+    Controller(const std::string&, std::chrono::milliseconds, std::chrono::milliseconds);
     ~Controller();
 
 private:
@@ -58,6 +58,8 @@ private:
     std::chrono::time_point<std::chrono::high_resolution_clock> _record_start;
 
     std::ofstream _record_out;
+
+    int _turn_factor;
 
     void update_callback();
     void record_callback();
