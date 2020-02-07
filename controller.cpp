@@ -13,7 +13,7 @@ using namespace std::chrono_literals;
 typedef std::chrono::duration<double> sec;
 typedef std::chrono::high_resolution_clock clk;
 
-Controller::Controller(const std::string& filename, std::chrono::milliseconds record_interval, double x, double y, double z, double ox, double oy, double oz, double ow)
+Controller::Controller(const std::string& filename, std::chrono::milliseconds record_interval)
 : Node("TBOT01_controller_node")
 {
   /************************************************************
@@ -25,14 +25,6 @@ Controller::Controller(const std::string& filename, std::chrono::milliseconds re
 
   robot_pose_ = 0.0;
   prev_robot_pose_ = 0.0;
-
-  sensor_pose_initial_[0] = x;
-  sensor_pose_initial_[1] = y;
-  sensor_pose_initial_[2] = z;
-  sensor_pose_initial_[3] = ox;
-  sensor_pose_initial_[4] = oy;
-  sensor_pose_initial_[5] = oz;
-  sensor_pose_initial_[6] = ow;
 
   for (std::size_t i = 0; i < 7; i++)
       sensor_pose_[i] = 0.0;
@@ -97,13 +89,13 @@ void Controller::odom_callback(const nav_msgs::msg::Odometry::SharedPtr msg)
   m.getRPY(roll, pitch, yaw);
   robot_pose_ = yaw;
 
-  sensor_pose_[0] = sensor_pose_initial_[0] + msg->pose.pose.position.x;
-  sensor_pose_[1] = sensor_pose_initial_[1] + msg->pose.pose.position.y;
-  sensor_pose_[2] = sensor_pose_initial_[2] + msg->pose.pose.position.z;
-  sensor_pose_[3] = sensor_pose_initial_[3] + msg->pose.pose.orientation.x;
-  sensor_pose_[4] = sensor_pose_initial_[4] + msg->pose.pose.orientation.y;
-  sensor_pose_[5] = sensor_pose_initial_[5] + msg->pose.pose.orientation.z;
-  sensor_pose_[6] = sensor_pose_initial_[6] + msg->pose.pose.orientation.w;
+  sensor_pose_[0] = msg->pose.pose.position.x;
+  sensor_pose_[1] = msg->pose.pose.position.y;
+  sensor_pose_[2] = msg->pose.pose.position.z;
+  sensor_pose_[3] = msg->pose.pose.orientation.x;
+  sensor_pose_[4] = msg->pose.pose.orientation.y;
+  sensor_pose_[5] = msg->pose.pose.orientation.z;
+  sensor_pose_[6] = msg->pose.pose.orientation.w;
   sensor_pose_updated = true;
 }
 
@@ -233,17 +225,10 @@ void Controller::record_callback()
 int main(int argc, char** argv)
 {
     std::string filename(argc >= 2 ? std::string(argv[1]) : "TBOT01.bin");
-    std::chrono::milliseconds record_interval(argc >= 3 ? std::atol(argv[2]) : 0);
-    double x(argc >= 4 ? std::stod(argv[3]) : 0.0);
-    double y(argc >= 5 ? std::stod(argv[4]) : 0.0);
-    double z(argc >= 6 ? std::stod(argv[5]) : 0.0);
-    double ox(argc >= 7 ? std::stod(argv[6]) : 0.0);
-    double oy(argc >= 8 ? std::stod(argv[7]) : 0.0);
-    double oz(argc >= 9 ? std::stod(argv[8]) : 0.0);
-    double ow(argc >= 10 ? std::stod(argv[9]) : 0.0);
+    std::chrono::milliseconds record_interval(argc >= 3 ? std::atol(argv[2]) : 250);
 
     rclcpp::init(argc, argv);
-    rclcpp::spin(std::make_shared<Controller>(filename, record_interval, x, y, z, ox, oy, oz, ow));
+    rclcpp::spin(std::make_shared<Controller>(filename, record_interval));
     rclcpp::shutdown();
 
     return 0;

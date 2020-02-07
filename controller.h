@@ -34,7 +34,7 @@
 class Controller : public rclcpp::Node
 {
 public:
-    Controller(const std::string&, std::chrono::milliseconds, double, double, double, double, double, double, double);
+    Controller(const std::string&, std::chrono::milliseconds);
     ~Controller();
 
 private:
@@ -54,7 +54,6 @@ private:
     double prev_robot_pose_;
     double scan_data_[3];
 
-    double sensor_pose_initial_[7];
     double sensor_pose_[7];
     bool sensor_pose_updated;
     double sensor_scan_[360];
