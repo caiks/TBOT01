@@ -10,7 +10,7 @@
 #include <tf2/LinearMath/Matrix3x3.h>
 #include <tf2/LinearMath/Quaternion.h>
 
-#include <fstream>
+#include "dev.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -38,37 +38,27 @@ public:
     ~Controller();
 
 private:
-    // ROS topic publishers
-    rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_pub_;
+    rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr _cmd_vel_pub;
 
-    // ROS topic subscribers
-    rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr scan_sub_;
-    rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odom_sub_;
+    rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr _scan_sub;
+    rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr _odom_sub;
 
-    // ROS timers
-    rclcpp::TimerBase::SharedPtr update_timer_;
-    rclcpp::TimerBase::SharedPtr record_timer_;
+    rclcpp::TimerBase::SharedPtr _update_timer;
+    rclcpp::TimerBase::SharedPtr _record_timer;
 
-    // Variables
-    double robot_pose_;
-    double prev_robot_pose_;
-    double scan_data_[3];
+    double _robot_pose;
+    double _prev_robot_pose;
+    double _scan_data[3];
 
-    double sensor_pose_[7];
-    bool sensor_pose_updated;
-    double sensor_scan_[360];
-    bool sensor_scan_updated;
+    TBOT01::Record _record;
+    bool _pose_updated;
+    bool _scan_updated;
+    bool _action_updated;
 
-    double action_linear_;
-    double action_angular_;
-    bool action_updated;
+    std::chrono::time_point<std::chrono::high_resolution_clock> _record_start;
 
-    std::size_t record_id_;
-    std::chrono::time_point<std::chrono::high_resolution_clock> record_start_;
+    std::ofstream _record_out;
 
-    std::ofstream record_out_;
-
-    // Function prototypes
     void update_callback();
     void record_callback();
     void update_cmd_vel(double linear, double angular);

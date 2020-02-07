@@ -47,6 +47,8 @@ namespace TBOT01
     };
     typedef std::vector<Record> RecordList;
 
+    void recordsPersistent(Record&, std::ostream&);
+
     void recordListsPersistent(RecordList&, std::ostream&);
 
     std::unique_ptr<RecordList> persistentsRecordList(std::istream&);
