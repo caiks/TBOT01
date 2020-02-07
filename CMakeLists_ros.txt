@@ -5,11 +5,10 @@ if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 17)
 endif()
 
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
-endif()
+# if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+#   add_compile_options(-Wall -Wextra -Wpedantic)
+# endif()
 
-# find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(gazebo_ros_pkgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
@@ -27,27 +26,19 @@ link_directories(../AlignmentC_build ../AlignmentRepaC_build)
 
 link_libraries(libAlignmentRepaC.a libAlignmentC.a)
 
-set(dependencies
-  "geometry_msgs"
-  "nav_msgs"
-  "rclcpp"
-  "sensor_msgs"
-  "tf2"
-)
+set(dependencies "geometry_msgs" "nav_msgs" "rclcpp" "sensor_msgs" "tf2")
 
 add_executable(controller controller.cpp)
 ament_target_dependencies(controller ${dependencies} Threads)
+install(TARGETS controller DESTINATION lib/${PROJECT_NAME})
+
+add_executable(observer observer.cpp)
+ament_target_dependencies(observer ${dependencies} Threads)
+install(TARGETS observer DESTINATION lib/${PROJECT_NAME})
 
 add_executable(main main.cpp dev.cpp)
 ament_target_dependencies(main ${dependencies} Threads)
-
-install(TARGETS controller
-  DESTINATION lib/${PROJECT_NAME}
-)
-
-install(TARGETS main
-  DESTINATION lib/${PROJECT_NAME}
-)
+install(TARGETS main DESTINATION lib/${PROJECT_NAME})
 
 # Macro for ament package
 ament_package()
