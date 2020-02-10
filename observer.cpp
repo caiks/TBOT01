@@ -8,6 +8,11 @@ using namespace std::chrono_literals;
 typedef std::chrono::duration<double> sec;
 typedef std::chrono::high_resolution_clock clk;
 
+#define ECHO(x) cout << #x << endl; x
+#define EVAL(x) cout << #x << ": " << (x) << endl
+#define EVALL(x) cout << #x << ": " << endl << (x) << endl
+#define TRUTH(x) cout << #x << ": " << ((x) ? "true" : "false") << endl
+
 Observer::Observer(const std::string& model, std::chrono::milliseconds observe_interval)
 : Node("TBOT01_observer_node")
 {
@@ -53,6 +58,7 @@ Observer::Observer(const std::string& model, std::chrono::milliseconds observe_i
     auto frmul = historyRepasFudRepasMultiply_u;
 
     auto hr1 = frmul(*hr, *_dr->fud);
+
     if (hr1->evient)
 	hr1->transpose();
     auto z = hr1->size;
@@ -169,6 +175,7 @@ void Observer::observe_callback()
 	if (is_match)
 	    _matches++;
 	_observations++;
+
 	std::string report;
 	report += _label == "location" ? locations[cl] : positions[cl];
 	report += "\t";
@@ -177,15 +184,15 @@ void Observer::observe_callback()
 	report += l == cl ? "match" : "fail";
 	report += "\t";
 	report += std::to_string((double)_matches / (double)_observations * 100.0);
-	report += "%";
+
 	RCLCPP_INFO(this->get_logger(), report);
     }
 }
 
 int main(int argc, char** argv)
 {
-    std::string model = string(argc >= 3 ? argv[2] : "model006_location");
-    std::chrono::milliseconds observe_interval(argc >= 4 ? std::atol(argv[3]) : 5*60);
+    std::string model = string(argc >= 2 ? argv[1] : "model006_location");
+    std::chrono::milliseconds observe_interval(argc >= 3 ? std::atol(argv[2]) : 5*60);
 
     rclcpp::init(argc, argv);
     rclcpp::spin(std::make_shared<Observer>(model, observe_interval));

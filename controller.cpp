@@ -12,6 +12,11 @@ using namespace std::chrono_literals;
 typedef std::chrono::duration<double> sec;
 typedef std::chrono::high_resolution_clock clk;
 
+#define ECHO(x) cout << #x << endl; x
+#define EVAL(x) cout << #x << ": " << (x) << endl
+#define EVALL(x) cout << #x << ": " << endl << (x) << endl
+#define TRUTH(x) cout << #x << ": " << ((x) ? "true" : "false") << endl
+
 Controller::Controller(const std::string& filename, std::chrono::milliseconds record_interval, std::chrono::milliseconds turn_interval)
 : Node("TBOT01_controller_node")
 {
@@ -26,7 +31,9 @@ Controller::Controller(const std::string& filename, std::chrono::milliseconds re
     _scan_updated = false;
     _action_updated = false;
 
-    _turn_factor = turn_interval.count() / 10ms.count();
+    auto tenms = 10ms;
+    _turn_factor = turn_interval.count() / tenms.count();
+EVAL(_turn_factor);
 
     _record_start = clk::now();
     _record_out = std::ofstream(filename, std::ios::binary);
@@ -143,9 +150,10 @@ void Controller::update_callback()
 	break;
 
     case TB3_DRIVE_FORWARD:
-	if (_turn_factor && !(rand() % _turn_factor))
+	if (_turn_factor > 0 && (rand() % _turn_factor) == 0)
 	{
-	    if (!(rand() % 2))
+            _prev_robot_pose = _robot_pose;
+	    if ((rand() % 2) == 0)
 		turtlebot3_state_num = TB3_RIGHT_TURN;
 	    else
 		turtlebot3_state_num = TB3_LEFT_TURN;
