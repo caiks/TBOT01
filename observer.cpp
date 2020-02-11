@@ -13,7 +13,7 @@ typedef std::chrono::high_resolution_clock clk;
 #define EVALL(x) cout << #x << ": " << endl << (x) << endl
 #define TRUTH(x) cout << #x << ": " << ((x) ? "true" : "false") << endl
 
-Observer::Observer(const std::string& model, std::chrono::milliseconds observe_interval)
+Observer::Observer(const std::string& model, const std::string& label, std::chrono::milliseconds observe_interval)
 : Node("TBOT01_observer_node")
 {
     _pose_updated = false;
@@ -21,9 +21,7 @@ Observer::Observer(const std::string& model, std::chrono::milliseconds observe_i
     _matches = 0;
     _observations = 0;
 
-    _label = "location";
-    if (model == "model006_position" || model == "model007_position")
-	_label = "position";
+    _label = label;
 
     std::unique_ptr<Alignment::SystemRepa> ur;
     std::vector<std::string> files{
@@ -192,10 +190,11 @@ void Observer::observe_callback()
 int main(int argc, char** argv)
 {
     std::string model = string(argc >= 2 ? argv[1] : "model006_location");
-    std::chrono::milliseconds observe_interval(argc >= 3 ? std::atol(argv[2]) : 5*60);
+    std::string label = string(argc >= 3 ? argv[2] : "location");
+    std::chrono::milliseconds observe_interval(argc >= 4 ? std::atol(argv[3]) : 5*60);
 
     rclcpp::init(argc, argv);
-    rclcpp::spin(std::make_shared<Observer>(model, observe_interval));
+    rclcpp::spin(std::make_shared<Observer>(model, label, observe_interval));
     rclcpp::shutdown();
 
     return 0;
