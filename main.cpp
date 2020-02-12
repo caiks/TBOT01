@@ -1250,7 +1250,7 @@ int main(int argc, char **argv)
 	out.close();
     }
 
-    if (argc >= 3 && string(argv[1]) == "bitmap_model")
+    if (argc >= 3 && string(argv[1]) == "bitmap_model" && string(argv[2]) != "model002" && string(argv[2]) != "model003" && string(argv[2]) != "model004")
     {
 	auto uvars = systemsSetVar;
 	auto single = histogramSingleton_u;
