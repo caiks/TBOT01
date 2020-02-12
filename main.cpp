@@ -431,7 +431,7 @@ int main(int argc, char **argv)
 	    std::ifstream in(f, std::ios::binary);
 	    auto qq = persistentsRecordList(in);
 	    in.close();
-	    auto xx = recordListsHistoryRepa(8, *qq);
+	    auto xx = recordListsHistoryRepa_2(8, *qq);
 	    uu = std::move(std::get<0>(xx));
 	    ur = std::move(std::get<1>(xx));
 	    ll.push_back(std::move(std::get<2>(xx)));
@@ -441,7 +441,14 @@ int main(int argc, char **argv)
 	EVAL(hr->dimension);
 	EVAL(hr->size);
 
-	auto vvk = *uvars(*uu);
+	Variable motor("motor");
+	Variable location("location");
+	Variable position("position");
+	auto vv = *uvars(*uu);
+	auto vvk = VarUSet(vv);
+	vvk.erase(motor);
+	vvk.erase(location);
+	vvk.erase(position);
 
 	auto& vvi = ur->mapVarSize();
 	auto vvk0 = sorted(vvk);
@@ -935,7 +942,7 @@ int main(int argc, char **argv)
 	    std::ifstream in(f, std::ios::binary);
 	    auto qq = persistentsRecordList(in);
 	    in.close();
-	    auto xx = recordListsHistoryRepa(8, *qq);
+	    auto xx = recordListsHistoryRepa_2(8, *qq);
 	    uu = std::move(std::get<0>(xx));
 	    ur = std::move(std::get<1>(xx));
 	    ll.push_back(std::move(std::get<2>(xx)));
@@ -945,7 +952,14 @@ int main(int argc, char **argv)
 	EVAL(hr->dimension);
 	EVAL(hr->size);
 
-	auto vvk = *uvars(*uu);
+	Variable motor("motor");
+	Variable location("location");
+	Variable position("position");
+	auto vv = *uvars(*uu);
+	auto vvk = VarUSet(vv);
+	vvk.erase(motor);
+	vvk.erase(location);
+	vvk.erase(position);
 
 	auto& vvi = ur->mapVarSize();
 	auto vvk0 = sorted(vvk);
@@ -1277,7 +1291,7 @@ int main(int argc, char **argv)
 		std::ifstream in(f, std::ios::binary);
 		auto qq = persistentsRecordList(in);
 		in.close();
-		auto xx = recordListsHistoryRepa(8, *qq);
+		auto xx = recordListsHistoryRepa_2(8, *qq);
 		uu = std::move(std::get<0>(xx));
 		ur = std::move(std::get<1>(xx));
 		ll.push_back(std::move(std::get<2>(xx)));
@@ -1288,7 +1302,14 @@ int main(int argc, char **argv)
 	EVAL(hr->dimension);
 	EVAL(hr->size);
 
-	auto vvk = *uvars(*uu);
+	Variable motor("motor");
+	Variable location("location");
+	Variable position("position");
+	auto vv = *uvars(*uu);
+	auto vvk = VarUSet(vv);
+	vvk.erase(motor);
+	vvk.erase(location);
+	vvk.erase(position);
 
 	auto& vvi = ur->mapVarSize();
 	auto vvk0 = sorted(vvk);
