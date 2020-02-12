@@ -17,7 +17,7 @@ typedef std::chrono::high_resolution_clock clk;
 #define EVALL(x) cout << #x << ": " << endl << (x) << endl
 #define TRUTH(x) cout << #x << ": " << ((x) ? "true" : "false") << endl
 
-Controller::Controller(const std::string& filename, std::chrono::milliseconds record_interval, std::chrono::milliseconds turn_interval)
+Controller::Controller(const std::string& filename, std::chrono::milliseconds record_interval, std::chrono::milliseconds left_turn_interval, std::chrono::milliseconds right_turn_interval)
 : Node("TBOT01_controller_node")
 {
     _scan_data[0] = 0.0;
@@ -32,8 +32,8 @@ Controller::Controller(const std::string& filename, std::chrono::milliseconds re
     _action_updated = false;
 
     auto tenms = 10ms;
-    _turn_factor = turn_interval.count() / tenms.count();
-EVAL(_turn_factor);
+    _left_turn_factor = left_turn_interval.count() / tenms.count();
+    _right_turn_factor = right_turn_interval.count() / tenms.count();
 
     _record_start = clk::now();
     _record_out = std::ofstream(filename, std::ios::binary);
@@ -150,13 +150,16 @@ void Controller::update_callback()
 	break;
 
     case TB3_DRIVE_FORWARD:
-	if (_turn_factor > 0 && (rand() % _turn_factor) == 0)
+	if (_left_turn_factor > 0 && (rand() % _left_turn_factor) == 0)
 	{
             _prev_robot_pose = _robot_pose;
-	    if ((rand() % 2) == 0)
-		turtlebot3_state_num = TB3_RIGHT_TURN;
-	    else
-		turtlebot3_state_num = TB3_LEFT_TURN;
+	    turtlebot3_state_num = TB3_LEFT_TURN;
+	    break;
+	}
+	else if (_right_turn_factor > 0 && (rand() % _right_turn_factor) == 0)
+	{
+	    _prev_robot_pose = _robot_pose;
+	    turtlebot3_state_num = TB3_RIGHT_TURN;
 	    break;
 	}
 	update_cmd_vel(LINEAR_VELOCITY, 0.0);
@@ -198,10 +201,11 @@ int main(int argc, char** argv)
 {
     std::string filename(argc >= 2 ? std::string(argv[1]) : "TBOT01.bin");
     std::chrono::milliseconds record_interval(argc >= 3 ? std::atol(argv[2]) : 250);
-    std::chrono::milliseconds turn_interval(argc >= 4 ? std::atol(argv[3]) : 0);
+    std::chrono::milliseconds left_turn_interval(argc >= 4 ? std::atol(argv[3]) : 0);
+    std::chrono::milliseconds right_turn_interval(argc >= 5 ? std::atol(argv[4]) : 0);
 
     rclcpp::init(argc, argv);
-    rclcpp::spin(std::make_shared<Controller>(filename, record_interval, turn_interval));
+    rclcpp::spin(std::make_shared<Controller>(filename, record_interval, left_turn_interval, right_turn_interval));
     rclcpp::shutdown();
 
     return 0;
