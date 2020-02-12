@@ -80,12 +80,12 @@ matches: 5849
 hr->dimension: 363
 hr->size: 6054
 frder(*dr->fud)->size(): 890
-frund(*dr->fud)->size(): 99
-frvars(*dr->fud)->size(): 1115
+frund(*dr->fud)->size(): 97
+frvars(*dr->fud)->size(): 1113
 model: model006_location
 label: location
 effective size: 6054
-matches: 5332
+matches: 5425
 
 ..\TBOT01_build\Release\main.exe condition model006 4 position >model006_position.log
 
@@ -95,12 +95,12 @@ matches: 5332
 hr->dimension: 363
 hr->size: 6054
 frder(*dr->fud)->size(): 890
-frund(*dr->fud)->size(): 107
-frvars(*dr->fud)->size(): 1123
+frund(*dr->fud)->size(): 103
+frvars(*dr->fud)->size(): 1119
 model: model006_position
 label: position
 effective size: 6054
-matches: 5572
+matches: 5590
 
 ..\TBOT01_build\Release\main.exe condition model007 4 motor >model007_motor.log
 
@@ -125,12 +125,12 @@ matches: 5669
 hr->dimension: 363
 hr->size: 6054
 frder(*dr->fud)->size(): 128
-frund(*dr->fud)->size(): 306
-frvars(*dr->fud)->size(): 2045
+frund(*dr->fud)->size(): 295
+frvars(*dr->fud)->size(): 2060
 model: model007_location
 label: location
 effective size: 6054
-matches: 4864
+matches: 4985
 
 ..\TBOT01_build\Release\main.exe condition model007 4 position >model007_position.log
 
@@ -140,12 +140,12 @@ matches: 4864
 hr->dimension: 363
 hr->size: 6054
 frder(*dr->fud)->size(): 128
-frund(*dr->fud)->size(): 318
-frvars(*dr->fud)->size(): 2157
+frund(*dr->fud)->size(): 330
+frvars(*dr->fud)->size(): 2512
 model: model007_position
 label: position
 effective size: 6054
-matches: 5213
+matches: 5209
 
 ..\TBOT01_build\Release\main.exe induce model008 4 >model008.log
 
