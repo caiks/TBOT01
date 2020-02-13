@@ -1688,6 +1688,211 @@ int main(int argc, char **argv)
 
     }
 
+    if (argc >= 3 && string(argv[1]) == "condition" && string(argv[2]) == "model006_1")
+    {
+	auto uvars = systemsSetVar;
+	auto hrsel = eventsHistoryRepasHistoryRepaSelection_u;
+	auto frmul = historyRepasFudRepasMultiply_u;
+	auto drcopy = applicationRepasApplicationRepa_u;
+	auto drjoin = applicationRepaPairsJoin_u;
+	auto applicationer = parametersSystemsHistoryRepasApplicationerCondMultinomialFmaxIORepa_up;
+	auto applicationDeltaer = parametersSystemsHistoryRepasApplicationDeltaerCondMultinomialFmaxIORepa_up;
+
+	string model = string(argv[2]);
+	size_t tint = argc >= 4 ? atoi(argv[3]) : 1;
+	string label = argc >= 5 ? string(argv[4]) : "motor";
+
+	std::unique_ptr<Alignment::System> uu;
+	std::unique_ptr<Alignment::SystemRepa> ur;
+	std::unique_ptr<Alignment::HistoryRepa> hr;
+
+	{
+	    std::vector<std::string> files{
+		"202001271320_room1.TBOT01.hr",
+		"202001271320_room2.TBOT01.hr",
+		"202001271320_room2_2.TBOT01.hr",
+		"202001271320_room3.TBOT01.hr",
+		"202001271320_room4.TBOT01.hr",
+		"202001271320_room5.TBOT01.hr",
+		"202001271320_room5_2.TBOT01.hr"
+	    };
+	    HistoryRepaPtrList ll;
+	    for (auto& f : files)
+	    {
+		std::ifstream in(f, std::ios::binary);
+		auto qq = persistentsRecordList(in);
+		in.close();
+		auto xx = recordListsHistoryRepa_2(8, *qq);
+		uu = std::move(std::get<0>(xx));
+		ur = std::move(std::get<1>(xx));
+		ll.push_back(std::move(std::get<2>(xx)));
+	    }
+	    hr = vectorHistoryRepasConcat_u(ll);
+	}
+
+	EVAL(hr->dimension);
+	EVAL(hr->size);
+
+	Variable motor("motor");
+	Variable location("location");
+	Variable position("position");
+	auto vv = *uvars(*uu);
+	auto vvk = VarUSet(vv);
+	vvk.erase(motor);
+	vvk.erase(location);
+	vvk.erase(position);
+
+	auto& vvi = ur->mapVarSize();
+	SizeList vvk1;
+	for (auto& v : sorted(vvk))
+	    vvk1.push_back(vvi[v]);
+
+	auto dr = applicationer(1, tint, vvk1, vvi[Variable(label)], *hr, 1, *ur);
+	applicationDeltaer(2, 127, tint, vvk1, vvi[Variable(label)], *hr, 1, *ur, *dr);
+	std::ofstream out(model + "_" + label + ".dr", std::ios::binary);
+	systemRepasPersistent(*ur, out); cout << endl;
+	applicationRepasPersistent(*dr, out); cout << endl;
+	out.close();
+    }
+
+    if (argc >= 3 && string(argv[1]) == "condition" && string(argv[2]) == "model006_2")
+    {
+	auto uvars = systemsSetVar;
+	auto hrsel = eventsHistoryRepasHistoryRepaSelection_u;
+	auto frmul = historyRepasFudRepasMultiply_u;
+	auto drcopy = applicationRepasApplicationRepa_u;
+	auto drjoin = applicationRepaPairsJoin_u;
+	auto applicationer = parametersSystemsHistoryRepasApplicationerCondMultinomialFmaxIORepa_up;
+	auto applicationDeltaer = parametersSystemsHistoryRepasApplicationDeltaerCondMultinomialFmaxIORepa_up;
+
+	string model = string(argv[2]);
+	size_t tint = argc >= 4 ? atoi(argv[3]) : 1;
+	string label = argc >= 5 ? string(argv[4]) : "motor";
+
+	std::unique_ptr<Alignment::System> uu;
+	std::unique_ptr<Alignment::SystemRepa> ur;
+	std::unique_ptr<Alignment::HistoryRepa> hr;
+
+	{
+	    std::vector<std::string> files{
+		"202001271320_room1.TBOT01.hr",
+		"202001271320_room2.TBOT01.hr",
+		"202001271320_room2_2.TBOT01.hr",
+		"202001271320_room3.TBOT01.hr",
+		"202001271320_room4.TBOT01.hr",
+		"202001271320_room5.TBOT01.hr",
+		"202001271320_room5_2.TBOT01.hr"
+	    };
+	    HistoryRepaPtrList ll;
+	    for (auto& f : files)
+	    {
+		std::ifstream in(f, std::ios::binary);
+		auto qq = persistentsRecordList(in);
+		in.close();
+		auto xx = recordListsHistoryRepa_2(8, *qq);
+		uu = std::move(std::get<0>(xx));
+		ur = std::move(std::get<1>(xx));
+		ll.push_back(std::move(std::get<2>(xx)));
+	    }
+	    hr = vectorHistoryRepasConcat_u(ll);
+	}
+
+	EVAL(hr->dimension);
+	EVAL(hr->size);
+
+	Variable motor("motor");
+	Variable location("location");
+	Variable position("position");
+	auto vv = *uvars(*uu);
+	auto vvk = VarUSet(vv);
+	vvk.erase(motor);
+	vvk.erase(location);
+	vvk.erase(position);
+
+	auto& vvi = ur->mapVarSize();
+	SizeList vvk1;
+	for (auto& v : sorted(vvk))
+	    vvk1.push_back(vvi[v]);
+
+	auto dr = std::make_unique<ApplicationRepa>();
+	dr->substrate = vvk1;
+	dr->fud = std::make_shared<FudRepa>();
+	dr->slices = std::make_shared<SizeTree>();
+	applicationDeltaer(1, 1, tint, vvk1, vvi[Variable(label)], *hr, 1, *ur, *dr);
+	applicationDeltaer(2, 127, tint, vvk1, vvi[Variable(label)], *hr, 1, *ur, *dr);
+	std::ofstream out(model + "_" + label + ".dr", std::ios::binary);
+	systemRepasPersistent(*ur, out); cout << endl;
+	applicationRepasPersistent(*dr, out); cout << endl;
+	out.close();
+    }
+
+    if (argc >= 3 && string(argv[1]) == "condition" && string(argv[2]) == "model006_3")
+    {
+	auto uvars = systemsSetVar;
+	auto hrsel = eventsHistoryRepasHistoryRepaSelection_u;
+	auto frmul = historyRepasFudRepasMultiply_u;
+	auto drcopy = applicationRepasApplicationRepa_u;
+	auto drjoin = applicationRepaPairsJoin_u;
+	auto applicationer = parametersSystemsHistoryRepasApplicationerCondMultinomialFmaxIORepa_up;
+	auto applicationDeltaer = parametersSystemsHistoryRepasApplicationDeltaerCondMultinomialFmaxIORepa_up;
+
+	string model = string(argv[2]);
+	size_t tint = argc >= 4 ? atoi(argv[3]) : 1;
+	string label = argc >= 5 ? string(argv[4]) : "motor";
+
+	std::unique_ptr<Alignment::System> uu;
+	std::unique_ptr<Alignment::SystemRepa> ur;
+	std::unique_ptr<Alignment::HistoryRepa> hr;
+
+	{
+	    std::vector<std::string> files{
+		"202001271320_room1.TBOT01.hr",
+		"202001271320_room2.TBOT01.hr",
+		"202001271320_room2_2.TBOT01.hr",
+		"202001271320_room3.TBOT01.hr",
+		"202001271320_room4.TBOT01.hr",
+		"202001271320_room5.TBOT01.hr",
+		"202001271320_room5_2.TBOT01.hr"
+	    };
+	    HistoryRepaPtrList ll;
+	    for (auto& f : files)
+	    {
+		std::ifstream in(f, std::ios::binary);
+		auto qq = persistentsRecordList(in);
+		in.close();
+		auto xx = recordListsHistoryRepa_2(8, *qq);
+		uu = std::move(std::get<0>(xx));
+		ur = std::move(std::get<1>(xx));
+		ll.push_back(std::move(std::get<2>(xx)));
+	    }
+	    hr = vectorHistoryRepasConcat_u(ll);
+	}
+
+	EVAL(hr->dimension);
+	EVAL(hr->size);
+
+	Variable motor("motor");
+	Variable location("location");
+	Variable position("position");
+	auto vv = *uvars(*uu);
+	auto vvk = VarUSet(vv);
+	vvk.erase(motor);
+	vvk.erase(location);
+	vvk.erase(position);
+
+	auto& vvi = ur->mapVarSize();
+	SizeList vvk1;
+	for (auto& v : sorted(vvk))
+	    vvk1.push_back(vvi[v]);
+
+	auto dr = applicationer(126, tint, vvk1, vvi[Variable(label)], *hr, 1, *ur);
+	applicationDeltaer(127, 127, tint, vvk1, vvi[Variable(label)], *hr, 1, *ur, *dr);
+	std::ofstream out(model + "_" + label + ".dr", std::ios::binary);
+	systemRepasPersistent(*ur, out); cout << endl;
+	applicationRepasPersistent(*dr, out); cout << endl;
+	out.close();
+    }
+
 
     return 0;
 }
