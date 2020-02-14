@@ -1696,7 +1696,7 @@ int main(int argc, char **argv)
 	auto drcopy = applicationRepasApplicationRepa_u;
 	auto drjoin = applicationRepaPairsJoin_u;
 	auto applicationer = parametersSystemsHistoryRepasApplicationerCondMultinomialFmaxIORepa_up;
-	auto applicationDeltaer = parametersSystemsHistoryRepasApplicationDeltaerCondMultinomialFmaxIORepa_up;
+	auto applicationDeltaer = parametersSystemsHistoryRepasApplicationerCondMultinomialFmaxDeltaIORepa_up;
 
 	string model = string(argv[2]);
 	size_t tint = argc >= 4 ? atoi(argv[3]) : 1;
@@ -1763,7 +1763,7 @@ int main(int argc, char **argv)
 	auto drcopy = applicationRepasApplicationRepa_u;
 	auto drjoin = applicationRepaPairsJoin_u;
 	auto applicationer = parametersSystemsHistoryRepasApplicationerCondMultinomialFmaxIORepa_up;
-	auto applicationDeltaer = parametersSystemsHistoryRepasApplicationDeltaerCondMultinomialFmaxIORepa_up;
+	auto applicationDeltaer = parametersSystemsHistoryRepasApplicationerCondMultinomialFmaxDeltaIORepa_up;
 
 	string model = string(argv[2]);
 	size_t tint = argc >= 4 ? atoi(argv[3]) : 1;
@@ -1834,7 +1834,7 @@ int main(int argc, char **argv)
 	auto drcopy = applicationRepasApplicationRepa_u;
 	auto drjoin = applicationRepaPairsJoin_u;
 	auto applicationer = parametersSystemsHistoryRepasApplicationerCondMultinomialFmaxIORepa_up;
-	auto applicationDeltaer = parametersSystemsHistoryRepasApplicationDeltaerCondMultinomialFmaxIORepa_up;
+	auto applicationDeltaer = parametersSystemsHistoryRepasApplicationerCondMultinomialFmaxDeltaIORepa_up;
 
 	string model = string(argv[2]);
 	size_t tint = argc >= 4 ? atoi(argv[3]) : 1;

@@ -401,7 +401,7 @@ SystemHistoryRepaTuple TBOT01::recordListsHistoryRepa_2(int d, const RecordList&
 	CoordP(Coord(4.9,-5.275),Coord(7.5,-0.175)),
 	CoordP(Coord(-0.05,0.925),Coord(2.3,5.27)),
 	CoordP(Coord(-5.15,-0.175),Coord(2.3,5.27)),
-	CoordP(Coord(-7.5,-0.175),Coord(-5.15,5.27)),
+	CoordP(Coord(-7.5,0.925),Coord(-5.15,5.27)),
 	CoordP(Coord(-7.5,-3.925),Coord(-5.15,0.925)) };
     vector<VarValSetPair> ll;
     auto vscan = std::make_shared<Variable>("scan");
