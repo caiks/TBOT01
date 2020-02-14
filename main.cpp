@@ -1696,7 +1696,7 @@ int main(int argc, char **argv)
 	auto drcopy = applicationRepasApplicationRepa_u;
 	auto drjoin = applicationRepaPairsJoin_u;
 	auto applicationer = parametersSystemsHistoryRepasApplicationerCondMultinomialFmaxIORepa_up;
-	auto applicationDeltaer = parametersSystemsHistoryRepasApplicationerCondMultinomialFmaxDeltaIORepa_up;
+	auto applicationerDelta = parametersSystemsHistoryRepasApplicationerCondMultinomialFmaxDeltaIORepa_up;
 
 	string model = string(argv[2]);
 	size_t tint = argc >= 4 ? atoi(argv[3]) : 1;
@@ -1748,7 +1748,7 @@ int main(int argc, char **argv)
 	    vvk1.push_back(vvi[v]);
 
 	auto dr = applicationer(1, tint, vvk1, vvi[Variable(label)], *hr, 1, *ur);
-	applicationDeltaer(2, 127, tint, vvk1, vvi[Variable(label)], *hr, 1, *ur, *dr);
+	applicationerDelta(2, 127, tint, vvk1, vvi[Variable(label)], *hr, 1, *ur, *dr);
 	std::ofstream out(model + "_" + label + ".dr", std::ios::binary);
 	systemRepasPersistent(*ur, out); cout << endl;
 	applicationRepasPersistent(*dr, out); cout << endl;
@@ -1763,7 +1763,7 @@ int main(int argc, char **argv)
 	auto drcopy = applicationRepasApplicationRepa_u;
 	auto drjoin = applicationRepaPairsJoin_u;
 	auto applicationer = parametersSystemsHistoryRepasApplicationerCondMultinomialFmaxIORepa_up;
-	auto applicationDeltaer = parametersSystemsHistoryRepasApplicationerCondMultinomialFmaxDeltaIORepa_up;
+	auto applicationerDelta = parametersSystemsHistoryRepasApplicationerCondMultinomialFmaxDeltaIORepa_up;
 
 	string model = string(argv[2]);
 	size_t tint = argc >= 4 ? atoi(argv[3]) : 1;
@@ -1818,8 +1818,8 @@ int main(int argc, char **argv)
 	dr->substrate = vvk1;
 	dr->fud = std::make_shared<FudRepa>();
 	dr->slices = std::make_shared<SizeTree>();
-	applicationDeltaer(1, 1, tint, vvk1, vvi[Variable(label)], *hr, 1, *ur, *dr);
-	applicationDeltaer(2, 127, tint, vvk1, vvi[Variable(label)], *hr, 1, *ur, *dr);
+	applicationerDelta(1, 1, tint, vvk1, vvi[Variable(label)], *hr, 1, *ur, *dr);
+	applicationerDelta(2, 127, tint, vvk1, vvi[Variable(label)], *hr, 1, *ur, *dr);
 	std::ofstream out(model + "_" + label + ".dr", std::ios::binary);
 	systemRepasPersistent(*ur, out); cout << endl;
 	applicationRepasPersistent(*dr, out); cout << endl;
@@ -1834,7 +1834,7 @@ int main(int argc, char **argv)
 	auto drcopy = applicationRepasApplicationRepa_u;
 	auto drjoin = applicationRepaPairsJoin_u;
 	auto applicationer = parametersSystemsHistoryRepasApplicationerCondMultinomialFmaxIORepa_up;
-	auto applicationDeltaer = parametersSystemsHistoryRepasApplicationerCondMultinomialFmaxDeltaIORepa_up;
+	auto applicationerDelta = parametersSystemsHistoryRepasApplicationerCondMultinomialFmaxDeltaIORepa_up;
 
 	string model = string(argv[2]);
 	size_t tint = argc >= 4 ? atoi(argv[3]) : 1;
@@ -1886,10 +1886,299 @@ int main(int argc, char **argv)
 	    vvk1.push_back(vvi[v]);
 
 	auto dr = applicationer(126, tint, vvk1, vvi[Variable(label)], *hr, 1, *ur);
-	applicationDeltaer(127, 127, tint, vvk1, vvi[Variable(label)], *hr, 1, *ur, *dr);
+	applicationerDelta(127, 127, tint, vvk1, vvi[Variable(label)], *hr, 1, *ur, *dr);
 	std::ofstream out(model + "_" + label + ".dr", std::ios::binary);
 	systemRepasPersistent(*ur, out); cout << endl;
 	applicationRepasPersistent(*dr, out); cout << endl;
+	out.close();
+    }
+
+
+    if (argc >= 3 && string(argv[1]) == "induce" && string(argv[2]) == "model001_1")
+    {
+	auto uvars = systemsSetVar;
+	auto applicationer = parametersSystemsFudRepasHistoryRepasApplicationerSubstrateEntropyMaxRollByMExcludedSelfHighestFmaxIORepa_p;
+	auto applicationerDelta = parametersSystemsFudRepasHistoryRepasApplicationerSubstrateEntropyMaxRollByMExcludedSelfHighestFmaxDeltaIORepa_p;
+
+	string model = string(argv[2]);
+	size_t tint = argc >= 4 ? atoi(argv[3]) : 1;
+
+	std::unique_ptr<Alignment::System> uu;
+	std::unique_ptr<Alignment::SystemRepa> ur;
+
+	std::vector<std::string> files{
+	    "202001271320_room1.TBOT01.hr",
+	    "202001271320_room2.TBOT01.hr",
+	    "202001271320_room2_2.TBOT01.hr",
+	    "202001271320_room3.TBOT01.hr",
+	    "202001271320_room4.TBOT01.hr",
+	    "202001271320_room5.TBOT01.hr",
+	    "202001271320_room5_2.TBOT01.hr"
+	};
+	HistoryRepaPtrList ll;
+	for (auto& f : files)
+	{
+	    std::ifstream in(f, std::ios::binary);
+	    auto qq = persistentsRecordList(in);
+	    in.close();
+	    auto xx = recordListsHistoryRepa_2(8, *qq);
+	    uu = std::move(std::get<0>(xx));
+	    ur = std::move(std::get<1>(xx));
+	    ll.push_back(std::move(std::get<2>(xx)));
+	}
+	auto hr = vectorHistoryRepasConcat_u(ll);
+
+	EVAL(hr->dimension);
+	EVAL(hr->size);
+
+	Variable motor("motor");
+	Variable location("location");
+	Variable position("position");
+	auto vv = *uvars(*uu);
+	auto vvk = VarUSet(vv);
+	vvk.erase(motor);
+	vvk.erase(location);
+	vvk.erase(position);
+
+	auto& vvi = ur->mapVarSize();
+	auto vvk0 = sorted(vvk);
+	SizeList vvk1;
+	for (auto& v : vvk0)
+	    vvk1.push_back(vvi[v]);
+
+	size_t wmax = 18;
+	size_t lmax = 8;
+	size_t xmax = 128;
+	double znnmax = (double)hr->size * 2.0 * 300.0 * 300.0;
+	size_t omax = 10;
+	size_t bmax = 10 * 3;
+	size_t mmax = 3;
+	size_t umax = 128;
+	size_t pmax = 1;
+	size_t fmax = 127;
+	size_t mult = 1;
+	size_t seed = 5;
+	auto dr = applicationer(wmax, lmax, xmax, znnmax, omax, bmax, mmax, umax, pmax, 1, mult, 0, seed, tint, vvk1, FudRepa(), *hr, 0, *ur);
+	applicationerDelta(wmax, lmax, xmax, znnmax, omax, bmax, mmax, umax, pmax, 2, fmax, mult, 0, seed, tint, vvk1, FudRepa(), *hr, 0, *ur, *dr);
+	std::ofstream out(model + ".dr", std::ios::binary);
+	systemRepasPersistent(*ur, out); cout << endl;
+	applicationRepasPersistent(*dr, out); cout << endl;
+	out.close();
+    }
+
+    if (argc >= 3 && string(argv[1]) == "induce" && string(argv[2]) == "model001_2")
+    {
+	auto uvars = systemsSetVar;
+	auto applicationer = parametersSystemsFudRepasHistoryRepasApplicationerSubstrateEntropyMaxRollByMExcludedSelfHighestFmaxIORepa_p;
+	auto applicationerDelta = parametersSystemsFudRepasHistoryRepasApplicationerSubstrateEntropyMaxRollByMExcludedSelfHighestFmaxDeltaIORepa_p;
+
+	string model = string(argv[2]);
+	size_t tint = argc >= 4 ? atoi(argv[3]) : 1;
+
+	std::unique_ptr<Alignment::System> uu;
+	std::unique_ptr<Alignment::SystemRepa> ur;
+
+	std::vector<std::string> files{
+	    "202001271320_room1.TBOT01.hr",
+	    "202001271320_room2.TBOT01.hr",
+	    "202001271320_room2_2.TBOT01.hr",
+	    "202001271320_room3.TBOT01.hr",
+	    "202001271320_room4.TBOT01.hr",
+	    "202001271320_room5.TBOT01.hr",
+	    "202001271320_room5_2.TBOT01.hr"
+	};
+	HistoryRepaPtrList ll;
+	for (auto& f : files)
+	{
+	    std::ifstream in(f, std::ios::binary);
+	    auto qq = persistentsRecordList(in);
+	    in.close();
+	    auto xx = recordListsHistoryRepa_2(8, *qq);
+	    uu = std::move(std::get<0>(xx));
+	    ur = std::move(std::get<1>(xx));
+	    ll.push_back(std::move(std::get<2>(xx)));
+	}
+	auto hr = vectorHistoryRepasConcat_u(ll);
+
+	EVAL(hr->dimension);
+	EVAL(hr->size);
+
+	Variable motor("motor");
+	Variable location("location");
+	Variable position("position");
+	auto vv = *uvars(*uu);
+	auto vvk = VarUSet(vv);
+	vvk.erase(motor);
+	vvk.erase(location);
+	vvk.erase(position);
+
+	auto& vvi = ur->mapVarSize();
+	auto vvk0 = sorted(vvk);
+	SizeList vvk1;
+	for (auto& v : vvk0)
+	    vvk1.push_back(vvi[v]);
+
+	size_t wmax = 18;
+	size_t lmax = 8;
+	size_t xmax = 128;
+	double znnmax = (double)hr->size * 2.0 * 300.0 * 300.0;
+	size_t omax = 10;
+	size_t bmax = 10 * 3;
+	size_t mmax = 3;
+	size_t umax = 128;
+	size_t pmax = 1;
+	size_t fmax = 127;
+	size_t mult = 1;
+	size_t seed = 5;
+	auto dr = std::make_unique<ApplicationRepa>();
+	dr->substrate = vvk1;
+	dr->fud = std::make_shared<FudRepa>();
+	dr->slices = std::make_shared<SizeTree>();
+	applicationerDelta(wmax, lmax, xmax, znnmax, omax, bmax, mmax, umax, pmax, 1, 64, mult, 0, seed, tint, vvk1, FudRepa(), *hr, 0, *ur, *dr);
+	applicationerDelta(wmax, lmax, xmax, znnmax, omax, bmax, mmax, umax, pmax, 65, fmax, mult, 0, seed, tint, vvk1, FudRepa(), *hr, 0, *ur, *dr);
+	std::ofstream out(model + ".dr", std::ios::binary);
+	systemRepasPersistent(*ur, out); cout << endl;
+	applicationRepasPersistent(*dr, out); cout << endl;
+	out.close();
+    }
+
+    if (argc >= 3 && string(argv[1]) == "induce" && string(argv[2]) == "model005_1")
+    {
+	auto uvars = systemsSetVar;
+	auto drcopy = applicationRepasApplicationRepa_u;
+	auto drjoin = applicationRepaPairsJoin_u;
+	auto applicationer = parametersSystemsFudRepasHistoryRepasApplicationerSubstrateEntropyMaxRollByMExcludedSelfHighestFmaxIORepa_p;
+	auto applicationerDelta = parametersSystemsFudRepasHistoryRepasApplicationerSubstrateEntropyMaxRollByMExcludedSelfHighestFmaxDeltaIORepa_p;
+
+	string model = string(argv[2]);
+	size_t tint = argc >= 4 ? atoi(argv[3]) : 1;
+
+	std::unique_ptr<Alignment::System> uu;
+	std::unique_ptr<Alignment::SystemRepa> ur;
+
+	std::vector<std::string> files{
+	    "202001271320_room1.TBOT01.hr",
+	    "202001271320_room2.TBOT01.hr",
+	    "202001271320_room2_2.TBOT01.hr",
+	    "202001271320_room3.TBOT01.hr",
+	    "202001271320_room4.TBOT01.hr",
+	    "202001271320_room5.TBOT01.hr",
+	    "202001271320_room5_2.TBOT01.hr"
+	};
+	HistoryRepaPtrList ll;
+	for (auto& f : files)
+	{
+	    std::ifstream in(f, std::ios::binary);
+	    auto qq = persistentsRecordList(in);
+	    in.close();
+	    auto xx = recordListsHistoryRepa_2(8, *qq);
+	    uu = std::move(std::get<0>(xx));
+	    ur = std::move(std::get<1>(xx));
+	    ll.push_back(std::move(std::get<2>(xx)));
+	}
+	auto hr = vectorHistoryRepasConcat_u(ll);
+
+	EVAL(hr->dimension);
+	EVAL(hr->size);
+
+	Variable motor("motor");
+	Variable location("location");
+	Variable position("position");
+	auto vv = *uvars(*uu);
+	auto vvk = VarUSet(vv);
+	vvk.erase(motor);
+	vvk.erase(location);
+	vvk.erase(position);
+
+	auto& vvi = ur->mapVarSize();
+	auto vvk0 = sorted(vvk);
+	SizeList vvk1;
+	for (auto& v : vvk0)
+	    vvk1.push_back(vvi[v]);
+
+	ApplicationRepa dr;
+	{
+	    StrVarPtrMap m;
+	    std::ifstream in("model004.dr", std::ios::binary);
+	    auto ur1 = persistentsSystemRepa(in, m);
+	    auto dr1 = persistentsApplicationRepa(in);
+	    in.close();
+	    auto& llu1 = ur1->listVarSizePair;
+	    VarSizeUMap ur0 = ur->mapVarSize();
+	    auto n = fudRepasSize(*dr1->fud);
+	    size_t a = 360;
+	    size_t b = 60;
+	    auto& llu = ur->listVarSizePair;
+	    llu.reserve(n*a / b + a);
+	    dr.slices = std::make_shared<SizeTree>();
+	    dr.slices->_list.reserve(dr1->slices->_list.size() * a / b);
+	    dr.fud = std::make_shared<FudRepa>();
+	    dr.fud->layers.reserve(dr1->fud->layers.size());
+	    dr.substrate.reserve(dr1->substrate.size() * a / b);
+	    auto vframe = std::make_shared<Variable>("f");
+	    for (int i = 0; i < a * 2 / b; i++)
+	    {
+		auto dr2 = drcopy(*dr1);
+		SizeSizeUMap nn;
+		nn.reserve(n + b);
+		for (auto x1 : dr1->substrate)
+		{
+		    auto& p = llu1[x1];
+		    auto v1 = p.first->_var0;
+		    auto v2 = std::make_shared<Variable>((int)(p.first->_var1->_int + i*b / 2 - 1));
+		    auto v = std::make_shared<Variable>(v1, v2);
+		    nn[x1] = ur0[*v];
+		}
+		auto v3 = std::make_shared<Variable>((int)i + 1);
+		auto vd1 = std::make_shared<Variable>(vframe, v3);
+		for (auto& ll : dr1->fud->layers)
+		    for (auto& tr : ll)
+		    {
+			auto x1 = tr->derived;
+			auto& p = llu1[x1];
+			auto vdfl = p.first->_var0;
+			auto vb = p.first->_var1;
+			auto vdf = vdfl->_var0;
+			auto vl = vdfl->_var1;
+			auto vf = vdf->_var1;
+			auto vdf1 = std::make_shared<Variable>(vd1, vf);
+			auto vdfl1 = std::make_shared<Variable>(vdf1, vl);
+			auto vdflb1 = std::make_shared<Variable>(vdfl1, vb);
+			llu.push_back(VarSizePair(vdflb1, p.second));
+			nn[x1] = llu.size() - 1;
+		    }
+		dr2->reframe_u(nn);
+		dr.slices->_list.insert(dr.slices->_list.end(), dr2->slices->_list.begin(), dr2->slices->_list.end());
+		for (std::size_t l = 0; l < dr2->fud->layers.size(); l++)
+		{
+		    if (l < dr.fud->layers.size())
+			dr.fud->layers[l].insert(dr.fud->layers[l].end(), dr2->fud->layers[l].begin(), dr2->fud->layers[l].end());
+		    else
+			dr.fud->layers.push_back(dr2->fud->layers[l]);
+		}
+		dr.substrate.insert(dr.substrate.end(), dr2->substrate.begin(), dr2->substrate.end());
+	    }
+	}
+
+	size_t wmax = 18;
+	size_t lmax = 8;
+	size_t xmax = 128;
+	double znnmax = 60000.0 * 2.0 * 100.0 * 100.0 * tint;
+	size_t omax = 10;
+	size_t bmax = 10 * 3;
+	size_t mmax = 3;
+	size_t umax = 128;
+	size_t pmax = 1;
+	size_t fmax = 127;
+	size_t mult = 1;
+	size_t seed = 5;
+	auto sl = treesElements(*dr.slices);
+	auto dr2 = applicationer(wmax, lmax, xmax, znnmax, omax, bmax, mmax, umax, pmax, 64, mult, 0, seed, tint, *sl, *dr.fud, *hr, 0, *ur);
+	applicationerDelta(wmax, lmax, xmax, znnmax, omax, bmax, mmax, umax, pmax, 65, fmax, mult, 0, seed, tint, *sl, *dr.fud, *hr, 0, *ur, *dr2);
+	auto dr3 = drjoin(dr, *dr2);
+	std::ofstream out(model + ".dr", std::ios::binary);
+	systemRepasPersistent(*ur, out); cout << endl;
+	applicationRepasPersistent(*dr3, out); cout << endl;
 	out.close();
     }
 
