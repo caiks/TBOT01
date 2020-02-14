@@ -2182,6 +2182,136 @@ int main(int argc, char **argv)
 	out.close();
     }
 
+    if (false)
+    {
+	auto uvars = systemsSetVar;
+	auto hrhrred = setVarsHistoryRepasHistoryRepaReduced_u;
+	auto frmul = historyRepasFudRepasMultiply_u;
+	auto hrhs = historyRepasHistorySparse;
+	auto drcopy = applicationRepasApplicationRepa_u;
+
+	std::unique_ptr<Alignment::System> uu;
+	std::unique_ptr<Alignment::SystemRepa> ur;
+
+	std::vector<std::string> files{
+	    "202001271320_room1.TBOT01.hr",
+	    "202001271320_room2.TBOT01.hr",
+	    "202001271320_room2_2.TBOT01.hr",
+	    "202001271320_room3.TBOT01.hr",
+	    "202001271320_room4.TBOT01.hr",
+	    "202001271320_room5.TBOT01.hr",
+	    "202001271320_room5_2.TBOT01.hr"
+	};
+	HistoryRepaPtrList ll;
+	for (auto& f : files)
+	{
+	    std::ifstream in(f, std::ios::binary);
+	    auto qq = persistentsRecordList(in);
+	    in.close();
+	    auto xx = recordListsHistoryRepa_2(8, *qq);
+	    uu = std::move(std::get<0>(xx));
+	    ur = std::move(std::get<1>(xx));
+	    ll.push_back(std::move(std::get<2>(xx)));
+	}
+	auto hr = vectorHistoryRepasConcat_u(ll);
+
+	EVAL(hr->dimension);
+	EVAL(hr->size);
+
+	Variable motor("motor");
+	Variable location("location");
+	Variable position("position");
+	auto vv = *uvars(*uu);
+	auto vvk = VarUSet(vv);
+	vvk.erase(motor);
+	vvk.erase(location);
+	vvk.erase(position);
+
+	auto& vvi = ur->mapVarSize();
+	auto vvk0 = sorted(vvk);
+	SizeList vvk1;
+	for (auto& v : vvk0)
+	    vvk1.push_back(vvi[v]);
+
+	ApplicationRepa dr;
+	{
+	    StrVarPtrMap m;
+	    std::ifstream in("model004.dr", std::ios::binary);
+	    auto ur1 = persistentsSystemRepa(in, m);
+	    auto dr1 = persistentsApplicationRepa(in);
+	    in.close();
+	    auto& llu1 = ur1->listVarSizePair;
+	    VarSizeUMap ur0 = ur->mapVarSize();
+	    auto n = fudRepasSize(*dr1->fud);
+	    size_t a = 360;
+	    size_t b = 60;
+	    auto& llu = ur->listVarSizePair;
+	    llu.reserve(n*a / b + a);
+	    dr.slices = std::make_shared<SizeTree>();
+	    dr.slices->_list.reserve(dr1->slices->_list.size() * a / b);
+	    dr.fud = std::make_shared<FudRepa>();
+	    dr.fud->layers.reserve(dr1->fud->layers.size());
+	    dr.substrate.reserve(dr1->substrate.size() * a / b);
+	    auto vframe = std::make_shared<Variable>("f");
+	    for (int i = 0; i < a * 2 / b; i++)
+	    {
+		auto dr2 = drcopy(*dr1);
+		SizeSizeUMap nn;
+		nn.reserve(n + b);
+		for (auto x1 : dr1->substrate)
+		{
+		    auto& p = llu1[x1];
+		    auto v1 = p.first->_var0;
+		    auto v2 = std::make_shared<Variable>((int)(p.first->_var1->_int + i*b / 2 - 1));
+		    auto v = std::make_shared<Variable>(v1, v2);
+		    nn[x1] = ur0[*v];
+		}
+		auto v3 = std::make_shared<Variable>((int)i + 1);
+		auto vd1 = std::make_shared<Variable>(vframe, v3);
+		for (auto& ll : dr1->fud->layers)
+		    for (auto& tr : ll)
+		    {
+			auto x1 = tr->derived;
+			auto& p = llu1[x1];
+			auto vdfl = p.first->_var0;
+			auto vb = p.first->_var1;
+			auto vdf = vdfl->_var0;
+			auto vl = vdfl->_var1;
+			auto vf = vdf->_var1;
+			auto vdf1 = std::make_shared<Variable>(vd1, vf);
+			auto vdfl1 = std::make_shared<Variable>(vdf1, vl);
+			auto vdflb1 = std::make_shared<Variable>(vdfl1, vb);
+			llu.push_back(VarSizePair(vdflb1, p.second));
+			nn[x1] = llu.size() - 1;
+		    }
+		dr2->reframe_u(nn);
+		dr.slices->_list.insert(dr.slices->_list.end(), dr2->slices->_list.begin(), dr2->slices->_list.end());
+		for (std::size_t l = 0; l < dr2->fud->layers.size(); l++)
+		{
+		    if (l < dr.fud->layers.size())
+			dr.fud->layers[l].insert(dr.fud->layers[l].end(), dr2->fud->layers[l].begin(), dr2->fud->layers[l].end());
+		    else
+			dr.fud->layers.push_back(dr2->fud->layers[l]);
+		}
+		dr.substrate.insert(dr.substrate.end(), dr2->substrate.begin(), dr2->substrate.end());
+	    }
+	}
+
+	auto sl = treesElements(*dr.slices);
+	auto hr1 = hrhrred(sl->size(), sl->data(), *frmul(*hr, *dr.fud));
+
+	EVAL(hr1->dimension);
+	EVAL(hr1->size);
+
+	std::ofstream out("test.hr", std::ios::binary);
+	ECHO(historyRepasPersistent(*hr1, out));
+	out.close();
+
+	auto hs1 = hrhs(*hr1);
+	std::ofstream out1("test.hs", std::ios::binary);
+	ECHO(historySparsesPersistent(*hs1, out1));
+	out1.close();
+    }
 
     return 0;
 }
