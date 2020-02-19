@@ -177,23 +177,21 @@ main induce model008 4 >model008.log
 
 To run the controller it is necessary to install [ROS2](https://index.ros.org/doc/ros2/), [Gazebo](http://gazebosim.org/tutorials?cat=install) and [TurtleBot3](http://emanual.robotis.com/docs/en/platform/turtlebot3/ros2_simulation/#simulation) on a machine with a GPU.
 
-TODO
+For example on [AWS EC2](https://aws.amazon.com/ec2/) start a `g2.2xlarge` instance.
 
-spot request without template - must specify EBS volume of 8GB or more
+Set the enivronment variables required by `ssh`,
 ```
-g2.2xlarge
-
-Ireland
-
-ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-20180912 (ami-00035f41c82244dab)
-
-dt5:
-cd /home/cliff/Documents/projects/CAIKS4
-chmod 400 kp01.pem
 h=ubuntu@ec2-18-203-247-60.eu-west-1.compute.amazonaws.com
 k=kp01.pem
+
+```
+Then connect with X11 forwarding enabled,
+```
 ssh -X -i $k $h
 
+```
+Then install as follows,
+```
 sudo apt-get update -y && sudo apt install -y g++ xorg gedit
 
 sudo reboot
@@ -208,6 +206,11 @@ ssh -X -i $k $h
 
 nvidia-smi -q | head
 
+```
+The GPU drivers should be working at this point.
+
+Now install ROS2, Gazebo and TurtleBot3,
+```
 sudo apt update -y && sudo apt install -y curl gnupg2 lsb-release
 
 curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
@@ -242,6 +245,9 @@ source ~/.bashrc
 export TB3_MODEL=burger
 export TURTLEBOT3_MODEL=${TB3_MODEL}
 
+```
+Now download and build the TBOT01 repository and the underlying rapidjson, AlignmentC and AlignmentRepaC repositories -
+```
 cd ~/turtlebot3_ws/src
 
 git clone https://github.com/Tencent/rapidjson.git
@@ -255,14 +261,6 @@ cd ~/turtlebot3_ws/src/AlignmentRepaC_build
 cmake -DCMAKE_BUILD_TYPE=RELEASE ../AlignmentRepaC
 make AlignmentC AlignmentRepaC
 
-gedit ~/turtlebot3_ws/src/AlignmentRepaC/AlignmentAesonRepa.cpp &
-
-cd ~/turtlebot3_ws/src/AlignmentRepaC
-git status
-git add --all
-git commit -m"memset header"
-git push
-
 cd ~/turtlebot3_ws/src/TBOT01
 cp CMakeLists_ros.txt CMakeLists.txt
 
@@ -271,8 +269,21 @@ colcon build --packages-select TBOT01
 
 source ~/.bashrc
 
+```
+Before running the turtlebot house, we must amend the models. First add a door to prevent the robot escaping,
+```
 gedit ~/turtlebot3_ws/src/turtlebot3/turtlebot3_simulations/turtlebot3_gazebo/worlds/turtlebot3_houses/burger.model &
 
+```
+replacing
+```
+    <include>
+      <pose>-2.0 1.5 0.01 0.0 0.0 0.0</pose>
+      <uri>model://turtlebot3_burger</uri>
+    </include>
+```
+with
+```
     <model name='unit_box'>
       <static>1</static>
       <pose frame=''>1.075267 -0.344746 0.5 0 -0 0</pose>
@@ -332,12 +343,16 @@ gedit ~/turtlebot3_ws/src/turtlebot3/turtlebot3_simulations/turtlebot3_gazebo/wo
       <pose>-2.0 1.5 0.01 0.0 0.0 0.0</pose>
       <uri>model://turtlebot3_burger</uri>
     </include>
-
+```
+Now remove the models `cafe_table`, `cafe_table_0`, `table_marble`, `table` to prevent collisions,
+```
 gedit ~/turtlebot3_ws/src/turtlebot3/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_house/model.sdf &
 
-# remove cafe_table, cafe_table_0, table_marble, table
-
+```
+The simiulation can be started in paused mode,
+```
 gazebo -u --verbose ~/turtlebot3_ws/src/turtlebot3/turtlebot3_simulations/turtlebot3_gazebo/worlds/turtlebot3_houses/burger.model -s libgazebo_ros_init.so
+
 ```
 
 ## Windows TODO
