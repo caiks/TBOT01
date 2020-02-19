@@ -31,10 +31,15 @@
 #define TB3_RIGHT_TURN    2
 #define TB3_LEFT_TURN     3
 
+typedef std::pair<std::string, std::string> StringPair;
+typedef std::vector<std::string> StringList;
+
+typedef std::pair<double, double> Coord;
+
 class Controller : public rclcpp::Node
 {
 public:
-    Controller(const std::string&, std::chrono::milliseconds, std::chrono::milliseconds, std::chrono::milliseconds);
+    Controller(const std::string&, std::chrono::milliseconds, std::chrono::milliseconds, std::chrono::milliseconds, std::chrono::milliseconds, const std::string&, const std::string&);
     ~Controller();
 
 private:
@@ -61,6 +66,13 @@ private:
 
     int _left_turn_factor;
     int _right_turn_factor;
+
+    int _demo_factor;
+    std::string _demo_state0;
+    std::string _demo_state1;
+    std::map<StringPair, StringList> _demo_map;
+    std::map<std::string, std::string> _demo_map2;
+    std::map<std::string, Coord> _demo_coord_map;
 
     void update_callback();
     void record_callback();
