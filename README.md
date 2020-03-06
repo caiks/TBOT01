@@ -24,7 +24,7 @@ git clone https://github.com/caiks/AlignmentRepaC.git
 git clone https://github.com/caiks/TBOT01.git
 
 ```
-Then download the TBOT01 workspace -
+Then download the [TBOT01 workspace repository](https://github.com/caiks/TBOT01_ws) -
 ```
 git clone https://github.com/caiks/TBOT01_ws.git
 
