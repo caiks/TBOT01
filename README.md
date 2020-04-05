@@ -177,7 +177,7 @@ main induce model008 4 >model008.log
 
 To run the controller it is necessary to install [ROS2](https://index.ros.org/doc/ros2/), [Gazebo](http://gazebosim.org/tutorials?cat=install) and [TurtleBot3](http://emanual.robotis.com/docs/en/platform/turtlebot3/ros2_simulation/#simulation) on a machine with a GPU.
 
-For example on [AWS EC2](https://aws.amazon.com/ec2/) start a `g2.2xlarge` instance.
+For example on [AWS EC2](https://aws.amazon.com/ec2/) start a `g2.2xlarge` Ubuntu bionic (18.04) instance.
 
 Set the enivronment variables required by `ssh`,
 ```
