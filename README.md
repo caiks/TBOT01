@@ -177,6 +177,8 @@ main induce model008 4 >model008.log
 
 To run the controller it is necessary to install [ROS2](https://index.ros.org/doc/ros2/), [Gazebo](http://gazebosim.org/tutorials?cat=install) and [TurtleBot3](http://emanual.robotis.com/docs/en/platform/turtlebot3/ros2_simulation/#simulation) on a machine with a GPU.
 
+### AWS EC2 instance
+
 For example on [AWS EC2](https://aws.amazon.com/ec2/) start a `g2.2xlarge` Ubuntu bionic (18.04) instance.
 
 Set the enivronment variables required by `ssh`,
@@ -196,8 +198,14 @@ sudo apt-get update -y && sudo apt install -y g++ xorg gedit
 
 sudo reboot
 
+```
+
+```
 ssh -X -i $k $h
 
+```
+
+```
 sudo apt install -y ubuntu-drivers-common && sudo ubuntu-drivers autoinstall
 
 sudo reboot
@@ -209,25 +217,83 @@ nvidia-smi -q | head
 ```
 The GPU drivers should be working at this point.
 
-Now install ROS2, Gazebo and TurtleBot3,
+For example, test the GPU with GLX gears, 
 ```
-sudo apt update -y && sudo apt install -y curl gnupg2 lsb-release
+sudo apt-get install -y mesa-utils
+
+glxgears
+
+```
+There should be a set of cogs smoothly rotating.
+
+The EC2 instance is ready to proceed with the remainder of the [installation](#Installation).
+
+### Windows 10 WSL2 instance
+
+Another example is an instance of a Windows 10 machine with a GPU, running [WSL2](https://docs.microsoft.com/en-us/windows/wsl/wsl2-index).
+
+Install [Ubuntu 18.04](https://www.microsoft.com/en-gb/p/ubuntu-1804-lts/9n9tngvndl3q?rtc=1&activetab=pivot:overviewtab).
+
+Check the virtual machine is running at WSL2 in admin powershell
+```
+wsl -l -v
+
+```
+
+Launch Ubuntu, create the user and then prepare it for Xwindows,
+```
+echo "export DISPLAY=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2}'):0" >> ~/.bashrc
+source ~/.bashrc
+
+sudo apt update
+
+sudo apt install -y g++ xorg gedit
+
+```
+Install [VcVsrv](https://sourceforge.net/projects/vcxsrv/files/latest/download).
+
+Run Xlaunch: reset `Native opengl` and set `Disable access control`.
+
+Test with `xeyes`. 
+
+Note that Windows Firewall may be blocking, see   https://github.com/microsoft/WSL/issues/4171#issuecomment-559961027
+ 
+### Installation
+
+Now install Gazebo9,
+```
+sudo apt-get install -y gazebo9 libgazebo9-dev
+
+gazebo -v
+
+```
+Install ROS2 Eloquent,
+```
+sudo apt install -y curl gnupg2 lsb-release
 
 curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
 
 sudo sh -c 'echo "deb [arch=amd64,arm64] http://packages.ros.org/ros2/ubuntu `lsb_release -cs` main" > /etc/apt/sources.list.d/ros2-latest.list'
 
-sudo apt update -y && sudo apt install -y ros-eloquent-desktop
+sudo apt update
 
-source /opt/ros/eloquent/setup.bash
+sudo apt install -y ros-eloquent-desktop ros-eloquent-gazebo-*
 
 echo "source /opt/ros/eloquent/setup.bash" >> ~/.bashrc
+source ~/.bashrc
 
-sudo apt install -y python3-argcomplete python3-colcon-common-extensions google-mock libceres-dev liblua5.3-dev libboost-dev libboost-iostreams-dev libprotobuf-dev protobuf-compiler libcairo2-dev libpcl-dev python3-sphinx 
+```
+Test by ruuning these nodes in separate shells,
+```
+ros2 run demo_nodes_cpp talker
 
-curl -sSL http://get.gazebosim.org | sh
+ros2 run demo_nodes_py listener
 
-sudo apt install -y ros-eloquent-gazebo-* ros-eloquent-cartographer ros-eloquent-cartographer-ros python3-vcstool
+```
+Install TurtleBot3,
+
+```
+sudo apt install -y python3-argcomplete python3-colcon-common-extensions google-mock libceres-dev liblua5.3-dev libboost-dev libboost-iostreams-dev libprotobuf-dev protobuf-compiler libcairo2-dev libpcl-dev python3-sphinx python3-vcstool
 
 mkdir -p ~/turtlebot3_ws/src
 cd ~/turtlebot3_ws
@@ -246,6 +312,16 @@ export TB3_MODEL=burger
 export TURTLEBOT3_MODEL=${TB3_MODEL}
 
 ```
+Test with
+```
+ros2 launch turtlebot3_gazebo empty_world.launch.py
+
+ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
+
+ros2 launch turtlebot3_gazebo turtlebot3_house.launch.py
+
+```
+
 Now download and build the TBOT01 repository and the underlying rapidjson, AlignmentC and AlignmentRepaC repositories -
 ```
 cd ~/turtlebot3_ws/src
