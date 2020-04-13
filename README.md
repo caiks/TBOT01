@@ -277,13 +277,13 @@ sudo sh -c 'echo "deb [arch=amd64,arm64] http://packages.ros.org/ros2/ubuntu `ls
 
 sudo apt update
 
-sudo apt install -y ros-eloquent-desktop ros-eloquent-gazebo-*
+sudo apt install -y ros-eloquent-desktop ros-eloquent-gazebo-* ros-eloquent-cartographer ros-eloquent-cartographer-ros
 
 echo "source /opt/ros/eloquent/setup.bash" >> ~/.bashrc
 source ~/.bashrc
 
 ```
-Test by ruuning these nodes in separate shells,
+Test by running these nodes in separate shells,
 ```
 ros2 run demo_nodes_cpp talker
 
@@ -344,90 +344,20 @@ cd ~/turtlebot3_ws
 colcon build --packages-select TBOT01
 
 source ~/.bashrc
+```
 
-```
-Before running the turtlebot house, we must amend the models. First add a door to prevent the robot escaping,
-```
-gedit ~/turtlebot3_ws/src/turtlebot3/turtlebot3_simulations/turtlebot3_gazebo/worlds/turtlebot3_houses/burger.model &
-
-```
-replacing
-```
-    <include>
-      <pose>-2.0 1.5 0.01 0.0 0.0 0.0</pose>
-      <uri>model://turtlebot3_burger</uri>
-    </include>
-```
-with
-```
-    <model name='unit_box'>
-      <static>1</static>
-      <pose frame=''>1.075267 -0.344746 0.5 0 -0 0</pose>
-      <link name='link'>
-        <inertial>
-          <mass>1</mass>
-          <inertia>
-            <ixx>0.166667</ixx>
-            <ixy>0</ixy>
-            <ixz>0</ixz>
-            <iyy>0.166667</iyy>
-            <iyz>0</iyz>
-            <izz>0.166667</izz>
-          </inertia>
-          <pose frame=''>0 0 0 0 -0 0</pose>
-        </inertial>
-        <collision name='collision'>
-          <geometry>
-            <box>
-              <size>1 0.069697 1</size>
-            </box>
-          </geometry>
-          <max_contacts>10</max_contacts>
-          <surface>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
-            <friction>
-              <torsional>
-                <ode/>
-              </torsional>
-              <ode/>
-            </friction>
-          </surface>
-        </collision>
-        <visual name='visual'>
-          <geometry>
-            <box>
-              <size>1 0.069697 1</size>
-            </box>
-          </geometry>
-          <material>
-            <script>
-              <name>Gazebo/Grey</name>
-              <uri>file://media/materials/scripts/gazebo.material</uri>
-            </script>
-          </material>
-        </visual>
-        <self_collide>0</self_collide>
-        <enable_wind>0</enable_wind>
-        <kinematic>0</kinematic>
-      </link>
-    </model>
-
-    <include>
-      <pose>-2.0 1.5 0.01 0.0 0.0 0.0</pose>
-      <uri>model://turtlebot3_burger</uri>
-    </include>
-```
-Now remove the models `cafe_table`, `cafe_table_0`, `table_marble`, `table` to prevent collisions,
-```
-gedit ~/turtlebot3_ws/src/turtlebot3/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_house/model.sdf &
-
-```
 The simiulation can be started in paused mode,
 ```
-gazebo -u --verbose ~/turtlebot3_ws/src/turtlebot3/turtlebot3_simulations/turtlebot3_gazebo/worlds/turtlebot3_houses/burger.model -s libgazebo_ros_init.so
+export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:~/turtlebot3_ws/src/TBOT01_ws/gazebo_models
+
+gazebo -u --verbose ~/turtlebot3_ws/src/TBOT01_ws/env001.model -s libgazebo_ros_init.so
+
+```
+In a separate shell,
+```
+cd ~/turtlebot3_ws/src/TBOT01_ws
+
+ros2 run TBOT01 controller TBOT01.bin 250 2000 4000
 
 ```
 
