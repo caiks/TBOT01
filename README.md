@@ -240,9 +240,13 @@ wsl -l -v
 
 ```
 
-Launch Ubuntu, create the user and then prepare it for Xwindows,
+Launch Ubuntu, create the user and then prepare it for Xwindows. Add the following line to `~/.bashrc`,
 ```
-echo "export DISPLAY=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2}'):0" >> ~/.bashrc
+export DISPLAY=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2}'):0
+
+```
+Install Xwindows,
+```
 source ~/.bashrc
 
 sudo apt update
