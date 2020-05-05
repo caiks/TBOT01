@@ -43,21 +43,21 @@ make
 cd ../TBOT01_ws
 ln -s ../TBOT01_build/main main
 
-./main stats 202001222010_2.TBOT01
+./main stats data001
 
-./main stats 202001271320_room1.TBOT01
+./main stats data002_room1
 
-./main bitmap 202001222010_2.TBOT01
+./main bitmap data001
 
-./main bitmap 202001222010_2.TBOT01 3
+./main bitmap data001 3
 
-./main bitmap 202001271320_room1.TBOT01
+./main bitmap data002_room1
 
-./main bitmap_average 202001222010_2.TBOT01
+./main bitmap_average data001
 
-./main bitmap_average 202001271320_room1.TBOT01 20
+./main bitmap_average data002_room1 20
 
-./main bitmap_average 202001271320_room4.TBOT01 20
+./main bitmap_average data002_room4 20
 
 ./main induce model001 4 >model001.log
 
