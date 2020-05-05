@@ -25,13 +25,13 @@ Observer::Observer(const std::string& model, const std::string& label, std::chro
 
 	std::unique_ptr<Alignment::SystemRepa> ur;
 	std::vector<std::string> files{
-		"202001271320_room1.TBOT01.hr",
-		"202001271320_room2.TBOT01.hr",
-		"202001271320_room2_2.TBOT01.hr",
-		"202001271320_room3.TBOT01.hr",
-		"202001271320_room4.TBOT01.hr",
-		"202001271320_room5.TBOT01.hr",
-		"202001271320_room5_2.TBOT01.hr"
+		"data002_room1.bin",
+		"data002_room2.bin",
+		"data002_room2_2.bin",
+		"data002_room3.bin",
+		"data002_room4.bin",
+		"data002_room5.bin",
+		"data002_room5_2.bin"
 	};
 	HistoryRepaPtrList ll;
 	for (auto& f : files)

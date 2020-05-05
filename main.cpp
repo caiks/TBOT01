@@ -27,25 +27,25 @@ int main(int argc, char **argv)
 		cout << "rr" << endl
 			<< rr << endl << endl;
 
-		std::ofstream out("test.hr", std::ios::binary);
+		std::ofstream out("test.bin", std::ios::binary);
 		recordListsPersistent(rr, out); cout << endl;
 		out.close();
 
-		std::ifstream in("test.hr", std::ios::binary);
+		std::ifstream in("test.bin", std::ios::binary);
 		auto rr2 = persistentsRecordList(in);
 		in.close();
 
 		cout << "rr2" << endl
 			<< *rr2 << endl << endl;
 
-		std::ifstream in2("test.hr", std::ios::binary);
+		std::ifstream in2("test.bin", std::ios::binary);
 		cout << in2 << endl;
 		in2.close();
 	}
 
 	if (false)
 	{
-		std::ifstream in("data001.hr", std::ios::binary);
+		std::ifstream in("data001.bin", std::ios::binary);
 		auto rr = persistentsRecordList(in);
 		in.close();
 		cout << *rr << endl;
@@ -53,7 +53,7 @@ int main(int argc, char **argv)
 
 	if (false)
 	{
-		std::ifstream in("data001.hr", std::ios::binary);
+		std::ifstream in("data001.bin", std::ios::binary);
 		cout << in;
 		in.close();
 	}
@@ -63,7 +63,7 @@ int main(int argc, char **argv)
 		auto rr = std::make_unique<RecordList>();
 		try
 		{
-			std::ifstream in("data001.hr", std::ios::binary);
+			std::ifstream in("data001.bin", std::ios::binary);
 			if (in.is_open())
 			{
 				rr = persistentsRecordList(in);
@@ -235,7 +235,7 @@ int main(int argc, char **argv)
 			return eventsHistoryRepasHistoryRepaSelection_u(ll.size(), (std::size_t*)ll.data(), hr);
 		};
 
-		std::ifstream in("data001.hr", std::ios::binary);
+		std::ifstream in("data001.bin", std::ios::binary);
 		auto qq = persistentsRecordList(in);
 		in.close();
 
@@ -262,7 +262,7 @@ int main(int argc, char **argv)
 		auto rr = std::make_unique<RecordList>();
 		try
 		{
-			std::ifstream in(string(argv[2])+".hr", std::ios::binary);
+			std::ifstream in(string(argv[2])+".bin", std::ios::binary);
 			if (in.is_open())
 			{
 				rr = persistentsRecordList(in);
@@ -363,7 +363,7 @@ int main(int argc, char **argv)
 			return eventsHistoryRepasHistoryRepaSelection_u(ll.size(), (std::size_t*)ll.data(), hr);
 		};
 
-		std::ifstream in(string(argv[2]) + ".hr", std::ios::binary);
+		std::ifstream in(string(argv[2]) + ".bin", std::ios::binary);
 		auto qq = persistentsRecordList(in);
 		in.close();
 
@@ -388,7 +388,7 @@ int main(int argc, char **argv)
 			return eventsHistoryRepasHistoryRepaSelection_u(ll.size(), (std::size_t*)ll.data(), hr);
 		};
 
-		std::ifstream in(string(argv[2]) + ".hr", std::ios::binary);
+		std::ifstream in(string(argv[2]) + ".bin", std::ios::binary);
 		auto qq = persistentsRecordList(in);
 		in.close();
 
@@ -417,13 +417,13 @@ int main(int argc, char **argv)
 		std::unique_ptr<Alignment::SystemRepa> ur;
 
 		std::vector<std::string> files{
-			"data002_room1.hr",
-			"data002_room2.hr",
-			"data002_room2_2.hr",
-			"data002_room3.hr",
-			"data002_room4.hr",
-			"data002_room5.hr",
-			"data002_room5_2.hr"
+			"data002_room1.bin",
+			"data002_room2.bin",
+			"data002_room2_2.bin",
+			"data002_room3.bin",
+			"data002_room4.bin",
+			"data002_room5.bin",
+			"data002_room5_2.bin"
 		};
 		HistoryRepaPtrList ll;
 		for (auto& f : files)
@@ -486,13 +486,13 @@ int main(int argc, char **argv)
 		std::unique_ptr<Alignment::SystemRepa> ur;
 
 		std::vector<std::string> files{
-			"data002_room1.hr",
-			"data002_room2.hr",
-			"data002_room2_2.hr",
-			"data002_room3.hr",
-			"data002_room4.hr",
-			"data002_room5.hr",
-			"data002_room5_2.hr"
+			"data002_room1.bin",
+			"data002_room2.bin",
+			"data002_room2_2.bin",
+			"data002_room3.bin",
+			"data002_room4.bin",
+			"data002_room5.bin",
+			"data002_room5_2.bin"
 		};
 		HistoryRepaPtrList ll;
 		int s = 17;
@@ -553,13 +553,13 @@ int main(int argc, char **argv)
 		std::unique_ptr<Alignment::SystemRepa> ur;
 
 		std::vector<std::string> files{
-			"data002_room1.hr",
-			"data002_room2.hr",
-			"data002_room2_2.hr",
-			"data002_room3.hr",
-			"data002_room4.hr",
-			"data002_room5.hr",
-			"data002_room5_2.hr"
+			"data002_room1.bin",
+			"data002_room2.bin",
+			"data002_room2_2.bin",
+			"data002_room3.bin",
+			"data002_room4.bin",
+			"data002_room5.bin",
+			"data002_room5_2.bin"
 		};
 		HistoryRepaPtrList ll;
 		int s = 17;
@@ -635,13 +635,13 @@ int main(int argc, char **argv)
 
 		{
 			std::vector<std::string> files{
-				"data002_room1.hr",
-				"data002_room2.hr",
-				"data002_room2_2.hr",
-				"data002_room3.hr",
-				"data002_room4.hr",
-				"data002_room5.hr",
-				"data002_room5_2.hr"
+				"data002_room1.bin",
+				"data002_room2.bin",
+				"data002_room2_2.bin",
+				"data002_room3.bin",
+				"data002_room4.bin",
+				"data002_room5.bin",
+				"data002_room5_2.bin"
 			};
 			HistoryRepaPtrList ll;
 			int s = 17;
@@ -739,13 +739,13 @@ int main(int argc, char **argv)
 		std::unique_ptr<Alignment::SystemRepa> ur;
 
 		std::vector<std::string> files{
-			"data002_room1.hr",
-			"data002_room2.hr",
-			"data002_room2_2.hr",
-			"data002_room3.hr",
-			"data002_room4.hr",
-			"data002_room5.hr",
-			"data002_room5_2.hr"
+			"data002_room1.bin",
+			"data002_room2.bin",
+			"data002_room2_2.bin",
+			"data002_room3.bin",
+			"data002_room4.bin",
+			"data002_room5.bin",
+			"data002_room5_2.bin"
 		};
 		HistoryRepaPtrList ll;
 		int s = 17;
@@ -821,13 +821,13 @@ int main(int argc, char **argv)
 
 		{
 			std::vector<std::string> files{
-				"data002_room1.hr",
-				"data002_room2.hr",
-				"data002_room2_2.hr",
-				"data002_room3.hr",
-				"data002_room4.hr",
-				"data002_room5.hr",
-				"data002_room5_2.hr"
+				"data002_room1.bin",
+				"data002_room2.bin",
+				"data002_room2_2.bin",
+				"data002_room3.bin",
+				"data002_room4.bin",
+				"data002_room5.bin",
+				"data002_room5_2.bin"
 			};
 			HistoryRepaPtrList ll;
 			int s = 17;
@@ -928,13 +928,13 @@ int main(int argc, char **argv)
 		std::unique_ptr<Alignment::SystemRepa> ur;
 
 		std::vector<std::string> files{
-			"data002_room1.hr",
-			"data002_room2.hr",
-			"data002_room2_2.hr",
-			"data002_room3.hr",
-			"data002_room4.hr",
-			"data002_room5.hr",
-			"data002_room5_2.hr"
+			"data002_room1.bin",
+			"data002_room2.bin",
+			"data002_room2_2.bin",
+			"data002_room3.bin",
+			"data002_room4.bin",
+			"data002_room5.bin",
+			"data002_room5_2.bin"
 		};
 		HistoryRepaPtrList ll;
 		for (auto& f : files)
@@ -1071,13 +1071,13 @@ int main(int argc, char **argv)
 
 		{
 			std::vector<std::string> files{
-				"data002_room1.hr",
-				"data002_room2.hr",
-				"data002_room2_2.hr",
-				"data002_room3.hr",
-				"data002_room4.hr",
-				"data002_room5.hr",
-				"data002_room5_2.hr"
+				"data002_room1.bin",
+				"data002_room2.bin",
+				"data002_room2_2.bin",
+				"data002_room3.bin",
+				"data002_room4.bin",
+				"data002_room5.bin",
+				"data002_room5_2.bin"
 			};
 			HistoryRepaPtrList ll;
 			for (auto& f : files)
@@ -1136,13 +1136,13 @@ int main(int argc, char **argv)
 
 		{
 			std::vector<std::string> files{
-				"data002_room1.hr",
-				"data002_room2.hr",
-				"data002_room2_2.hr",
-				"data002_room3.hr",
-				"data002_room4.hr",
-				"data002_room5.hr",
-				"data002_room5_2.hr"
+				"data002_room1.bin",
+				"data002_room2.bin",
+				"data002_room2_2.bin",
+				"data002_room3.bin",
+				"data002_room4.bin",
+				"data002_room5.bin",
+				"data002_room5_2.bin"
 			};
 			HistoryRepaPtrList ll;
 			for (auto& f : files)
@@ -1277,13 +1277,13 @@ int main(int argc, char **argv)
 
 		{
 			std::vector<std::string> files{
-				"data002_room1.hr",
-				"data002_room2.hr",
-				"data002_room2_2.hr",
-				"data002_room3.hr",
-				"data002_room4.hr",
-				"data002_room5.hr",
-				"data002_room5_2.hr"
+				"data002_room1.bin",
+				"data002_room2.bin",
+				"data002_room2_2.bin",
+				"data002_room3.bin",
+				"data002_room4.bin",
+				"data002_room5.bin",
+				"data002_room5_2.bin"
 			};
 			HistoryRepaPtrList ll;
 			for (auto& f : files)
@@ -1391,13 +1391,13 @@ int main(int argc, char **argv)
 
 		{
 			std::vector<std::string> files{
-				"data002_room1.hr",
-				"data002_room2.hr",
-				"data002_room2_2.hr",
-				"data002_room3.hr",
-				"data002_room4.hr",
-				"data002_room5.hr",
-				"data002_room5_2.hr"
+				"data002_room1.bin",
+				"data002_room2.bin",
+				"data002_room2_2.bin",
+				"data002_room3.bin",
+				"data002_room4.bin",
+				"data002_room5.bin",
+				"data002_room5_2.bin"
 			};
 			HistoryRepaPtrList ll;
 			for (auto& f : files)
@@ -1467,13 +1467,13 @@ int main(int argc, char **argv)
 
 		{
 			std::vector<std::string> files{
-				"data002_room1.hr",
-				"data002_room2.hr",
-				"data002_room2_2.hr",
-				"data002_room3.hr",
-				"data002_room4.hr",
-				"data002_room5.hr",
-				"data002_room5_2.hr"
+				"data002_room1.bin",
+				"data002_room2.bin",
+				"data002_room2_2.bin",
+				"data002_room3.bin",
+				"data002_room4.bin",
+				"data002_room5.bin",
+				"data002_room5_2.bin"
 			};
 			HistoryRepaPtrList ll;
 			for (auto& f : files)
@@ -1608,13 +1608,13 @@ int main(int argc, char **argv)
 
 		{
 			std::vector<std::string> files{
-				"data002_room1.hr",
-				"data002_room2.hr",
-				"data002_room2_2.hr",
-				"data002_room3.hr",
-				"data002_room4.hr",
-				"data002_room5.hr",
-				"data002_room5_2.hr"
+				"data002_room1.bin",
+				"data002_room2.bin",
+				"data002_room2_2.bin",
+				"data002_room3.bin",
+				"data002_room4.bin",
+				"data002_room5.bin",
+				"data002_room5_2.bin"
 			};
 			HistoryRepaPtrList ll;
 			for (auto& f : files)
@@ -1708,13 +1708,13 @@ int main(int argc, char **argv)
 
 		{
 			std::vector<std::string> files{
-				"data002_room1.hr",
-				"data002_room2.hr",
-				"data002_room2_2.hr",
-				"data002_room3.hr",
-				"data002_room4.hr",
-				"data002_room5.hr",
-				"data002_room5_2.hr"
+				"data002_room1.bin",
+				"data002_room2.bin",
+				"data002_room2_2.bin",
+				"data002_room3.bin",
+				"data002_room4.bin",
+				"data002_room5.bin",
+				"data002_room5_2.bin"
 			};
 			HistoryRepaPtrList ll;
 			for (auto& f : files)
@@ -1775,13 +1775,13 @@ int main(int argc, char **argv)
 
 		{
 			std::vector<std::string> files{
-				"data002_room1.hr",
-				"data002_room2.hr",
-				"data002_room2_2.hr",
-				"data002_room3.hr",
-				"data002_room4.hr",
-				"data002_room5.hr",
-				"data002_room5_2.hr"
+				"data002_room1.bin",
+				"data002_room2.bin",
+				"data002_room2_2.bin",
+				"data002_room3.bin",
+				"data002_room4.bin",
+				"data002_room5.bin",
+				"data002_room5_2.bin"
 			};
 			HistoryRepaPtrList ll;
 			for (auto& f : files)
@@ -1846,13 +1846,13 @@ int main(int argc, char **argv)
 
 		{
 			std::vector<std::string> files{
-				"data002_room1.hr",
-				"data002_room2.hr",
-				"data002_room2_2.hr",
-				"data002_room3.hr",
-				"data002_room4.hr",
-				"data002_room5.hr",
-				"data002_room5_2.hr"
+				"data002_room1.bin",
+				"data002_room2.bin",
+				"data002_room2_2.bin",
+				"data002_room3.bin",
+				"data002_room4.bin",
+				"data002_room5.bin",
+				"data002_room5_2.bin"
 			};
 			HistoryRepaPtrList ll;
 			for (auto& f : files)
@@ -1907,13 +1907,13 @@ int main(int argc, char **argv)
 		std::unique_ptr<Alignment::SystemRepa> ur;
 
 		std::vector<std::string> files{
-			"data002_room1.hr",
-			"data002_room2.hr",
-			"data002_room2_2.hr",
-			"data002_room3.hr",
-			"data002_room4.hr",
-			"data002_room5.hr",
-			"data002_room5_2.hr"
+			"data002_room1.bin",
+			"data002_room2.bin",
+			"data002_room2_2.bin",
+			"data002_room3.bin",
+			"data002_room4.bin",
+			"data002_room5.bin",
+			"data002_room5_2.bin"
 		};
 		HistoryRepaPtrList ll;
 		for (auto& f : files)
@@ -1979,13 +1979,13 @@ int main(int argc, char **argv)
 		std::unique_ptr<Alignment::SystemRepa> ur;
 
 		std::vector<std::string> files{
-			"data002_room1.hr",
-			"data002_room2.hr",
-			"data002_room2_2.hr",
-			"data002_room3.hr",
-			"data002_room4.hr",
-			"data002_room5.hr",
-			"data002_room5_2.hr"
+			"data002_room1.bin",
+			"data002_room2.bin",
+			"data002_room2_2.bin",
+			"data002_room3.bin",
+			"data002_room4.bin",
+			"data002_room5.bin",
+			"data002_room5_2.bin"
 		};
 		HistoryRepaPtrList ll;
 		for (auto& f : files)
@@ -2057,13 +2057,13 @@ int main(int argc, char **argv)
 		std::unique_ptr<Alignment::SystemRepa> ur;
 
 		std::vector<std::string> files{
-			"data002_room1.hr",
-			"data002_room2.hr",
-			"data002_room2_2.hr",
-			"data002_room3.hr",
-			"data002_room4.hr",
-			"data002_room5.hr",
-			"data002_room5_2.hr"
+			"data002_room1.bin",
+			"data002_room2.bin",
+			"data002_room2_2.bin",
+			"data002_room3.bin",
+			"data002_room4.bin",
+			"data002_room5.bin",
+			"data002_room5_2.bin"
 		};
 		HistoryRepaPtrList ll;
 		for (auto& f : files)
@@ -2194,13 +2194,13 @@ int main(int argc, char **argv)
 		std::unique_ptr<Alignment::SystemRepa> ur;
 
 		std::vector<std::string> files{
-			"data002_room1.hr",
-			"data002_room2.hr",
-			"data002_room2_2.hr",
-			"data002_room3.hr",
-			"data002_room4.hr",
-			"data002_room5.hr",
-			"data002_room5_2.hr"
+			"data002_room1.bin",
+			"data002_room2.bin",
+			"data002_room2_2.bin",
+			"data002_room3.bin",
+			"data002_room4.bin",
+			"data002_room5.bin",
+			"data002_room5_2.bin"
 		};
 		HistoryRepaPtrList ll;
 		for (auto& f : files)
@@ -2303,7 +2303,7 @@ int main(int argc, char **argv)
 		EVAL(hr1->dimension);
 		EVAL(hr1->size);
 
-		std::ofstream out("test.hr", std::ios::binary);
+		std::ofstream out("test.bin", std::ios::binary);
 		ECHO(historyRepasPersistent(*hr1, out));
 		out.close();
 
