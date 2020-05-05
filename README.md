@@ -42,49 +42,48 @@ make
 ```
 cd ../TBOT01_ws
 ln -s ../TBOT01_build/main main
-export PATH=$PATH:./
 
-main stats 202001222010_2.TBOT01
+./main stats 202001222010_2.TBOT01
 
-main stats 202001271320_room1.TBOT01
+./main stats 202001271320_room1.TBOT01
 
-main bitmap 202001222010_2.TBOT01
+./main bitmap 202001222010_2.TBOT01
 
-main bitmap 202001222010_2.TBOT01 3
+./main bitmap 202001222010_2.TBOT01 3
 
-main bitmap 202001271320_room1.TBOT01
+./main bitmap 202001271320_room1.TBOT01
 
-main bitmap_average 202001222010_2.TBOT01
+./main bitmap_average 202001222010_2.TBOT01
 
-main bitmap_average 202001271320_room1.TBOT01 20
+./main bitmap_average 202001271320_room1.TBOT01 20
 
-main bitmap_average 202001271320_room4.TBOT01 20
+./main bitmap_average 202001271320_room4.TBOT01 20
 
-main induce model001 4 >model001.log
+./main induce model001 4 >model001.log
 
-main bitmap_model model001 
+./main bitmap_model model001 
 
-main induce model002 4 >model002.log
+./main induce model002 4 >model002.log
 
-main bitmap_model model002 
+./main bitmap_model model002 
 
-main induce model003 4 >model003.log
+./main induce model003 4 >model003.log
 
-main bitmap_model model003 
+./main bitmap_model model003 
 
-main induce model004 4 >model004.log
+./main induce model004 4 >model004.log
 
-main bitmap_model model004 
+./main bitmap_model model004 
 
-main induce model005 4 >model005.log
+./main induce model005 4 >model005.log
 
-main bitmap_model model005 
+./main bitmap_model model005 
 
-main condition model006 4 motor >model006_motor.log
+./main condition model006 4 motor >model006_motor.log
 
-main bitmap_model model006_motor 
+./main bitmap_model model006_motor 
 
-main test model006_motor motor 
+./main test model006_motor motor 
 hr->dimension: 363
 hr->size: 6054
 frder(*dr->fud)->size(): 890
@@ -95,11 +94,11 @@ label: motor
 effective size: 6054
 matches: 5849
 
-main condition model006 4 location >model006_location.log
+./main condition model006 4 location >model006_location.log
 
-main bitmap_model model006_location
+./main bitmap_model model006_location
 
-main test model006_location location 
+./main test model006_location location 
 hr->dimension: 363
 hr->size: 6054
 frder(*dr->fud)->size(): 890
@@ -110,11 +109,11 @@ label: location
 effective size: 6054
 matches: 5425
 
-main condition model006 4 position >model006_position.log
+./main condition model006 4 position >model006_position.log
 
-main bitmap_model model006_position
+./main bitmap_model model006_position
 
-main test model006_position position 
+./main test model006_position position 
 hr->dimension: 363
 hr->size: 6054
 frder(*dr->fud)->size(): 890
@@ -125,11 +124,11 @@ label: position
 effective size: 6054
 matches: 5590
 
-main condition model007 4 motor >model007_motor.log
+./main condition model007 4 motor >model007_motor.log
 
-main bitmap_model model007_motor 
+./main bitmap_model model007_motor 
 
-main test model007_motor motor 
+./main test model007_motor motor 
 hr->dimension: 363
 hr->size: 6054
 frder(*dr->fud)->size(): 128
@@ -140,11 +139,11 @@ label: motor
 effective size: 6054
 matches: 5669
 
-main condition model007 4 location >model007_location.log
+./main condition model007 4 location >model007_location.log
 
-main bitmap_model model007_location
+./main bitmap_model model007_location
 
-main test model007_location location 
+./main test model007_location location 
 hr->dimension: 363
 hr->size: 6054
 frder(*dr->fud)->size(): 128
@@ -155,11 +154,11 @@ label: location
 effective size: 6054
 matches: 4985
 
-main condition model007 4 position >model007_position.log
+./main condition model007 4 position >model007_position.log
 
-main bitmap_model model007_position
+./main bitmap_model model007_position
 
-main test model007_position position 
+./main test model007_position position 
 hr->dimension: 363
 hr->size: 6054
 frder(*dr->fud)->size(): 128
@@ -170,7 +169,7 @@ label: position
 effective size: 6054
 matches: 5209
 
-main induce model008 4 >model008.log
+./main induce model008 4 >model008.log
 
 ```
 ## Download, build and run controller executable
@@ -365,150 +364,3 @@ ros2 run TBOT01 controller TBOT01.bin 250 2000 4000
 
 ```
 
-## Windows TODO
-
-```
-cd /d C:\zzz\caiks
-# move TBOT01\CMakeLists_noros.txt TBOT01\CMakeLists.txt
-mkdir AlignmentC_build AlignmentRepaC_build TBOT01_build
-cd /d TBOT01_build
-"C:\Program Files\CMake\bin\cmake" -G "Visual Studio 14 2015" -A x64 ../TBOT01
-"C:\Program Files\CMake\bin\cmake" --build . --config Release
-
-"C:\Program Files\CMake\bin\cmake" --build . --config Release --target main
-
-cd /d C:\zzz\caiks
-mkdir TBOT01_ws
-cd /d TBOT01_ws
-
-..\TBOT01_build\Release\main.exe
-
-..\TBOT01_build\Release\main.exe stats 202001222010_2.TBOT01
-
-..\TBOT01_build\Release\main.exe stats 202001271320_room1.TBOT01
-
-..\TBOT01_build\Release\main.exe bitmap 202001222010_2.TBOT01
-
-..\TBOT01_build\Release\main.exe bitmap 202001222010_2.TBOT01 3
-
-..\TBOT01_build\Release\main.exe bitmap 202001271320_room1.TBOT01
-
-..\TBOT01_build\Release\main.exe bitmap_average 202001222010_2.TBOT01
-
-..\TBOT01_build\Release\main.exe bitmap_average 202001271320_room1.TBOT01 20
-
-..\TBOT01_build\Release\main.exe bitmap_average 202001271320_room4.TBOT01 20
-
-..\TBOT01_build\Release\main.exe induce model001 4 >model001.log
-
-..\TBOT01_build\Release\main.exe bitmap_model model001 
-
-..\TBOT01_build\Release\main.exe induce model002 4 >model002.log
-
-..\TBOT01_build\Release\main.exe bitmap_model model002 
-
-..\TBOT01_build\Release\main.exe induce model003 4 >model003.log
-
-..\TBOT01_build\Release\main.exe bitmap_model model003 
-
-..\TBOT01_build\Release\main.exe induce model004 4 >model004.log
-
-..\TBOT01_build\Release\main.exe bitmap_model model004 
-
-..\TBOT01_build\Release\main.exe induce model005 4 >model005.log
-
-..\TBOT01_build\Release\main.exe bitmap_model model005 
-
-..\TBOT01_build\Release\main.exe condition model006 4 motor >model006_motor.log
-
-..\TBOT01_build\Release\main.exe bitmap_model model006_motor 
-
-..\TBOT01_build\Release\main.exe test model006_motor motor 
-hr->dimension: 363
-hr->size: 6054
-frder(*dr->fud)->size(): 890
-frund(*dr->fud)->size(): 97
-frvars(*dr->fud)->size(): 1113
-model: model006_motor
-label: motor
-effective size: 6054
-matches: 5849
-
-..\TBOT01_build\Release\main.exe condition model006 4 location >model006_location.log
-
-..\TBOT01_build\Release\main.exe bitmap_model model006_location
-
-..\TBOT01_build\Release\main.exe test model006_location location 
-hr->dimension: 363
-hr->size: 6054
-frder(*dr->fud)->size(): 890
-frund(*dr->fud)->size(): 97
-frvars(*dr->fud)->size(): 1113
-model: model006_location
-label: location
-effective size: 6054
-matches: 5425
-
-..\TBOT01_build\Release\main.exe condition model006 4 position >model006_position.log
-
-..\TBOT01_build\Release\main.exe bitmap_model model006_position
-
-..\TBOT01_build\Release\main.exe test model006_position position 
-hr->dimension: 363
-hr->size: 6054
-frder(*dr->fud)->size(): 890
-frund(*dr->fud)->size(): 103
-frvars(*dr->fud)->size(): 1119
-model: model006_position
-label: position
-effective size: 6054
-matches: 5590
-
-..\TBOT01_build\Release\main.exe condition model007 4 motor >model007_motor.log
-
-..\TBOT01_build\Release\main.exe bitmap_model model007_motor 
-
-..\TBOT01_build\Release\main.exe test model007_motor motor 
-hr->dimension: 363
-hr->size: 6054
-frder(*dr->fud)->size(): 128
-frund(*dr->fud)->size(): 331
-frvars(*dr->fud)->size(): 2792
-model: model007_motor
-label: motor
-effective size: 6054
-matches: 5669
-
-..\TBOT01_build\Release\main.exe condition model007 4 location >model007_location.log
-
-..\TBOT01_build\Release\main.exe bitmap_model model007_location
-
-..\TBOT01_build\Release\main.exe test model007_location location 
-hr->dimension: 363
-hr->size: 6054
-frder(*dr->fud)->size(): 128
-frund(*dr->fud)->size(): 295
-frvars(*dr->fud)->size(): 2060
-model: model007_location
-label: location
-effective size: 6054
-matches: 4985
-
-..\TBOT01_build\Release\main.exe condition model007 4 position >model007_position.log
-
-..\TBOT01_build\Release\main.exe bitmap_model model007_position
-
-..\TBOT01_build\Release\main.exe test model007_position position 
-hr->dimension: 363
-hr->size: 6054
-frder(*dr->fud)->size(): 128
-frund(*dr->fud)->size(): 330
-frvars(*dr->fud)->size(): 2512
-model: model007_position
-label: position
-effective size: 6054
-matches: 5209
-
-..\TBOT01_build\Release\main.exe induce model008 4 >model008.log
-
-```
