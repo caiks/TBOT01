@@ -349,7 +349,7 @@ colcon build --packages-select TBOT01
 source ~/.bashrc
 ```
 
-The simiulation can be started in paused mode,
+The simulation can be started in paused mode,
 ```
 export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:~/turtlebot3_ws/src/TBOT01_ws/gazebo_models
 
@@ -360,7 +360,7 @@ In a separate shell,
 ```
 cd ~/turtlebot3_ws/src/TBOT01_ws
 
-ros2 run TBOT01 controller TBOT01.bin 250 2000 4000
+ros2 run TBOT01 controller data.bin 250 2000 4000
 
 ```
 
