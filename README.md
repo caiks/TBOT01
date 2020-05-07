@@ -14,7 +14,7 @@ The *history* (training data) is collected by running various random/demo contro
 
 [Discussion](#Discussion)
 
-<a name = "main" />
+<a name="main"></a>
 
 ## Download, build and run main executable
 
@@ -182,13 +182,13 @@ matches: 5209
 ./main induce model008 4 >model008.log
 
 ```
-<a name = "controller" />
+<a name = "controller"></a>
 
 ## Download, build and run controller executable
 
 To run the controller it is necessary to install [ROS2](https://index.ros.org/doc/ros2/), [Gazebo](http://gazebosim.org/tutorials?cat=install) and [TurtleBot3](http://emanual.robotis.com/docs/en/platform/turtlebot3/ros2_simulation/#simulation) on a machine with a GPU.
 
-<a name = "AWS" />
+<a name = "AWS"></a>
 
 ### AWS EC2 instance
 
@@ -241,7 +241,7 @@ There should be a set of cogs smoothly rotating.
 
 The EC2 instance is ready to proceed with the remainder of the [installation](#Installation).
 
-<a name = "Windows" />
+<a name = "Windows"></a>
 
 ### Windows 10 WSL2 instance
 
@@ -277,7 +277,7 @@ Test with `xeyes`.
 
 Note that Windows Firewall may be blocking, see   https://github.com/microsoft/WSL/issues/4171#issuecomment-559961027
  
-<a name = "Installation" />
+<a name = "Installation"></a>
 
 ### Installation
 
@@ -383,7 +383,7 @@ ros2 run TBOT01 controller data.bin 250
 ```
 Press play in `gazebo` and the turtlebot3 will start moving.
 
-<a name = "Discussion" />
+<a name = "Discussion"></a>
 
 ## Discussion
 
@@ -429,7 +429,7 @@ cd ~/turtlebot3_ws/src/TBOT01_ws
 ros2 run TBOT01 controller data.bin 250
 
 ```
-If only two arguments are given the `TBOT01` controller behaves like `turtlebot3_drive` but will in addition regularly write records defined by the `Record` structure in [dev.h](https://github.com/caiks/TBOT01/blob/master/dev.h),
+If there are only two arguments the `TBOT01` controller behaves like `turtlebot3_drive` but will in addition regularly write records defined by the `Record` structure in [dev.h](https://github.com/caiks/TBOT01/blob/master/dev.h),
 ```cpp
 	struct Record
 	{
@@ -444,7 +444,7 @@ If only two arguments are given the `TBOT01` controller behaves like `turtlebot3
 ```
 In this case the records are written to `data.bin` every 250 milliseconds. 
 
-Run `TBOT01` for around 1 minute. Stop it by killing the process. If the turtlebot does not collide with the letterbox it should completely leave the grounds of the house. Let us examine the records generated. Note that because there are separate non-ROS and ROS builds, we will have to copy files from  `~/turtlebot3_ws/src/TBOT01_ws` to `~/TBOT01_ws`. In the non-ROS build, run
+Run `TBOT01` for around 1 minute. Stop it by killing the controller and pressing pause in Gazebo. If the turtlebot did not collide with the letterbox it should have completely left the grounds of the house. Let us examine the records generated. Note that because there are separate non-ROS and ROS builds, we will have to copy files from  `~/turtlebot3_ws/src/TBOT01_ws` to `~/TBOT01_ws`. In the non-ROS build, run
 ```
 cd ~/TBOT01_ws
 cp ~/turtlebot3_ws/src/TBOT01_ws/data.bin .
@@ -577,8 +577,33 @@ We can visualise the `scan` data in a bitmap,
 ./main bitmap data
 
 ```
-Open `data.bmp` in an image viewer. The 360 scan rays are represented horizontally with 0 deg in the centre. The brightness indicates the distance detected. It is black where there are no obstacles within the 3.5m maximum range of the lidar. The time axis is vertical from bottom to top. Here is the image for `data001`,
+Open `data.bmp` in an image viewer. The 360 scan rays are represented horizontally with 0 deg in the centre. The brightness indicates the distance detected. It is black where there are no obstacles within the 3.5 m maximum range of the lidar. The time axis is vertical from bottom to top. Here is the image for `data001`,
 
 ![data001](https://raw.githubusercontent.com/caiks/TBOT01_ws/master/data001.jpg?token=AILOGZVVDRL7J5WKJVIO6WS6XQAXS)
 
 We can see the turtlebot zig-zagging around frequently in the corridor and less often outside the house, until all obstacles are out of range of the lidar sensor.
+
+Now let us close the door by placing an obstacle there. We will also remove tables and chairs. The new [turtlebot3_house001](https://github.com/caiks/TBOT01_ws/blob/master/gazebo_models/turtlebot3_house001/model.sdf) is included in  [env002.world](https://github.com/caiks/TBOT01_ws/blob/master/env002.model). 
+
+The simulation was restarted,
+```
+cd ~/turtlebot3_ws/src/TBOT01_ws
+
+gazebo -u --verbose ~/turtlebot3_ws/src/TBOT01_ws/env002.model -s libgazebo_ros_init.so
+
+```
+and the controller re-run for around 5 minutes,
+```
+cd ~/turtlebot3_ws/src/TBOT01_ws
+
+ros2 run TBOT01 controller data002_room1.bin 250
+
+```
+Again we can examine the statistics,
+```
+cd ~/TBOT01_ws
+
+./main stats data002_room1
+
+```
+In fact it runs for 296.25 seconds.
