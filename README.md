@@ -6,6 +6,16 @@ The *model* is trained using the *inducers* and *conditioners* implemented in th
 
 The *history* (training data) is collected by running various random/demo controllers in the [turtlebot3 house](http://emanual.robotis.com/docs/en/platform/turtlebot3/simulation/#3-turtlebot3-house) simulated in the [Gazebo](http://gazebosim.org/) virtual environment.
 
+## Sections
+
+[Download, build and run main executable](#main)
+
+[Download, build and run controller executable](#controller)
+
+[Discussion](#Discussion)
+
+<a name = "main" />
+
 ## Download, build and run main executable
 
 To run the non-ROS main executable it is only necessary to install the [AlignmentRepaC repository](https://github.com/caiks/AlignmentRepaC) and its underlying repositories. The `AlignmentRepaC` module requires [modern C++](https://en.cppreference.com/w/) version 17 or later to be installed.
@@ -172,9 +182,13 @@ matches: 5209
 ./main induce model008 4 >model008.log
 
 ```
+<a name = "controller" />
+
 ## Download, build and run controller executable
 
 To run the controller it is necessary to install [ROS2](https://index.ros.org/doc/ros2/), [Gazebo](http://gazebosim.org/tutorials?cat=install) and [TurtleBot3](http://emanual.robotis.com/docs/en/platform/turtlebot3/ros2_simulation/#simulation) on a machine with a GPU.
+
+<a name = "AWS" />
 
 ### AWS EC2 instance
 
@@ -227,6 +241,8 @@ There should be a set of cogs smoothly rotating.
 
 The EC2 instance is ready to proceed with the remainder of the [installation](#Installation).
 
+<a name = "Windows" />
+
 ### Windows 10 WSL2 instance
 
 Another example is an instance of a Windows 10 machine with a GPU, running [WSL2](https://docs.microsoft.com/en-us/windows/wsl/wsl2-index).
@@ -261,6 +277,8 @@ Test with `xeyes`.
 
 Note that Windows Firewall may be blocking, see   https://github.com/microsoft/WSL/issues/4171#issuecomment-559961027
  
+<a name = "Installation" />
+
 ### Installation
 
 Now install Gazebo9,
@@ -365,7 +383,9 @@ ros2 run TBOT01 controller data.bin 250
 ```
 Press play in `gazebo` and the turtlebot3 will start moving.
 
-### Discussion
+<a name = "Discussion" />
+
+## Discussion
 
 Now let us investigate various turtlebot3 controllers. 
 
@@ -396,7 +416,7 @@ ros2 run turtlebot3_gazebo turtlebot3_drive
 ```
 The turtlebot moves around room 4 before moving to the corridor between room 4 and room 1. It passes through the front door and will carry on indefinitely outside.
 
-The [Turtlebot3Drive node](https://github.com/ROBOTIS-GIT/turtlebot3_simulations/blob/ros2/turtlebot3_gazebo/include/turtlebot3_gazebo/turtlebot3_drive.hpp) does simple collision avoidance. It subscribes to the `scan` and `odom` topics, and publishes to the `cmd_vel` topic. It runs a timer every 10 ms which calls a callback where the direction is decided. The `scan` data is first checked at 0 deg. If there is an obstacle ahead it turns right, otherwise the `scan` data is checked at 330 deg. If there is an obstacle to the left it turns right, otherwise the `scan` data is checked at 30 deg. If there is an obstacle to the right it turns left. If there are no obstacles it drives straight ahead. Once the direction is decided a `geometry_msgs::msg::Twist` is published to `cmd_vel` either with (a) a linear motion at 0.7 m/s, or (b) a rotation left or right at 1.5 rad/s. While rotating the controller waits until the orientation has changed by 30 deg before the direction is decided again.
+The [Turtlebot3Drive node](https://github.com/ROBOTIS-GIT/turtlebot3_simulations/blob/ros2/turtlebot3_gazebo/include/turtlebot3_gazebo/turtlebot3_drive.hpp) does simple collision avoidance. It subscribes to the `scan` and `odom` topics, and publishes to the `cmd_vel` topic. It runs a timer every 10 ms which calls a callback where the direction is decided. The `scan` data is first checked at 0 deg. If there is an obstacle ahead it turns right, otherwise the `scan` data is checked at 330 deg. If there is an obstacle to the left it turns right, otherwise the `scan` data is checked at 30 deg. If there is an obstacle to the right it turns left. If there are no obstacles it drives straight ahead. Once the direction is decided a `geometry_msgs::msg::Twist` is published to `cmd_vel` either with (a) a linear motion at 0.7 m/s, or (b) a rotation clockwise or anti-clockwise at 1.5 rad/s. While rotating the controller waits until the orientation has changed by 30 deg before the direction is decided again.
 
 In general the `turtlebot3_drive` controller does not collide very often with the walls, but can sometimes collide with table legs. There is a preference for right turns over left, so overall motion is usually clockwise.
 
