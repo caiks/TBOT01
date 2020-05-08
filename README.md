@@ -333,7 +333,7 @@ export TB3_MODEL=burger
 export TURTLEBOT3_MODEL=${TB3_MODEL}
 
 ```
-Test with
+To test launch one of these worlds,
 ```
 ros2 launch turtlebot3_gazebo empty_world.launch.py
 
@@ -342,6 +342,15 @@ ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
 ros2 launch turtlebot3_gazebo turtlebot3_house.launch.py
 
 ```
+Then in a separate shell,
+```
+export TB3_MODEL=burger
+export TURTLEBOT3_MODEL=${TB3_MODEL}
+
+ros2 run turtlebot3_teleop teleop_keyboard
+
+```
+Check that you can steer the turtlebot using the w/x and a/d keys.
 
 Now download and build the `TBOT01` repository and the underlying `rapidjson`, `AlignmentC` and `AlignmentRepaC` repositories -
 ```
@@ -416,11 +425,11 @@ ros2 run turtlebot3_gazebo turtlebot3_drive
 ```
 The turtlebot moves around room 4 before moving to the corridor between room 4 and room 1. It passes through the front door and will carry on indefinitely outside.
 
-The [Turtlebot3Drive node](https://github.com/ROBOTIS-GIT/turtlebot3_simulations/blob/ros2/turtlebot3_gazebo/include/turtlebot3_gazebo/turtlebot3_drive.hpp) does simple collision avoidance. It subscribes to the `scan` and `odom` topics, and publishes to the `cmd_vel` topic. It runs a timer every 10 ms which calls a callback where the direction is decided. The `scan` data is first checked at 0 deg. If there is an obstacle ahead it turns right, otherwise the `scan` data is checked at 330 deg. If there is an obstacle to the left it turns right, otherwise the `scan` data is checked at 30 deg. If there is an obstacle to the right it turns left. If there are no obstacles it drives straight ahead. Once the direction is decided a `geometry_msgs::msg::Twist` is published to `cmd_vel` either with (a) a linear motion at 0.7 m/s, or (b) a rotation clockwise or anti-clockwise at 1.5 rad/s. While rotating the controller waits until the orientation has changed by 30 deg before the direction is decided again.
+The [Turtlebot3Drive node](https://github.com/ROBOTIS-GIT/turtlebot3_simulations/blob/ros2/turtlebot3_gazebo/include/turtlebot3_gazebo/turtlebot3_drive.hpp) does simple collision avoidance. It subscribes to the lidar `scan` and odometry `odom` topics, and publishes to the motor `cmd_vel` topic. It runs a timer every 10 ms which calls a callback where the direction is decided. The `scan` data is first checked at 0 deg. If there is an obstacle ahead it turns right, otherwise the `scan` data is checked at 330 deg. If there is an obstacle to the left it turns right, otherwise the `scan` data is checked at 30 deg. If there is an obstacle to the right it turns left. If there are no obstacles it drives straight ahead. Once the direction is decided a `geometry_msgs::msg::Twist` is published to `cmd_vel` either with (a) a linear motion at 0.7 m/s, or (b) a rotation clockwise or anti-clockwise at 1.5 rad/s. While rotating the controller waits until the orientation has changed by 30 deg before the direction is decided again.
 
 In general the `turtlebot3_drive` controller does not collide very often with the walls, but can sometimes collide with table legs. There is a preference for right turns over left, so overall motion is usually clockwise.
 
-For our investigations we have copied the `turtlebot3_drive` controller to a `TBOT01` [controller](https://github.com/caiks/TBOT01/blob/master/controller.h).
+For our investigations we copied the `turtlebot3_drive` controller to the `TBOT01` [controller](https://github.com/caiks/TBOT01/blob/master/controller.h) and added extra functionality.
 
 Restart the simulation and in a separate shell run the controller,
 ```
@@ -442,7 +451,7 @@ If there are only two arguments the `TBOT01` controller behaves like `turtlebot3
 		double action_angular;
 	};
 ```
-In this case the records are written to `data.bin` every 250 milliseconds. 
+`sensor_pose` records the odometry, `sensor_scan` records the lidar, and `action_linear` and `action_angular` records the motor action. In this case the records are written to `data.bin` every 250 milliseconds. 
 
 Run `TBOT01` for around 1 minute. Stop it by killing the controller and pressing pause in Gazebo. If the turtlebot did not collide with the letterbox it should have completely left the grounds of the house. Let us examine the records generated. Note that because there are separate non-ROS and ROS builds, we will have to copy files from  `~/turtlebot3_ws/src/TBOT01_ws` to `~/TBOT01_ws`. In the non-ROS build, run
 ```
@@ -582,6 +591,15 @@ Open `data.bmp` in an image viewer. The 360 scan rays are represented horizontal
 ![data001](https://raw.githubusercontent.com/caiks/TBOT01_ws/master/data001.jpg?token=AILOGZVVDRL7J5WKJVIO6WS6XQAXS)
 
 We can see the turtlebot zig-zagging around frequently in the corridor and less often outside the house, until all obstacles are out of range of the lidar sensor.
+
+Generate an average of the records,
+```
+./main bitmap_average data001
+
+```
+and view it in `data001_average.bmp`,
+
+![data001_average](https://raw.githubusercontent.com/caiks/TBOT01_ws/master/data001_average.bmp?token=AILOGZQUS2IDALFDKIB72RS6X2NRS)
 
 Now let us close the door by placing an obstacle there. We will also remove tables and chairs. The new [turtlebot3_house001](https://github.com/caiks/TBOT01_ws/blob/master/gazebo_models/turtlebot3_house001/model.sdf) is included in  [env002.world](https://github.com/caiks/TBOT01_ws/blob/master/env002.model). 
 
