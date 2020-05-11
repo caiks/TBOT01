@@ -423,7 +423,9 @@ In a separate shell, run
 ros2 run turtlebot3_gazebo turtlebot3_drive
 
 ```
-The turtlebot moves around room 4 before moving to the corridor between room 4 and room 1. It passes through the front door and will carry on indefinitely outside.
+The turtlebot moves around room 4 before moving to the corridor between room 4 and room 1. It passes through the front door and will carry on indefinitely outside. 
+
+Note that in this simulation and the others below, small variations in the timing of the messages sent from the controller can cause quite large differences in the turtlebot's path after a few minutes, so these experiments are not exactly reproducible.
 
 The [Turtlebot3Drive node](https://github.com/ROBOTIS-GIT/turtlebot3_simulations/blob/ros2/turtlebot3_gazebo/include/turtlebot3_gazebo/turtlebot3_drive.hpp) does simple collision avoidance. It subscribes to the lidar `scan` and odometry `odom` topics, and publishes to the motor `cmd_vel` topic. It runs a timer every 10 ms which calls a callback where the direction is decided. The `scan` data is first checked at 0 deg. If there is an obstacle ahead it turns right, otherwise the `scan` data is checked at 330 deg. If there is an obstacle to the left it turns right, otherwise the `scan` data is checked at 30 deg. If there is an obstacle to the right it turns left. If there are no obstacles it drives straight ahead. Once the direction is decided a `geometry_msgs::msg::Twist` is published to `cmd_vel` either with (a) a linear motion at 0.7 m/s, or (b) a rotation clockwise or anti-clockwise at 1.5 rad/s. While rotating the controller waits until the orientation has changed by 30 deg before the direction is decided again.
 
@@ -651,6 +653,8 @@ Now the turtlebot moves from room 1 to room 4.
 Here is the image for `data002_room1`,
 
 ![data002_room1](https://raw.githubusercontent.com/caiks/TBOT01_ws/master/data002_room1.jpg?token=AILOGZRFFKQYPTXLO3H5BOK6YKILQ)
+
+You can view a short video [here](https://github.com/caiks/TBOT01_ws/blob/master/data002_room1.mp4). In this simulation turtlebot leaves room 1 and goes into room 2.
 
 We repeat for the various rooms in the turtlebot house.
 
