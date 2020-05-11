@@ -453,7 +453,7 @@ If there are only two arguments the `TBOT01` controller behaves like `turtlebot3
 ```
 `sensor_pose` records the odometry, `sensor_scan` records the lidar, and `action_linear` and `action_angular` records the motor action. In this case the records are written to `data.bin` every 250 milliseconds. 
 
-Run `TBOT01` for around 1 minute. Stop it by killing the controller and pressing pause in Gazebo. If the turtlebot did not collide with the letterbox it should have completely left the grounds of the house. Let us examine the records generated. Note that because there are separate non-ROS and ROS builds, we will have to copy files from  `~/turtlebot3_ws/src/TBOT01_ws` to `~/TBOT01_ws`. In the non-ROS build, run
+Run `TBOT01` for around 1 minute. Stop it by killing the controller to close the records file, and then by pressing pause in Gazebo to pause the simulation. If the turtlebot did not collide with the letterbox it should have completely left the grounds of the house. Let us examine the records generated. Note that because there are separate non-ROS and ROS builds, we will have to copy files from  `~/turtlebot3_ws/src/TBOT01_ws` to `~/TBOT01_ws`. In the non-ROS build, run
 ```
 cd ~/TBOT01_ws
 cp ~/turtlebot3_ws/src/TBOT01_ws/data.bin .
@@ -586,7 +586,7 @@ We can visualise the `scan` data in a bitmap,
 ./main bitmap data
 
 ```
-Open `data.bmp` in an image viewer. The 360 scan rays are represented horizontally with 0 deg in the centre. The brightness indicates the distance detected. It is black where there are no obstacles within the 3.5 m maximum range of the lidar. The time axis is vertical from bottom to top. Here is the image for `data001`,
+Open `data.bmp` in an image viewer. The 360 scan rays are represented horizontally with 0 deg in the centre. The brightness indicates the distance detected, brighter for foreground objects and darker for background. It is black where there are no obstacles within the 3.5 m maximum range of the lidar. The time axis is vertical from bottom to top. Here is the image for `data001`,
 
 ![data001](https://raw.githubusercontent.com/caiks/TBOT01_ws/master/data001.jpg?token=AILOGZVVDRL7J5WKJVIO6WS6XQAXS)
 
@@ -614,14 +614,88 @@ and the controller re-run for around 5 minutes,
 ```
 cd ~/turtlebot3_ws/src/TBOT01_ws
 
-ros2 run TBOT01 controller data002_room1.bin 250
+ros2 run TBOT01 controller data002_room4.bin 250
 
 ```
 Again we can examine the statistics,
 ```
 cd ~/TBOT01_ws
 
-./main stats data002_room1
+./main stats data002_room4
 
 ```
-In fact it runs for 296.25 seconds.
+Because of its tendency to right turns, the turtlebot stays in in room 4. 
+
+Now let us restart the turtlebot in room 1,
+
+```xml
+    <include>
+      <pose>3.575430 4.271000 0.01 0.0 0.0 0.0</pose>
+      <uri>model://turtlebot3_burger</uri>
+    </include>
+```
+in  [env003.world](https://github.com/caiks/TBOT01_ws/blob/master/env003.model).
+
+The simulation was restarted,
+```
+gazebo -u --verbose ~/turtlebot3_ws/src/TBOT01_ws/env003.model -s libgazebo_ros_init.so
+
+```
+Again the controller is run for around 5 minutes,
+```
+ros2 run TBOT01 controller data002_room1.bin 250
+
+```
+Now the turtlebot moves from room 1 to room 4.
+
+Here is the image for `data002_room1`,
+
+![data002_room1](https://raw.githubusercontent.com/caiks/TBOT01_ws/master/data002_room1.jpg?token=AILOGZRFFKQYPTXLO3H5BOK6YKILQ)
+
+We repeat for the various rooms in the turtlebot house.
+
+Room 2,
+```
+gazebo -u --verbose ~/turtlebot3_ws/src/TBOT01_ws/env004.model -s libgazebo_ros_init.so
+
+```
+```
+ros2 run TBOT01 controller data002_room2.bin 250
+
+```
+Room 3,
+```
+gazebo -u --verbose ~/turtlebot3_ws/src/TBOT01_ws/env005.model -s libgazebo_ros_init.so
+
+```
+```
+ros2 run TBOT01 controller data002_room3.bin 250
+
+```
+Room 5,
+```
+gazebo -u --verbose ~/turtlebot3_ws/src/TBOT01_ws/env006.model -s libgazebo_ros_init.so
+
+```
+```
+ros2 run TBOT01 controller data002_room5.bin 250
+
+```
+Room 5 from a different starting point,
+```
+gazebo -u --verbose ~/turtlebot3_ws/src/TBOT01_ws/env007.model -s libgazebo_ros_init.so
+
+```
+```
+ros2 run TBOT01 controller data002_room5_2.bin 250
+
+```
+Room 2 again  from a different starting point,
+```
+gazebo -u --verbose ~/turtlebot3_ws/src/TBOT01_ws/env008.model -s libgazebo_ros_init.so
+
+```
+```
+ros2 run TBOT01 controller data002_room2_2.bin 250
+
+```
