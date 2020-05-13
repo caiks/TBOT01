@@ -1588,7 +1588,7 @@ int main(int argc, char **argv)
 
 	}
 
-	if (false)
+	if (argc == 2 && string(argv[1]) == "history")
 	{
 		auto aall = histogramsList;
 		auto araa = systemsHistogramRepasHistogram_u;
