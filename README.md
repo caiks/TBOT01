@@ -69,6 +69,8 @@ ln -s ../TBOT01_build/main main
 
 ./main bitmap_average data002_room4 20
 
+./main history
+
 ./main induce model001 4 >model001.log
 
 ./main bitmap_model model001 
@@ -708,7 +710,7 @@ Now we have acquired some data, let us consider creating a *history*. The `recor
 ```cpp
 SystemHistoryRepaTuple recordListsHistoryRepa_2(int, const RecordList&);
 ```
-The *substrate* consists of 360 `scan` *variables* with bucketed *values*; a `motor` *variable* with *values* 0,1 and 2 corresponding to left, ahead and right; a `location` *variable* with *values* `door12`, `door13`, `door14`, `door45`, `door56`, `room1`, `room2`, `room3`, `room4`, `room5` and `room6`; a `position` *variable* with *values* `centre`, `corner` and `side`.
+The *substrate* consists of 360 `scan` *variables* with bucketed *values*and a `motor` *variable* with *values* 0,1 and 2 corresponding to left, ahead and right. It also has two *variables* derived from the `odom`, a `location` *variable* with *values* `door12`, `door13`, `door14`, `door45`, `door56`, `room1`, `room2`, `room3`, `room4`, `room5` and `room6`, and a `position` *variable* with *values* `centre`, `corner` and `side`.
 
 We can do some analysis of the data files `data002_room1.bin`, `data002_room2.bin`, `data002_room2_2.bin`, `data002_room3.bin`, `data002_room4.bin`, `data002_room5.bin` and `data002_room5_2.bin`,
 ```
@@ -763,6 +765,58 @@ There are 363 *variables* and the *size* is 6054. We show the *histograms* of th
 
 We can see that with this controller the turtlebot tends to end up in the larger rooms, 1 and 4, and mainly skirts around the side of the rooms. 
 
-Although the *history* is not very evenly spatially distributed, let us *induce* a *model* of the sensor `scan` *variables*.
+Although the *history* is not very evenly spatially distributed, let us *induce* a *model* of the 360 sensor `scan` *variables*,
+```
+cd ~/TBOT01_ws
 
+./main induce model001 4 >model001.log
 
+```
+We can view a bitmap of the averaged *slices* in the *decomposition* tree,
+```
+./main bitmap_model model001 
+
+```
+![model001](https://raw.githubusercontent.com/caiks/TBOT01_ws/master/model001.jpg?token=AILOGZV4IPQEYKVEU2FS5MC6YU746)
+
+If we looks at the *slices* at the root, we can see that objects are generally nearer on the left than on the right. This is explained by turtlebot's tendency to move in a clockwise direction skirting around the sides of the room. 
+
+Another property of the *slices* is that some have  near objects ahead, while others have nearer objects at the sides. This is explained by turtlebot's tendency to move in straight lines until a threshold is reached (0.7 m) at which point the turtlebot stops and rotates by 30 degrees. 
+
+The child *slices* of the near-obstacle-ahead *slice* are divided into whether there is an obstacle on the left, or on the right. TurtleBot looks to the left first, so these child *slices* are larger.
+
+Now let us drill down into the `scan` *variables*. The `recordListsHistoryRepaRegion` function in [dev.h](https://github.com/caiks/TBOT01/blob/master/dev.h) creates a `HistoryRepa` from a random region of the `scan` *variables*,
+```cpp
+SystemHistoryRepaTuple recordListsHistoryRepaRegion(int, int, int, const RecordList&);
+```
+Let us *induce* a *model* of regions of 60 `scan` *variables*,
+```
+./main induce model002 4 >model002.log
+
+./main bitmap_model model002 
+
+```
+This is the bitmap,
+
+![model002](https://raw.githubusercontent.com/caiks/TBOT01_ws/master/model002.jpg?token=AILOGZSYNKQL3TBJRELLWFS6YVHAG)
+
+The random-region *slices* are considerably more elemental than for the entire 360 degrees panorama.
+
+*Model* 3 uses a *valency* of 4 buckets instead of 8. The image can be viewed [here](https://raw.githubusercontent.com/caiks/TBOT01_ws/master/model003.jpg?token=AILOGZWSLU6UYASJ5J735GK6YVIQ2).
+The *decomposition* is narrower and deeper, but otherwise little different.
+
+*Model* 4 goes back to a *valency* of 8, but has a smaller `wmax`. The image can be viewed [here](https://raw.githubusercontent.com/caiks/TBOT01_ws/master/model004.jpg?token=AILOGZVXDREAIFD65BHW7S26YVJIS).
+Again, the *decomposition* is little different.
+
+Now let us consider a *2-level model*. *Model 5* is *induced* from a lower *level* that consists of the *slice variables* of 12 *model 4* regions every 30 degrees,
+```
+./main induce model005 4 >model005.log
+
+./main bitmap_model model005 
+
+```
+This is the bitmap,
+
+![model005](https://raw.githubusercontent.com/caiks/TBOT01_ws/master/model005.jpg?token=AILOGZVCDZBNUS7TOSVTVDK6YVKL2)
+
+The *decomposition* is narrower and deeper than that of *model 1*. Near the root there is no *slice* for a near-object-ahead . These *alignments* are pushed downwards into the children *slices*.
