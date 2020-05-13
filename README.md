@@ -442,16 +442,16 @@ ros2 run TBOT01 controller data.bin 250
 ```
 If there are only two arguments the `TBOT01` controller behaves like `turtlebot3_drive` but will in addition regularly write records defined by the `Record` structure in [dev.h](https://github.com/caiks/TBOT01/blob/master/dev.h),
 ```cpp
-	struct Record
-	{
+struct Record
+{
 ...
-		std::size_t id;
-		double ts;
-		double sensor_pose[7];
-		double sensor_scan[360];
-		double action_linear;
-		double action_angular;
-	};
+	std::size_t id;
+	double ts;
+	double sensor_pose[7];
+	double sensor_scan[360];
+	double action_linear;
+	double action_angular;
+};
 ```
 `sensor_pose` records the odometry, `sensor_scan` records the lidar, and `action_linear` and `action_angular` records the motor action. In this case the records are written to `data.bin` every 250 milliseconds. 
 
@@ -631,10 +631,10 @@ Because of its tendency to right turns, the turtlebot stays in in room 4.
 Now let us restart the turtlebot in room 1,
 
 ```xml
-    <include>
-      <pose>3.575430 4.271000 0.01 0.0 0.0 0.0</pose>
-      <uri>model://turtlebot3_burger</uri>
-    </include>
+<include>
+  <pose>3.575430 4.271000 0.01 0.0 0.0 0.0</pose>
+  <uri>model://turtlebot3_burger</uri>
+</include>
 ```
 in  [env003.world](https://github.com/caiks/TBOT01_ws/blob/master/env003.model).
 
@@ -703,3 +703,66 @@ gazebo -u --verbose ~/turtlebot3_ws/src/TBOT01_ws/env008.model -s libgazebo_ros_
 ros2 run TBOT01 controller data002_room2_2.bin 250
 
 ```
+
+Now we have acquired some data, let us consider creating a *history*. The `recordListsHistoryRepa_2` function in [dev.h](https://github.com/caiks/TBOT01/blob/master/dev.h) creates a `HistoryRepa` from a list of `Record`,
+```cpp
+SystemHistoryRepaTuple recordListsHistoryRepa_2(int, const RecordList&);
+```
+The *substrate* consists of 360 `scan` *variables* with bucketed *values*; a `motor` *variable* with *values* 0,1 and 2 corresponding to left, ahead and right; a `location` *variable* with *values* `door12`, `door13`, `door14`, `door45`, `door56`, `room1`, `room2`, `room3`, `room4`, `room5` and `room6`; a `position` *variable* with *values* `centre`, `corner` and `side`.
+
+We can do some analysis of the data files `data002_room1.bin`, `data002_room2.bin`, `data002_room2_2.bin`, `data002_room3.bin`, `data002_room4.bin`, `data002_room5.bin` and `data002_room5_2.bin`,
+```
+cd ~/TBOT01_ws
+
+./main history
+
+```
+which has the following output,
+```
+hr->dimension: 363
+hr->size: 6054
+({(<scan,1>,0)},39 % 1)
+({(<scan,1>,1)},892 % 1)
+({(<scan,1>,2)},885 % 1)
+({(<scan,1>,3)},825 % 1)
+({(<scan,1>,4)},701 % 1)
+({(<scan,1>,5)},685 % 1)
+({(<scan,1>,6)},632 % 1)
+({(<scan,1>,7)},1395 % 1)
+
+({(<scan,180>,0)},33 % 1)
+({(<scan,180>,1)},497 % 1)
+({(<scan,180>,2)},777 % 1)
+({(<scan,180>,3)},838 % 1)
+({(<scan,180>,4)},737 % 1)
+({(<scan,180>,5)},767 % 1)
+({(<scan,180>,6)},757 % 1)
+({(<scan,180>,7)},1648 % 1)
+
+({(motor,0)},698 % 1)
+({(motor,1)},5256 % 1)
+({(motor,2)},100 % 1)
+
+({(location,door12)},43 % 1)
+({(location,door13)},13 % 1)
+({(location,door14)},57 % 1)
+({(location,door45)},42 % 1)
+({(location,door56)},29 % 1)
+({(location,room1)},1222 % 1)
+({(location,room2)},572 % 1)
+({(location,room3)},201 % 1)
+({(location,room4)},2763 % 1)
+({(location,room5)},161 % 1)
+({(location,room6)},951 % 1)
+
+({(position,centre)},1849 % 1)
+({(position,corner)},890 % 1)
+({(position,side)},3315 % 1)
+```
+There are 363 *variables* and the *size* is 6054. We show the *histograms* of the *reductions* to *variables* `<scan,1>`, `<scan,180>`, `motor`, `location` and `position`. 
+
+We can see that with this controller the turtlebot tends to end up in the larger rooms, 1 and 4, and mainly skirts around the side of the rooms. 
+
+Although the *history* is not very evenly spatially distributed, let us *induce* a *model* of the sensor `scan` *variables*.
+
+
