@@ -93,93 +93,15 @@ ln -s ../TBOT01_build/main main
 
 ./main condition model006 4 motor >model006_motor.log
 
-./main bitmap_model model006_motor 
-
-./main test model006_motor motor 
-hr->dimension: 363
-hr->size: 6054
-frder(*dr->fud)->size(): 890
-frund(*dr->fud)->size(): 98
-frvars(*dr->fud)->size(): 1114
-model: model006_motor
-label: motor
-effective size: 6054
-matches: 5849
-
 ./main condition model006 4 location >model006_location.log
-
-./main bitmap_model model006_location
-
-./main test model006_location location 
-hr->dimension: 363
-hr->size: 6054
-frder(*dr->fud)->size(): 890
-frund(*dr->fud)->size(): 97
-frvars(*dr->fud)->size(): 1113
-model: model006_location
-label: location
-effective size: 6054
-matches: 5425
 
 ./main condition model006 4 position >model006_position.log
 
-./main bitmap_model model006_position
-
-./main test model006_position position 
-hr->dimension: 363
-hr->size: 6054
-frder(*dr->fud)->size(): 890
-frund(*dr->fud)->size(): 103
-frvars(*dr->fud)->size(): 1119
-model: model006_position
-label: position
-effective size: 6054
-matches: 5590
-
 ./main condition model007 4 motor >model007_motor.log
-
-./main bitmap_model model007_motor 
-
-./main test model007_motor motor 
-hr->dimension: 363
-hr->size: 6054
-frder(*dr->fud)->size(): 128
-frund(*dr->fud)->size(): 331
-frvars(*dr->fud)->size(): 2792
-model: model007_motor
-label: motor
-effective size: 6054
-matches: 5669
 
 ./main condition model007 4 location >model007_location.log
 
-./main bitmap_model model007_location
-
-./main test model007_location location 
-hr->dimension: 363
-hr->size: 6054
-frder(*dr->fud)->size(): 128
-frund(*dr->fud)->size(): 295
-frvars(*dr->fud)->size(): 2060
-model: model007_location
-label: location
-effective size: 6054
-matches: 4985
-
 ./main condition model007 4 position >model007_position.log
-
-./main bitmap_model model007_position
-
-./main test model007_position position 
-hr->dimension: 363
-hr->size: 6054
-frder(*dr->fud)->size(): 128
-frund(*dr->fud)->size(): 330
-frvars(*dr->fud)->size(): 2512
-model: model007_position
-label: position
-effective size: 6054
-matches: 5209
 
 ./main induce model008 4 >model008.log
 
@@ -825,18 +747,22 @@ Now let us *condition* *models* on the label `motor`, `location` or `position`, 
 ```
 ./main condition model006 4 motor >model006_motor.log
 
-```
-We can test the predictions of `motor`,
-```
-./main test model006_motor motor 
-hr->dimension: 363
-hr->size: 6054
-frder(*dr->fud)->size(): 890
-frund(*dr->fud)->size(): 98
-frvars(*dr->fud)->size(): 1114
-model: model006_motor
-label: motor
-effective size: 6054
-matches: 5849
-```
+./main condition model006 4 location >model006_location.log
 
+./main condition model006 4 position >model006_position.log
+
+```
+All of these *models* are run to zero *label entropy*. That means that if they were applied to the trading *history* they would have 100% prediction accuracy.
+
+Now let us run the same set of *conditioners* on a *level* that consists of the *slice variables* of 12 *model 4* regions every 30 degrees,
+```
+./main condition model007 4 motor >model007_motor.log
+
+./main condition model007 4 location >model007_location.log
+
+./main condition model007 4 position >model007_position.log
+
+```
+All of these run to zero *label entropy* but require more *fuds* to do so. So to predict `location` *model 6* requires 421 *fuds* but *model 7* requires 647. From the point of view of these labels, the original *substrate* is more *causal* than the random region *level*.
+
+ 
