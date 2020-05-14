@@ -440,7 +440,7 @@ SystemHistoryRepaTuple TBOT01::recordListsHistoryRepa_2(int d, const RecordList&
 		auto& r = qq[j];
 		for (size_t i = 0; i < n - 3; i++)
 			rr[jn + i] = (unsigned char)(r.sensor_scan[i] * f);
-		rr[jn + n - 3] = (unsigned char)(r.action_angular == -1.5 ? 0 : (r.action_angular == 1.5 ? 2 : 1));
+		rr[jn + n - 3] = (unsigned char)(r.action_angular == 1.5 ? 0 : (r.action_angular == -1.5 ? 2 : 1));
 		double x = r.sensor_pose[0];
 		double y = r.sensor_pose[1];
 		size_t k = 0;
