@@ -743,7 +743,7 @@ This is the bitmap,
 
 The *decomposition* is narrower and deeper than that of *model 1*. Near the root there is no *slice* for a near-object-ahead . These *alignments* are pushed downwards into the children *slices*.
 
-Now let us *condition* *models* on the label `motor`, `location` or `position`, given the `scan` *substrate*,
+Now let us *condition* *models* on the labels `motor`, `location` and `position`, given the `scan` *substrate*,
 ```
 ./main condition model006 4 motor >model006_motor.log
 
@@ -752,9 +752,9 @@ Now let us *condition* *models* on the label `motor`, `location` or `position`, 
 ./main condition model006 4 position >model006_position.log
 
 ```
-All of these *models* are run to zero *label entropy*. That means that if they were applied to the trading *history* they would have 100% prediction accuracy.
+All of these *models* are run to zero *label entropy*. That means that if they were applied to the training *history* they would have 100% prediction accuracy.
 
-Now let us run the same set of *conditioners* on a *level* that consists of the *slice variables* of 12 *model 4* regions every 30 degrees,
+Now let us run the same set of *conditioners* on a *level* that consists of the *slice variables* of 12 *model 4* regions every 30 degrees (which is the same *underlying level* in *model 5* above),
 ```
 ./main condition model007 4 motor >model007_motor.log
 
@@ -763,6 +763,6 @@ Now let us run the same set of *conditioners* on a *level* that consists of the 
 ./main condition model007 4 position >model007_position.log
 
 ```
-All of these run to zero *label entropy* but require more *fuds* to do so. So to predict `location` *model 6* requires 421 *fuds* but *model 7* requires 647. From the point of view of these labels, the original *substrate* is more *causal* than the random region *level*.
+All of these run to zero *label entropy* but require more *fuds* to do so. For example, to predict `location` *model 6* requires 421 *fuds* but *model 7* requires 647. From the point of view of these labels, the original *substrate* is more *causal* than the random region *level*.
 
  
