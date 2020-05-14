@@ -99,8 +99,8 @@ ln -s ../TBOT01_build/main main
 hr->dimension: 363
 hr->size: 6054
 frder(*dr->fud)->size(): 890
-frund(*dr->fud)->size(): 97
-frvars(*dr->fud)->size(): 1113
+frund(*dr->fud)->size(): 98
+frvars(*dr->fud)->size(): 1114
 model: model006_motor
 label: motor
 effective size: 6054
@@ -739,9 +739,9 @@ hr->size: 6054
 ({(<scan,180>,6)},757 % 1)
 ({(<scan,180>,7)},1648 % 1)
 
-({(motor,0)},698 % 1)
+({(motor,0)},100 % 1)
 ({(motor,1)},5256 % 1)
-({(motor,2)},100 % 1)
+({(motor,2)},698 % 1)
 
 ({(location,door12)},43 % 1)
 ({(location,door13)},13 % 1)
@@ -761,7 +761,11 @@ hr->size: 6054
 ```
 There are 363 *variables* and the *size* is 6054. We show the *histograms* of the *reductions* to *variables* `<scan,1>`, `<scan,180>`, `motor`, `location` and `position`. 
 
-We can see that with this controller the turtlebot tends to end up in the larger rooms, 1 and 4, and mainly skirts around the side of the rooms. 
+The `scan` *values* are rarely in the first bucket, which is up to 0.5 m, because this is less than the collision avoidance range of 0.7 m. The last bucket, which includes infinity, is the largest. The nearer buckets of `<scan,180>` are smaller than those of `<scan,1>` and the further buckets are larger, because the turtlebot moves forward not backward. 
+
+We can see from the `motor` *values* that the turtlebot generally moves straight ahead and that right turns are preferred to left turns.
+
+From the `location` and `position` *values*  we can also see that with this controller the turtlebot tends to end up in the larger rooms, 1 and 4, and mainly skirts around the side of the rooms. 
 
 Although the *history* is not very evenly spatially distributed, let us *induce* a *model* of the 360 sensor `scan` *variables*,
 ```
@@ -775,7 +779,7 @@ We can view a bitmap of the averaged *slices* in the *decomposition* tree,
 ```
 ![model001](images/model001.jpg?raw=true)
 
-If we looks at the *slices* at the root, we can see that objects are generally nearer on the left than on the right. This is explained by turtlebot's tendency to move in a clockwise direction skirting around the sides of the room. 
+If we look at the *slices* at the root, we can see that objects are generally nearer on the left than on the right. This is explained by turtlebot's tendency to move in a clockwise direction skirting around the sides of the room. 
 
 Another property of the *slices* is that some have  near objects ahead, while others have nearer objects at the sides. This is explained by turtlebot's tendency to move in straight lines until a threshold is reached (0.7 m) at which point the turtlebot stops and rotates by 30 degrees. 
 
@@ -816,3 +820,23 @@ This is the bitmap,
 ![model005](images/model005.jpg?raw=true)
 
 The *decomposition* is narrower and deeper than that of *model 1*. Near the root there is no *slice* for a near-object-ahead . These *alignments* are pushed downwards into the children *slices*.
+
+Now let us *condition* *models* on the label `motor`, `location` or `position`, given the `scan` *substrate*,
+```
+./main condition model006 4 motor >model006_motor.log
+
+```
+We can test the predictions of `motor`,
+```
+./main test model006_motor motor 
+hr->dimension: 363
+hr->size: 6054
+frder(*dr->fud)->size(): 890
+frund(*dr->fud)->size(): 98
+frvars(*dr->fud)->size(): 1114
+model: model006_motor
+label: motor
+effective size: 6054
+matches: 5849
+```
+
