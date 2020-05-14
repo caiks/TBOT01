@@ -1110,7 +1110,7 @@ int main(int argc, char **argv)
 		for (auto& v : sorted(vvk))
 			vvk1.push_back(vvi[v]);
 
-		size_t fmax = 127;
+		size_t fmax = 1024;
 		auto dr = applicationer(fmax, tint, vvk1, vvi[Variable(label)], *hr, 1, *ur);
 		std::ofstream out(model + "_" + label + ".dr", std::ios::binary);
 		systemRepasPersistent(*ur, out); cout << endl;
@@ -1241,7 +1241,7 @@ int main(int argc, char **argv)
 
 		auto hr1 = frmul(tint, *hr, *dr.fud);
 		auto sl = treesElements(*dr.slices);
-		size_t fmax = 127;
+		size_t fmax = 1024;
 		auto dr2 = applicationer(fmax, tint, *sl, vvi[Variable(label)], *hr1, 1, *ur);
 		auto dr3 = drjoin(dr, *dr2);
 		std::ofstream out(model + "_" + label + ".dr", std::ios::binary);
