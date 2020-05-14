@@ -394,6 +394,14 @@ ros2 run TBOT01 controller data.bin 250
 ```
 Press play in `gazebo` and the turtlebot3 will start moving.
 
+To run the non-ros `main` executable, create a link,
+
+```
+cd ~/turtlebot3_ws/src/TBOT01_ws
+ln -s ~/TBOT01_build/main main
+
+```
+
 <a name = "Discussion"></a>
 
 ## Discussion
@@ -404,10 +412,10 @@ In the following, the rooms are numbered 1 to 6 in the [turtlebot3 house](http:/
 
 Let us start the turtlebot from room 4. We set the turtlebot pose in  [env001.world](https://github.com/caiks/TBOT01_ws/blob/master/env001.model),
 ```xml
-    <include>
-      <pose>-2.0 1.5 0.01 0.0 0.0 0.0</pose>
-      <uri>model://turtlebot3_burger</uri>
-    </include>
+<include>
+  <pose>-2.0 1.5 0.01 0.0 0.0 0.0</pose>
+  <uri>model://turtlebot3_burger</uri>
+</include>
 ```
 Run the simulation,
 ```
@@ -457,10 +465,8 @@ struct Record
 ```
 `sensor_pose` records the odometry, `sensor_scan` records the lidar, and `action_linear` and `action_angular` records the motor action. In this case the records are written to `data.bin` every 250 milliseconds. 
 
-Run `TBOT01` for around 1 minute. Stop it by killing the controller to close the records file, and then by pressing pause in Gazebo to pause the simulation. If the turtlebot did not collide with the letterbox it should have completely left the grounds of the house. Let us examine the records generated. Note that because there are separate non-ROS and ROS builds, we will have to copy files from  `~/turtlebot3_ws/src/TBOT01_ws` to `~/TBOT01_ws`. In the non-ROS build, run
+Run `TBOT01` for around 1 minute. Stop it by killing the controller to close the records file, and then by pressing pause in Gazebo to pause the simulation. If the turtlebot did not collide with the letterbox it should have completely left the grounds of the house. Let us examine the records generated,
 ```
-cd ~/TBOT01_ws
-cp ~/turtlebot3_ws/src/TBOT01_ws/data.bin .
 ./main stats data
 
 ```
@@ -592,7 +598,7 @@ We can visualise the `scan` data in a bitmap,
 ```
 Open `data.bmp` in an image viewer. The 360 scan rays are represented horizontally with 0 deg in the centre. The brightness indicates the distance detected, brighter for foreground objects and darker for background. It is black where there are no obstacles within the 3.5 m maximum range of the lidar. The time axis is vertical from bottom to top. Here is the image for `data001`,
 
-![data001](https://raw.githubusercontent.com/caiks/TBOT01_ws/master/data001.jpg?token=AILOGZVVDRL7J5WKJVIO6WS6XQAXS)
+![data001](data001.jpg?raw=true)
 
 We can see the turtlebot zig-zagging around frequently in the corridor and less often outside the house, until all obstacles are out of range of the lidar sensor.
 
@@ -609,22 +615,16 @@ Now let us close the door by placing an obstacle there. We will also remove tabl
 
 The simulation was restarted,
 ```
-cd ~/turtlebot3_ws/src/TBOT01_ws
-
 gazebo -u --verbose ~/turtlebot3_ws/src/TBOT01_ws/env002.model -s libgazebo_ros_init.so
 
 ```
 and the controller re-run for around 5 minutes,
 ```
-cd ~/turtlebot3_ws/src/TBOT01_ws
-
 ros2 run TBOT01 controller data002_room4.bin 250
 
 ```
 Again we can examine the statistics,
 ```
-cd ~/TBOT01_ws
-
 ./main stats data002_room4
 
 ```
@@ -714,8 +714,6 @@ The *substrate* consists of 360 `scan` *variables* with bucketed *values*and a `
 
 We can do some analysis of the data files `data002_room1.bin`, `data002_room2.bin`, `data002_room2_2.bin`, `data002_room3.bin`, `data002_room4.bin`, `data002_room5.bin` and `data002_room5_2.bin`,
 ```
-cd ~/TBOT01_ws
-
 ./main history
 
 ```
@@ -767,8 +765,6 @@ We can see that with this controller the turtlebot tends to end up in the larger
 
 Although the *history* is not very evenly spatially distributed, let us *induce* a *model* of the 360 sensor `scan` *variables*,
 ```
-cd ~/TBOT01_ws
-
 ./main induce model001 4 >model001.log
 
 ```
