@@ -598,7 +598,7 @@ We can visualise the `scan` data in a bitmap,
 ```
 Open `data.bmp` in an image viewer. The 360 scan rays are represented horizontally with 0 deg in the centre. The brightness indicates the distance detected, brighter for foreground objects and darker for background. It is black where there are no obstacles within the 3.5 m maximum range of the lidar. The time axis is vertical from bottom to top. Here is the image for `data001`,
 
-![data001](data001.jpg?raw=true)
+![data001](images/data001.jpg?raw=true)
 
 We can see the turtlebot zig-zagging around frequently in the corridor and less often outside the house, until all obstacles are out of range of the lidar sensor.
 
@@ -609,7 +609,7 @@ Generate an average of the records,
 ```
 and view it in `data001_average.bmp`,
 
-![data001_average](https://raw.githubusercontent.com/caiks/TBOT01_ws/master/data001_average.bmp?token=AILOGZQUS2IDALFDKIB72RS6X2NRS)
+![data001_average](images/data001_average.bmp?raw=true)
 
 Now let us close the door by placing an obstacle there. We will also remove tables and chairs. The new [turtlebot3_house001](https://github.com/caiks/TBOT01_ws/blob/master/gazebo_models/turtlebot3_house001/model.sdf) is included in  [env002.world](https://github.com/caiks/TBOT01_ws/blob/master/env002.model). 
 
@@ -654,7 +654,7 @@ Now the turtlebot moves from room 1 to room 4.
 
 Here is the image for `data002_room1`,
 
-![data002_room1](https://raw.githubusercontent.com/caiks/TBOT01_ws/master/data002_room1.jpg?token=AILOGZRFFKQYPTXLO3H5BOK6YKILQ)
+![data002_room1](images/data002_room1.jpg?raw=true)
 
 You can view a short video [here](https://github.com/caiks/TBOT01_ws/blob/master/data002_room1.mp4). In this simulation turtlebot leaves room 1 and goes into room 2.
 
@@ -773,7 +773,7 @@ We can view a bitmap of the averaged *slices* in the *decomposition* tree,
 ./main bitmap_model model001 
 
 ```
-![model001](https://raw.githubusercontent.com/caiks/TBOT01_ws/master/model001.jpg?token=AILOGZV4IPQEYKVEU2FS5MC6YU746)
+![model001](images/model001.jpg?raw=true)
 
 If we looks at the *slices* at the root, we can see that objects are generally nearer on the left than on the right. This is explained by turtlebot's tendency to move in a clockwise direction skirting around the sides of the room. 
 
@@ -794,14 +794,14 @@ Let us *induce* a *model* of regions of 60 `scan` *variables*,
 ```
 This is the bitmap,
 
-![model002](https://raw.githubusercontent.com/caiks/TBOT01_ws/master/model002.jpg?token=AILOGZSYNKQL3TBJRELLWFS6YVHAG)
+![model002](images/model002.jpg?raw=true)
 
 The random-region *slices* are considerably more elemental than for the entire 360 degrees panorama.
 
-*Model* 3 uses a *valency* of 4 buckets instead of 8. The image can be viewed [here](https://raw.githubusercontent.com/caiks/TBOT01_ws/master/model003.jpg?token=AILOGZWSLU6UYASJ5J735GK6YVIQ2).
+*Model* 3 uses a *valency* of 4 buckets instead of 8. The image can be viewed [here](https://github.com/caiks/TBOT01_ws/blob/master/model003.jpg?raw=true).
 The *decomposition* is narrower and deeper, but otherwise little different.
 
-*Model* 4 goes back to a *valency* of 8, but has a smaller `wmax`. The image can be viewed [here](https://raw.githubusercontent.com/caiks/TBOT01_ws/master/model004.jpg?token=AILOGZVXDREAIFD65BHW7S26YVJIS).
+*Model* 4 goes back to a *valency* of 8, but has a smaller `wmax`. The image can be viewed [here](https://github.com/caiks/TBOT01_ws/blob/master/model004.jpg?raw=true).
 Again, the *decomposition* is little different.
 
 Now let us consider a *2-level model*. *Model 5* is *induced* from a lower *level* that consists of the *slice variables* of 12 *model 4* regions every 30 degrees,
@@ -813,6 +813,6 @@ Now let us consider a *2-level model*. *Model 5* is *induced* from a lower *leve
 ```
 This is the bitmap,
 
-![model005](https://raw.githubusercontent.com/caiks/TBOT01_ws/master/model005.jpg?token=AILOGZVCDZBNUS7TOSVTVDK6YVKL2)
+![model005](images/model005.jpg?raw=true)
 
 The *decomposition* is narrower and deeper than that of *model 1*. Near the root there is no *slice* for a near-object-ahead . These *alignments* are pushed downwards into the children *slices*.
