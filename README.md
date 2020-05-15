@@ -763,6 +763,480 @@ Now let us run the same set of *conditioners* on a *level* that consists of the 
 ./main condition model007 4 position >model007_position.log
 
 ```
-All of these run to zero *label entropy* but require more *fuds* to do so. For example, to predict `location` *model 6* requires 421 *fuds* but *model 7* requires 647. From the point of view of these labels, the original *substrate* is more *causal* than the random region *level*.
+All of these also run to zero *label entropy* but require more *fuds* to do so. For example, to predict `location` *model 6* requires 421 *fuds* but *model 7* requires 647. From the point of view of these labels, the original *substrate* is more *causal* than the random region *level*.
 
- 
+Now let us use the *models* we have created to make guesses about the `location` and `position` in a ROS node that observes the turtlebot at it moves around the turtlebot house in the gazebo simulation. The `TBOT01` [observer](https://github.com/caiks/TBOT01/blob/master/observer.h) node is given a *model*, a label *variable* and a observe interval. At each observation it *applies* the *model* to the current *event* to determine its *slice*. The prediction of the label is the most common *value* of the label *variable* in the `data002` *history's slice*. The prediction is reported along with the actual *value*, calculated from the current *event's* odometry, and a running average of the matches is calculated.
+
+Let us consider *models* `model006_location` and `model006_position` which are *conditioned* on the label given the `scan` *substrate*. The following are run in separate shells,
+```
+ros2 run TBOT01 controller data.bin 250
+
+ros2 run TBOT01 observer model006_location location 2500
+
+ros2 run TBOT01 observer model006_position position 2500
+
+gazebo -u ~/turtlebot3_ws/src/TBOT01_ws/env002.model -s libgazebo_ros_init.so
+
+```
+The turtlebot is allowed to run around for a while.
+
+This is the output for `location`,
+```
+room4    room4   match   100.000000
+room4    room4   match   100.000000
+room4    room4   match   100.000000
+room4    room4   match   100.000000
+room4    unknown fail    80.000000
+room4    room4   match   83.333333
+room4    room4   match   85.714286
+room4    room5   fail    75.000000
+room4    room4   match   77.777778
+room4    room4   match   80.000000
+room4    room4   match   81.818182
+room4    room4   match   83.333333
+room4    room4   match   84.615385
+room4    unknown fail    78.571429
+room4    room4   match   80.000000
+room4    room4   match   81.250000
+room4    room4   match   82.352941
+room4    room4   match   83.333333
+room4    room4   match   84.210526
+room4    room4   match   85.000000
+room4    room4   match   85.714286
+room4    unknown fail    81.818182
+room4    room4   match   82.608696
+room4    room4   match   83.333333
+room4    room4   match   84.000000
+room4    room1   fail    80.769231
+room4    room4   match   81.481481
+room4    room4   match   82.142857
+room4    room4   match   82.758621
+room4    room4   match   83.333333
+room4    room1   fail    80.645161
+room4    room4   match   81.250000
+```
+We can see that `model006` turtlebot is quite good at guessing that it is in room 4. It sometimes mistakes it for another large room, room 1. In this run, the turtlebot stayed in room 4.
+
+This is the output for `position`,
+```
+centre   centre  match   100.000000
+centre   centre  match   100.000000
+side     side    match   100.000000
+side     corner  fail    75.000000
+side     centre  fail    60.000000
+centre   centre  match   66.666667
+centre   centre  match   71.428571
+side     side    match   75.000000
+side     centre  fail    66.666667
+side     side    match   70.000000
+centre   centre  match   72.727273
+centre   centre  match   75.000000
+side     side    match   76.923077
+side     side    match   78.571429
+side     unknown fail    73.333333
+centre   centre  match   75.000000
+centre   side    fail    70.588235
+centre   centre  match   72.222222
+centre   side    fail    68.421053
+centre   side    fail    65.000000
+centre   centre  match   66.666667
+centre   side    fail    63.636364
+side     side    match   65.217391
+side     side    match   66.666667
+side     side    match   68.000000
+corner   corner  match   69.230769
+side     side    match   70.370370
+side     side    match   71.428571
+side     side    match   72.413793
+centre   centre  match   73.333333
+centre   centre  match   74.193548
+centre   centre  match   75.000000
+centre   centre  match   75.757576
+```
+`model006` turtlebot is also quite good at guessing its `position`.
+
+Now let us do another run starting in room 1,
+```
+gazebo -u ~/turtlebot3_ws/src/TBOT01_ws/env003.model -s libgazebo_ros_init.so
+
+```
+with `location` output,
+```
+room1    room2   fail    0.000000
+room1    room4   fail    0.000000
+room1    room1   match   33.333333
+room1    room4   fail    25.000000
+room1    room4   fail    20.000000
+room1    room2   fail    16.666667
+room1    room4   fail    14.285714
+room1    room1   match   25.000000
+door12   door12  match   33.333333
+room1    room1   match   40.000000
+room1    room1   match   45.454545
+room1    room1   match   50.000000
+room1    room4   fail    46.153846
+room1    unknown fail    42.857143
+room1    room1   match   46.666667
+room1    room4   fail    43.750000
+room1    room4   fail    41.176471
+room1    room4   fail    38.888889
+room1    room4   fail    36.842105
+room1    room4   fail    35.000000
+room1    room1   match   38.095238
+```
+`model006` turtlebot is not so good at guessing that it is in room 1, often mistaking it for room 4. It matches `door12` as it approaches.
+
+This is the `position` output,
+```
+centre   centre  match   100.000000
+centre   side    fail    50.000000
+centre   centre  match   66.666667
+centre   unknown fail    50.000000
+centre   centre  match   60.000000
+centre   centre  match   66.666667
+side     side    match   71.428571
+corner   side    fail    62.500000
+side     side    match   66.666667
+side     side    match   70.000000
+centre   centre  match   72.727273
+centre   centre  match   75.000000
+centre   centre  match   76.923077
+centre   centre  match   78.571429
+side     side    match   80.000000
+side     side    match   81.250000
+side     side    match   82.352941
+centre   centre  match   83.333333
+side     side    match   84.210526
+side     side    match   85.000000
+side     side    match   85.714286
+centre   side    fail    81.818182
+side     centre  fail    78.2608
+```
+This is very similar to the results for room 4.
+
+Now let us do another run starting in room 2,
+```
+gazebo -u ~/turtlebot3_ws/src/TBOT01_ws/env004.model -s libgazebo_ros_init.so
+
+```
+with `location` output,
+```
+room2    unknown fail    0.000000
+room2    room4   fail    0.000000
+room2    room2   match   33.333333
+room2    room2   match   50.000000
+room2    room2   match   60.000000
+room2    room6   fail    50.000000
+room2    room3   fail    42.857143
+room2    room2   match   50.000000
+room2    room3   fail    44.444444
+room2    room6   fail    40.000000
+room2    room2   match   45.454545
+room2    unknown fail    41.666667
+room2    room2   match   46.153846
+room2    room2   match   50.000000
+room2    room2   match   53.333333
+room2    room3   fail    50.000000
+room2    room2   match   52.941176
+room2    room2   match   55.555556
+room2    door12  fail    52.631579
+room2    unknown fail    50.000000
+room2    room4   fail    47.619048
+room2    room2   match   50.000000
+room2    room2   match   52.173913
+```
+`model006` turtlebot is better at recognising room 2 than room 1, but not as good as room 4. 
+
+This is the `position` output,
+```
+corner   centre  fail    0.000000
+corner   corner  match   50.000000
+side     centre  fail    33.333333
+corner   corner  match   50.000000
+corner   corner  match   60.000000
+side     side    match   66.666667
+side     side    match   71.428571
+centre   centre  match   75.000000
+side     unknown fail    66.666667
+side     side    match   70.000000
+side     centre  fail    63.636364
+centre   centre  match   66.666667
+centre   centre  match   69.230769
+corner   corner  match   71.428571
+corner   corner  match   73.333333
+side     side    match   75.000000
+side     side    match   76.470588
+side     centre  fail    72.222222
+centre   centre  match   73.684211
+centre   centre  match   75.000000
+side     side    match   76.190476
+corner   corner  match   77.272727
+side     corner  fail    73.913043
+side     side    match   75.000000
+```
+This is very similar to the results for rooms 4 and room 1.
+
+Now let us do another run starting in room 3,
+```
+gazebo -u ~/turtlebot3_ws/src/TBOT01_ws/env005.model -s libgazebo_ros_init.so
+
+```
+with `location` output,
+```
+room3    room4   fail    0.000000
+room3    unknown fail    0.000000
+room3    room2   fail    0.000000
+room3    room6   fail    0.000000
+room3    unknown fail    0.000000
+room3    room3   match   16.666667
+room3    unknown fail    14.285714
+room3    door14  fail    12.500000
+door13   unknown fail    11.111111
+room1    room1   match   20.000000
+...
+```
+The turtlebot moves out of room 3 into room 1 after a few seconds.
+`model006` turtlebot is poor at recognising room 3. This is because there are only 201 *events* in `data002` in room 3. Compare this to 572 *events* in room 2, 1222 *events* in  room 1 and 2763 *events* in 4. 
+
+This is the `position` output,
+```
+side     unknown fail    0.000000
+side     unknown fail    0.000000
+corner   corner  match   33.333333
+side     corner  fail    25.000000
+side     side    match   40.000000
+side     centre  fail    33.333333
+centre   centre  match   42.857143
+corner   centre  fail    37.500000
+corner   corner  match   44.444444
+corner   side    fail    40.000000
+...
+```
+The `position` results are lower than for the other rooms.
+
+The final run starts in room 5,
+```
+gazebo -u ~/turtlebot3_ws/src/TBOT01_ws/env006.model -s libgazebo_ros_init.so
+
+```
+with `location` output,
+```
+room5    room5   match   100.000000
+room5    room4   fail    50.000000
+door56   unknown fail    33.333333
+room5    unknown fail    25.000000
+room5    room4   fail    20.000000
+room5    unknown fail    16.666667
+room5    room5   match   28.571429
+room5    room5   match   37.500000
+room5    unknown fail    33.333333
+room5    door45  fail    30.000000
+room5    room5   match   36.363636
+door45   unknown fail    33.333333
+room4    room1   fail    30.769231
+...
+```
+The turtlebot moves out of room 5 into room 4 after a few seconds.
+`model006` turtlebot is poor at recognising room 5, but better than room 3. Again, this is because there are only 161  *events* in `data002` in room 5. 
+
+This is the `position` output,
+```
+side     unknown fail    0.000000
+corner   corner  match   50.000000
+side     centre  fail    33.333333
+side     side    match   50.000000
+side     corner  fail    40.000000
+side     unknown fail    33.333333
+side     side    match   42.857143
+corner   corner  match   50.000000
+corner   corner  match   55.555556
+side     unknown fail    50.000000
+side     side    match   54.545455
+side     centre  fail    50.000000
+side     centre  fail    46.153846
+...
+```
+The `position` results are similar to those of room 3.
+
+Now let us compare `model007` to `model006`. `model007` is *conditioned* given a *level* of regional *models*. 
+
+Starting from room 4 again,
+```
+room4    room4   match   100.000000
+room4    room1   fail    50.000000
+room4    room4   match   66.666667
+...
+room4    room4   match   90.909091
+room4    room4   match   91.666667
+door45   room4   fail    84.615385
+room4    room1   fail    78.571429
+room4    room1   fail    73.333333
+room4    room1   fail    68.750000
+room4    room4   match   70.588235
+room4    room4   match   72.222222
+room4    room4   match   73.684211
+room4    room1   fail    70.000000
+```
+We can see that `model007` turtlebot is quite good at guessing that it is in room 4, but perhaps a little worse than `model006` turtlebot. 
+
+This is the output for `position`,
+```
+centre   centre  match   100.000000
+centre   centre  match   100.000000
+centre   side    fail    66.666667
+centre   centre  match   75.000000
+side     side    match   80.000000
+...
+centre   centre  match   89.473684
+centre   centre  match   90.000000
+centre   side    fail    85.714286
+centre   side    fail    81.818182
+```
+`model007` turtlebot is also quite good at guessing its `position` and a little better than `model006`.
+
+Now let us do another run starting in room 1,
+```
+gazebo -u ~/turtlebot3_ws/src/TBOT01_ws/env003.model -s libgazebo_ros_init.so
+
+```
+with `location` output,
+```
+room1    room4   fail    0.000000
+room1    room4   fail    0.000000
+room1    room4   fail    0.000000
+room1    room4   fail    0.000000
+room1    room4   fail    0.000000
+room1    room4   fail    0.000000
+room1    room1   match   14.285714
+room1    room4   fail    12.500000
+room1    room4   fail    11.111111
+...
+room1    room4   fail    5.263158
+room1    room4   fail    5.000000
+room1    room1   match   9.523810
+```
+`model007` turtlebot is poor guessing that it is in room 1, often mistaking it for room 4. It is considerably worse than `model006`.
+
+This is the `position` output,
+```
+side     side    match   100.000000
+side     centre  fail    50.000000
+side     side    match   66.666667
+...
+side     side    match   66.666667
+centre   centre  match   68.181818
+```
+This is similar to the results for room 4 and similar to those of `model006`.
+
+Now let us do another run starting in room 2,
+```
+gazebo -u ~/turtlebot3_ws/src/TBOT01_ws/env004.model -s libgazebo_ros_init.so
+
+```
+with `location` output,
+```
+room2    room2   match   100.000000
+room2    room6   fail    50.000000
+room2    door12  fail    33.333333
+...
+room2    room6   fail    55.555556
+room2    room2   match   57.894737
+room2    room2   match   60.000000
+```
+`model007` turtlebot is similar to `model006`.
+
+This is the `position` output,
+```
+corner   side    fail    0.000000
+corner   corner  match   50.000000
+side     side    match   66.666667
+corner   corner  match   75.000000
+...
+corner   corner  match   83.333333
+corner   corner  match   84.210526
+side     corner  fail    80.000000
+```
+`model007` turtlebot is similar to `model006`.
+
+Now let us do another run starting in room 3,
+```
+gazebo -u ~/turtlebot3_ws/src/TBOT01_ws/env005.model -s libgazebo_ros_init.so
+
+```
+with `location` output,
+```
+room3    room3   match   100.000000
+room3    room2   fail    50.000000
+room3    room2   fail    33.333333
+room3    room6   fail    25.000000
+room3    room6   fail    20.000000
+room3    room6   fail    16.666667
+room3    room3   match   28.571429
+room3    room3   match   37.500000
+door13   room4   fail    33.333333
+room1    room4   fail    30.000000
+...
+```
+`model007` turtlebot is a little better than `model006`.
+
+This is the `position` output,
+```
+side     corner  fail    0.000000
+side     side    match   50.000000
+corner   corner  match   66.666667
+side     side    match   75.000000
+side     side    match   80.000000
+centre   side    fail    66.666667
+side     side    match   71.428571
+corner   corner  match   75.000000
+corner   side    fail    66.666667
+...
+```
+Again, `model007` turtlebot is a little better than `model006`.
+
+The final run starts in room 5,
+```
+gazebo -u ~/turtlebot3_ws/src/TBOT01_ws/env006.model -s libgazebo_ros_init.so
+
+```
+with `location` output,
+```
+room5    room2   fail    0.000000
+room5    room4   fail    0.000000
+door56   room4   fail    0.000000
+room5    room4   fail    0.000000
+room5    room1   fail    0.000000
+room5    room2   fail    0.000000
+room5    room5   match   14.285714
+room5    room1   fail    12.500000
+room5    room1   fail    11.111111
+room5    room5   match   20.000000
+room5    room1   fail    18.181818
+door45   door45  match   25.000000
+room4    room4   match   30.769231
+...
+```
+`model007` turtlebot is similar to `model006`.
+
+This is the `position` output,
+```
+corner   corner  match   100.000000
+corner   side    fail    50.000000
+side     side    match   66.666667
+corner   side    fail    50.000000
+side     side    match   60.000000
+side     side    match   66.666667
+side     side    match   71.428571
+corner   corner  match   75.000000
+corner   corner  match   77.777778
+centre   centre  match   80.000000
+side     side    match   81.818182
+side     side    match   83.333333
+side     side    match   84.615385
+...
+```
+`model007` turtlebot is much better than `model006`.
+
+Overall, `model007` turtlebot is very similar to `model006`, perhaps better in small rooms but worse in the large room 1, which is consitently confused with room 4.
+
+
