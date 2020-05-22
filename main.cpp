@@ -2312,6 +2312,114 @@ int main(int argc, char **argv)
 		ECHO(historySparsesPersistent(*hs1, out1));
 		out1.close();
 	}
+	
+	if (argc >= 3 && string(argv[1]) == "entropy")
+	{
+		auto uvars = systemsSetVar;
+		auto uruu = systemsRepasSystem;
+		auto aall = histogramsList;
+		auto add = pairHistogramsAdd_u;
+		auto ent = histogramsEntropy;
+		auto araa = systemsHistogramRepasHistogram_u;
+		auto hrred = [](const HistoryRepa& hr, const SystemRepa& ur, const VarList& kk)
+		{
+			auto& vvi = ur.mapVarSize();
+			std::size_t m = kk.size();
+			SizeList kk1;
+			for (std::size_t i = 0; i < m; i++)
+				kk1.push_back(vvi[kk[i]]);
+			return setVarsHistoryRepasReduce_u(1.0, m, kk1.data(), hr);
+		};
+		auto hrconcat = vectorHistoryRepasConcat_u;
+		auto hrshuffle = historyRepasShuffle_u;
+		auto hrpart = systemsHistoryRepasApplicationsHistoryHistoryPartitionedRepa_u;
+		auto frvars = fudRepasSetVar;
+		auto frder = fudRepasDerived;
+		auto frund = fudRepasUnderlying;
+		
+		string model = string(argv[2]);
+		size_t mult = argc >= 4 ? atoi(argv[3]) : 1;
+		
+		EVAL(model);
+		EVAL(mult);
+
+		std::unique_ptr<System> uu;
+		std::unique_ptr<SystemRepa> ur;
+		std::unique_ptr<HistoryRepa> hr;
+		{
+			std::vector<std::string> files{
+				"data002_room1.bin",
+				"data002_room2.bin",
+				"data002_room2_2.bin",
+				"data002_room3.bin",
+				"data002_room4.bin",
+				"data002_room5.bin",
+				"data002_room5_2.bin"
+			};
+			HistoryRepaPtrList ll;
+			for (auto& f : files)
+			{
+				std::ifstream in(f, std::ios::binary);
+				auto qq = persistentsRecordList(in);
+				in.close();
+				auto xx = recordListsHistoryRepa_2(8, *qq);
+				uu = std::move(std::get<0>(xx));
+				ur = std::move(std::get<1>(xx));
+				ll.push_back(std::move(std::get<2>(xx)));
+			}
+			hr = vectorHistoryRepasConcat_u(ll);
+		}
+
+		ECHO(auto z = hr->size);
+		EVAL(z);
+		ECHO(auto v = z * mult);
+		EVAL(v);
+		
+		StrVarPtrMap m;
+		std::ifstream in(model + ".dr", std::ios::binary);
+		auto ur1 = persistentsSystemRepa(in, m);
+		auto dr = persistentsApplicationRepa(in);
+		in.close();
+
+		EVAL(fudRepasSize(*dr->fud));
+		EVAL(frder(*dr->fud)->size());
+		EVAL(frund(*dr->fud)->size());
+		EVAL(treesSize(*dr->slices));
+		ECHO(auto d = treesLeafElements(*dr->slices)->size());
+		EVAL(d);
+
+		auto hrp = hrpart(*hr, *dr, *ur);
+		// EVAL(*hrp);
+		uruu(*ur, *uu);
+		// EVAL(*uu);
+		auto aa = araa(*uu, *ur, *hrred(*hrp, *ur, VarList{ Variable("partition0"), Variable("partition1") }));
+		// EVAL(*aa);
+		EVAL(ent(*aa));
+		EVAL(ent(*aa) * z);
+		EVAL((1.0-exp(ent(*aa))/d)*100.0);
+		
+		HistoryRepaPtrList qq;
+		qq.reserve(mult);
+		for (std::size_t i = 1; i <= mult; i++)
+			qq.push_back(hrshuffle(*hr, (unsigned int)(12345+i*z)));
+		auto hrs = hrconcat(qq);
+		
+		auto hrsp = hrpart(*hrs, *dr, *ur);
+		auto bb = araa(*uu, *ur, *hrred(*hrsp, *ur, VarList{ Variable("partition0"), Variable("partition1") }));
+		EVAL(ent(*bb));
+		EVAL(ent(*bb) * v);
+		EVAL((1.0-exp(ent(*bb))/d)*100.0);
+		
+		auto cc = add(*aa,*bb);
+		
+		EVAL(ent(*cc));
+		EVAL(ent(*cc) * (z+v));
+		EVAL((1.0-exp(ent(*cc))/d)*100.0);
+		
+		EVAL((ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v)/z);
+		EVAL(ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v);
+		EVAL(exp((ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v)/z)/d*100.0);
+	}
 
 	return 0;
 }
