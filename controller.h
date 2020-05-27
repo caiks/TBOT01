@@ -39,7 +39,7 @@ typedef std::pair<double, double> Coord;
 class Controller : public rclcpp::Node
 {
 public:
-	Controller(const std::string&, std::chrono::milliseconds, std::chrono::milliseconds, std::chrono::milliseconds, std::chrono::milliseconds, const std::string&, const std::string&);
+	Controller(const std::string&, std::chrono::milliseconds, std::chrono::milliseconds, std::chrono::milliseconds, std::chrono::milliseconds, std::chrono::milliseconds, const std::string&, const std::string&);
 	~Controller();
 
 private:
@@ -64,6 +64,8 @@ private:
 
 	std::ofstream _record_out;
 
+	bool _bias_right;
+	int _bias_factor;
 	int _left_turn_factor;
 	int _right_turn_factor;
 

@@ -359,7 +359,7 @@ The turtlebot moves around room 4 before moving to the corridor between room 4 a
 
 Note that in this simulation and the others below, small variations in the timing of the messages sent from the controller can cause quite large differences in the turtlebot's path after a few minutes, so these experiments are not exactly reproducible.
 
-The [Turtlebot3Drive node](https://github.com/ROBOTIS-GIT/turtlebot3_simulations/blob/ros2/turtlebot3_gazebo/include/turtlebot3_gazebo/turtlebot3_drive.hpp) does simple collision avoidance. It subscribes to the lidar `scan` and odometry `odom` topics, and publishes to the motor `cmd_vel` topic. It runs a timer every 10 ms which calls a callback where the direction is decided. The `scan` data is first checked at 0 deg. If there is an obstacle ahead it turns right, otherwise the `scan` data is checked at 330 deg. If there is an obstacle to the left it turns right, otherwise the `scan` data is checked at 30 deg. If there is an obstacle to the right it turns left. If there are no obstacles it drives straight ahead. Once the direction is decided a `geometry_msgs::msg::Twist` is published to `cmd_vel` either with (a) a linear motion at 0.7 m/s, or (b) a rotation clockwise or anti-clockwise at 1.5 rad/s. While rotating the controller waits until the orientation has changed by 30 deg before the direction is decided again.
+The [Turtlebot3Drive node](https://github.com/ROBOTIS-GIT/turtlebot3_simulations/blob/ros2/turtlebot3_gazebo/include/turtlebot3_gazebo/turtlebot3_drive.hpp) does simple collision avoidance. It subscribes to the lidar `scan` and odometry `odom` topics, and publishes to the motor `cmd_vel` topic. It runs a timer every 10 ms which calls a callback where the direction is decided. The `scan` data is first checked at 0 deg. If there is an obstacle ahead it turns right. If there is no obstacle ahead the `scan` data is checked at 30 deg. If there is an obstacle to the left it turns right. If there is no obstacle ahead nor to the left, the `scan` data is checked at 330 deg. If there is an obstacle to the right it turns left. If there are no obstacles ahead, left or right, it drives straight ahead. Once the direction is decided a `geometry_msgs::msg::Twist` is published to `cmd_vel` either with (a) a linear motion at 0.7 m/s, or (b) a rotation clockwise or anti-clockwise at 1.5 rad/s. While rotating the controller waits until the orientation has changed by 30 deg before the direction is decided again.
 
 In general the `turtlebot3_drive` controller does not collide very often with the walls, but can sometimes collide with table legs. There is a preference for right turns over left, so overall motion is usually clockwise.
 
@@ -741,7 +741,7 @@ This is the bitmap,
 
 ![model005](images/model005.jpg?raw=true)
 
-The *decomposition* is narrower and deeper than that of *model 1*. Near the root there is no *slice* for a near-object-ahead . These *alignments* are pushed downwards into the children *slices*.
+The *decomposition* is narrower and deeper than that of *model 1*. Near the root there is no *slice* for near-object-ahead. These *alignments* are pushed downwards into the children *slices*.
 
 Now let us *condition* *models* on the labels `motor`, `location` and `position`, given the `scan` *substrate*,
 ```
@@ -1238,5 +1238,27 @@ side     side    match   84.615385
 `model007` turtlebot is much better than `model006`.
 
 Overall, `model007` turtlebot is very similar to `model006`, perhaps better in small rooms but worse in the large room 1, which is consitently confused with room 4.
+
+Now let us see if we can encourage the turtlebot to travel between rooms by removing the bias to the right. We will set an interval that alternates the bias.
+
+The simulation was restarted in room 4,
+```
+gazebo -u --verbose ~/turtlebot3_ws/src/TBOT01_ws/env002.model -s libgazebo_ros_init.so
+
+```
+and the controller re-run, alternating the bias every 1000 ms,
+```
+cd ~/turtlebot3_ws/src/TBOT01_ws
+
+ros2 run TBOT01 controller data003.bin 250 1000
+
+```
+Now the turtlebot moves between rooms more freely, although it tends to be a little indecisive in corners, especially around the rubbish bin in room 3. After 12 minutes it has visited all of them.
+
+Again we can examine the statistics,
+```
+./main stats data003
+
+```
 
 

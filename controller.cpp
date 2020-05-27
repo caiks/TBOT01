@@ -18,7 +18,7 @@ typedef std::chrono::high_resolution_clock clk;
 #define EVALL(x) cout << #x << ": " << endl << (x) << endl
 #define TRUTH(x) cout << #x << ": " << ((x) ? "true" : "false") << endl
 
-Controller::Controller(const std::string& filename, std::chrono::milliseconds record_interval, std::chrono::milliseconds left_turn_interval, std::chrono::milliseconds right_turn_interval, std::chrono::milliseconds demo_interval, const std::string& demo_state0, const std::string& demo_state1)
+Controller::Controller(const std::string& filename, std::chrono::milliseconds record_interval, std::chrono::milliseconds bias_interval, std::chrono::milliseconds left_turn_interval, std::chrono::milliseconds right_turn_interval, std::chrono::milliseconds demo_interval, const std::string& demo_state0, const std::string& demo_state1)
 : Node("TBOT01_controller_node")
 {
 	_scan_data[0] = 0.0;
@@ -34,6 +34,8 @@ Controller::Controller(const std::string& filename, std::chrono::milliseconds re
 
 	auto tenms = 10ms;
 
+	_bias_right = true;
+	_bias_factor = bias_interval.count() / tenms.count();
 	_left_turn_factor = left_turn_interval.count() / tenms.count();
 	_right_turn_factor = right_turn_interval.count() / tenms.count();
 
@@ -202,12 +204,15 @@ void Controller::update_callback()
 	double check_forward_dist = 0.7;
 	double check_side_dist = 0.6;
 
+	if (_bias_factor > 0 && (rand() % _bias_factor) == 0)
+		_bias_right = !_bias_right;
+	
 	switch (turtlebot3_state_num)
 	{
 	case GET_TB3_DIRECTION:
 		if (_scan_data[CENTER] > check_forward_dist)
 		{
-			if (_scan_data[LEFT] < check_side_dist)
+			if (_bias_right && _scan_data[LEFT] < check_side_dist)
 			{
 				_prev_robot_pose = _robot_pose;
 				turtlebot3_state_num = TB3_RIGHT_TURN;
@@ -216,6 +221,11 @@ void Controller::update_callback()
 			{
 				_prev_robot_pose = _robot_pose;
 				turtlebot3_state_num = TB3_LEFT_TURN;
+			}
+			else if (_scan_data[LEFT] < check_side_dist)
+			{
+				_prev_robot_pose = _robot_pose;
+				turtlebot3_state_num = TB3_RIGHT_TURN;
 			}
 			else
 			{
@@ -226,7 +236,7 @@ void Controller::update_callback()
 		if (_scan_data[CENTER] < check_forward_dist)
 		{
 			_prev_robot_pose = _robot_pose;
-			turtlebot3_state_num = TB3_RIGHT_TURN;
+			turtlebot3_state_num = _bias_right ? TB3_RIGHT_TURN : TB3_LEFT_TURN;
 		}
 		break;
 
@@ -310,14 +320,15 @@ int main(int argc, char** argv)
 {
 	std::string filename(argc >= 2 ? std::string(argv[1]) : "TBOT01.bin");
 	std::chrono::milliseconds record_interval(argc >= 3 ? std::atol(argv[2]) : 250);
-	std::chrono::milliseconds left_turn_interval(argc >= 4 ? std::atol(argv[3]) : 0);
-	std::chrono::milliseconds right_turn_interval(argc >= 5 ? std::atol(argv[4]) : 0);
-	std::chrono::milliseconds demo_interval(argc >= 6 ? std::atol(argv[5]) : 0);
-	std::string demo_state0(argc >= 7 ? std::string(argv[6]) : "room4");
-	std::string demo_state1(argc >= 8 ? std::string(argv[7]) : "door14");
+	std::chrono::milliseconds bias_interval(argc >= 4 ? std::atol(argv[3]) : 0);
+	std::chrono::milliseconds left_turn_interval(argc >= 5 ? std::atol(argv[4]) : 0);
+	std::chrono::milliseconds right_turn_interval(argc >= 6 ? std::atol(argv[5]) : 0);
+	std::chrono::milliseconds demo_interval(argc >= 7 ? std::atol(argv[6]) : 0);
+	std::string demo_state0(argc >= 8 ? std::string(argv[7]) : "room4");
+	std::string demo_state1(argc >= 9 ? std::string(argv[8]) : "door14");
 
 	rclcpp::init(argc, argv);
-	rclcpp::spin(std::make_shared<Controller>(filename, record_interval, left_turn_interval, right_turn_interval, demo_interval, demo_state0, demo_state1));
+	rclcpp::spin(std::make_shared<Controller>(filename, record_interval, bias_interval, left_turn_interval, right_turn_interval, demo_interval, demo_state0, demo_state1));
 	rclcpp::shutdown();
 
 	return 0;
