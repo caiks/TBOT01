@@ -69,7 +69,7 @@ ln -s ../TBOT01_build/main main
 
 ./main bitmap_average data002_room4 20
 
-./main history
+./main analyse data002
 
 ./main induce model001 4 >model001.log
 
@@ -636,7 +636,7 @@ The *substrate* consists of 360 `scan` *variables* with bucketed *values* and a 
 
 We can do some analysis of the data files `data002_room1.bin`, `data002_room2.bin`, `data002_room2_2.bin`, `data002_room3.bin`, `data002_room4.bin`, `data002_room5.bin` and `data002_room5_2.bin`,
 ```
-./main history
+./main analyse data002
 
 ```
 which has the following output,
@@ -694,6 +694,12 @@ Although the *history* is not very evenly spatially distributed, let us *induce*
 ./main induce model001 4 >model001.log
 
 ```
+We can compare this *model* to the *models* below by using a proxy for the *size-volume scaled component size cardinality sum relative entropy* which substitutes a *scaled shuffle* for the *cartesian*. As the *shuffle* is *scaled* the *relative entropy* gradually converges, so it is a reasonable proxy for the *model likelihood*.
+```
+./main entropy model001 10
+ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 17842.3
+```
+
 We can view a bitmap of the averaged *slices* in the *decomposition* tree,
 ```
 ./main bitmap_model model001 
@@ -734,6 +740,11 @@ Now let us consider a *2-level model*. *Model 5* is *induced* from a lower *leve
 ```
 ./main induce model005 4 >model005.log
 
+./main entropy model005 10
+ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 17322.6
+```
+The *likelihood* is a little less than for *model* 1.
+```
 ./main bitmap_model model005 
 
 ```
@@ -747,23 +758,39 @@ Now let us *condition* *models* on the labels `motor`, `location` and `position`
 ```
 ./main condition model006 4 motor >model006_motor.log
 
+./main entropy model006_motor 10
+ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 4532.53
+
 ./main condition model006 4 location >model006_location.log
+
+./main entropy model006_location 10
+ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 6729.56
 
 ./main condition model006 4 position >model006_position.log
 
+./main entropy model006_position 10
+ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 5625.21
 ```
-All of these *models* are run to zero *label entropy*. That means that if they were applied to the training *history* they would have 100% prediction accuracy.
+All of these *models* are run to zero *label entropy*. That means that if they were applied to the training *history* they would have 100% prediction accuracy. The *likelihoods* of the *conditioned models* are all considerably lower than the *induced models*. Note that `location` is the most complex label, so perhaps it captures more of the *alignments*.
 
 Now let us run the same set of *conditioners* on a *level* that consists of the *slice variables* of 12 *model 4* regions every 30 degrees (which is the same *underlying level* in *model 5* above),
 ```
 ./main condition model007 4 motor >model007_motor.log
 
+./main entropy model007_motor 10
+ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 6910.38
+
 ./main condition model007 4 location >model007_location.log
+
+./main entropy model007_location 10
+ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 12983.9
 
 ./main condition model007 4 position >model007_position.log
 
+./main entropy model007_position 10
+ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 11118.1
 ```
-All of these also run to zero *label entropy* but require more *fuds* to do so. For example, to predict `location` *model 6* requires 421 *fuds* but *model 7* requires 647. From the point of view of these labels, the original *substrate* is more *causal* than the random region *level*.
+All of these also run to zero *label entropy* but require more *fuds* to do so. For example, to predict `location` *model 6* requires 421 *fuds* but *model 7* requires 647. From the point of view of these labels, the original *substrate* is more *causal* than the random region *level*. However, the *likelihoods* of the *models conditioned* on *underlying* regional *induced models* are all higher than those of the *models conditioned* directly on the *substrate*.
 
 Now let us use the *models* we have created to make guesses about the `location` and `position` in a ROS node that observes the turtlebot at it moves around the turtlebot house in the gazebo simulation. The `TBOT01` [observer](https://github.com/caiks/TBOT01/blob/master/observer.h) node is given a *model*, a label *variable* and a observe interval. At each observation it *applies* the *model* to the current *event* to determine its *slice*. The prediction of the label is the most common *value* of the label *variable* in the `data002` *history's slice*. The prediction is reported along with the actual *value*, calculated from the current *event's* odometry, and a running average of the matches is calculated.
 
@@ -1258,7 +1285,57 @@ Now the turtlebot moves between rooms more freely, although it tends to be a lit
 Again we can examine the statistics,
 ```
 ./main stats data003
-
+rr->size(): 13381
+...
 ```
+The turtlebot ran for around 55 minutes.
 
+Let us compare the analysis of the `data002` and `data003` data files,
+```
+./main analyse data003
 
+hr->dimension: 363
+hr->size: 13381
+({(<scan,1>,0)},89 % 1)
+({(<scan,1>,1)},2710 % 1)
+({(<scan,1>,2)},1928 % 1)
+({(<scan,1>,3)},1642 % 1)
+({(<scan,1>,4)},1435 % 1)
+({(<scan,1>,5)},1234 % 1)
+({(<scan,1>,6)},1156 % 1)
+({(<scan,1>,7)},3187 % 1)
+
+({(<scan,180>,0)},81 % 1)
+({(<scan,180>,1)},1280 % 1)
+({(<scan,180>,2)},1549 % 1)
+({(<scan,180>,3)},1648 % 1)
+({(<scan,180>,4)},1411 % 1)
+({(<scan,180>,5)},1363 % 1)
+({(<scan,180>,6)},1229 % 1)
+({(<scan,180>,7)},4820 % 1)
+
+({(motor,0)},1140 % 1)
+({(motor,1)},11096 % 1)
+({(motor,2)},1145 % 1)
+
+({(location,door12)},178 % 1)
+({(location,door13)},120 % 1)
+({(location,door14)},196 % 1)
+({(location,door45)},86 % 1)
+({(location,door56)},191 % 1)
+({(location,room1)},3852 % 1)
+({(location,room2)},1307 % 1)
+({(location,room3)},925 % 1)
+({(location,room4)},3796 % 1)
+({(location,room5)},977 % 1)
+({(location,room6)},1753 % 1)
+
+({(position,centre)},3478 % 1)
+({(position,corner)},3028 % 1)
+({(position,side)},6875 % 1)
+```
+The distribution of the `scan` *values* is very similar to the previous dataset.
+
+We can see from the `motor` *values* that the turtlebot generally moves straight ahead as before but now there is no bias for right turns over left turns.
+
+From the `location` and `position` *values*  we can also see that with this controller the turtlebot still tends to end up in the larger rooms, 1 and 4, but now there is no bias to room 4 and it spends a much proportion of its time in the smaller rooms. It still mainly skirts around the side of the rooms, but is more in the corner than before because of its slight indecisiveness. It also seems to have passed through the doorways more often.

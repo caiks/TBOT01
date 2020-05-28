@@ -1588,7 +1588,7 @@ int main(int argc, char **argv)
 
 	}
 
-	if (argc == 2 && string(argv[1]) == "history")
+	if (argc >= 2 && string(argv[1]) == "analyse")
 	{
 		auto aall = histogramsList;
 		auto araa = systemsHistogramRepasHistogram_u;
@@ -1601,7 +1601,9 @@ int main(int argc, char **argv)
 				kk1.push_back(vvi[kk[i]]);
 			return setVarsHistoryRepasReduce_u(1.0, m, kk1.data(), hr);
 		};
-
+		
+		string dataset = string(argc >= 3 ? argv[2] : "data002");
+		
 		std::unique_ptr<Alignment::System> uu;
 		std::unique_ptr<Alignment::SystemRepa> ur;
 		std::unique_ptr<Alignment::HistoryRepa> hr;
@@ -1616,6 +1618,11 @@ int main(int argc, char **argv)
 				"data002_room5.bin",
 				"data002_room5_2.bin"
 			};
+			if (dataset == "data003")
+			{
+				files.clear();
+				files.push_back("data003.bin");
+			}
 			HistoryRepaPtrList ll;
 			for (auto& f : files)
 			{
