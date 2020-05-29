@@ -741,7 +741,7 @@ Now let us consider a *2-level model*. *Model 5* is *induced* from a lower *leve
 ./main induce model005 4 >model005.log
 
 ./main entropy model005 10
-ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 17322.6
+ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 16878.8
 ```
 The *likelihood* is a little less than for *model* 1.
 ```
@@ -778,19 +778,19 @@ Now let us run the same set of *conditioners* on a *level* that consists of the 
 ./main condition model007 4 motor >model007_motor.log
 
 ./main entropy model007_motor 10
-ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 6910.38
+ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 8118.53
 
 ./main condition model007 4 location >model007_location.log
 
 ./main entropy model007_location 10
-ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 12983.9
+ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 14054.9
 
 ./main condition model007 4 position >model007_position.log
 
 ./main entropy model007_position 10
-ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 11118.1
+ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 13948.5
 ```
-All of these also run to zero *label entropy* but require more *fuds* to do so. For example, to predict `location` *model 6* requires 421 *fuds* but *model 7* requires 647. From the point of view of these labels, the original *substrate* is more *causal* than the random region *level*. However, the *likelihoods* of the *models conditioned* on *underlying* regional *induced models* are all higher than those of the *models conditioned* directly on the *substrate*.
+All of these also run to zero *label entropy* but require more *fuds* to do so. For example, to predict `location` *model 6* requires 421 *fuds* but *model 7* requires 626. From the point of view of these labels, the original *substrate* is more *causal* than the random region *level*. However, the *likelihoods* of the *models conditioned* on *underlying* regional *induced models* are all higher than those of the *models conditioned* directly on the *substrate*.
 
 Now let us use the *models* we have created to make guesses about the `location` and `position` in a ROS node that observes the turtlebot at it moves around the turtlebot house in the gazebo simulation. The `TBOT01` [observer](https://github.com/caiks/TBOT01/blob/master/observer.h) node is given a *model*, a label *variable* and a observe interval. At each observation it *applies* the *model* to the current *event* to determine its *slice*. The prediction of the label is the most common *value* of the label *variable* in the `data002` *history's slice*. The prediction is reported along with the actual *value*, calculated from the current *event's* odometry, and a running average of the matches is calculated.
 
@@ -1085,187 +1085,6 @@ side     centre  fail    46.153846
 ```
 The `position` results are similar to those of room 3.
 
-Now let us compare `model007` to `model006`. `model007` is *conditioned* given a *level* of regional *models*. 
-
-Starting from room 4 again,
-```
-room4    room4   match   100.000000
-room4    room1   fail    50.000000
-room4    room4   match   66.666667
-...
-room4    room4   match   90.909091
-room4    room4   match   91.666667
-door45   room4   fail    84.615385
-room4    room1   fail    78.571429
-room4    room1   fail    73.333333
-room4    room1   fail    68.750000
-room4    room4   match   70.588235
-room4    room4   match   72.222222
-room4    room4   match   73.684211
-room4    room1   fail    70.000000
-```
-We can see that `model007` turtlebot is quite good at guessing that it is in room 4, but perhaps a little worse than `model006` turtlebot. 
-
-This is the output for `position`,
-```
-centre   centre  match   100.000000
-centre   centre  match   100.000000
-centre   side    fail    66.666667
-centre   centre  match   75.000000
-side     side    match   80.000000
-...
-centre   centre  match   89.473684
-centre   centre  match   90.000000
-centre   side    fail    85.714286
-centre   side    fail    81.818182
-```
-`model007` turtlebot is also quite good at guessing its `position` and a little better than `model006`.
-
-Now let us do another run starting in room 1,
-```
-gazebo -u ~/turtlebot3_ws/src/TBOT01_ws/env003.model -s libgazebo_ros_init.so
-
-```
-with `location` output,
-```
-room1    room4   fail    0.000000
-room1    room4   fail    0.000000
-room1    room4   fail    0.000000
-room1    room4   fail    0.000000
-room1    room4   fail    0.000000
-room1    room4   fail    0.000000
-room1    room1   match   14.285714
-room1    room4   fail    12.500000
-room1    room4   fail    11.111111
-...
-room1    room4   fail    5.263158
-room1    room4   fail    5.000000
-room1    room1   match   9.523810
-```
-`model007` turtlebot is poor guessing that it is in room 1, often mistaking it for room 4. It is considerably worse than `model006`.
-
-This is the `position` output,
-```
-side     side    match   100.000000
-side     centre  fail    50.000000
-side     side    match   66.666667
-...
-side     side    match   66.666667
-centre   centre  match   68.181818
-```
-This is similar to the results for room 4 and similar to those of `model006`.
-
-Now let us do another run starting in room 2,
-```
-gazebo -u ~/turtlebot3_ws/src/TBOT01_ws/env004.model -s libgazebo_ros_init.so
-
-```
-with `location` output,
-```
-room2    room2   match   100.000000
-room2    room6   fail    50.000000
-room2    door12  fail    33.333333
-...
-room2    room6   fail    55.555556
-room2    room2   match   57.894737
-room2    room2   match   60.000000
-```
-`model007` turtlebot is similar to `model006`.
-
-This is the `position` output,
-```
-corner   side    fail    0.000000
-corner   corner  match   50.000000
-side     side    match   66.666667
-corner   corner  match   75.000000
-...
-corner   corner  match   83.333333
-corner   corner  match   84.210526
-side     corner  fail    80.000000
-```
-`model007` turtlebot is similar to `model006`.
-
-Now let us do another run starting in room 3,
-```
-gazebo -u ~/turtlebot3_ws/src/TBOT01_ws/env005.model -s libgazebo_ros_init.so
-
-```
-with `location` output,
-```
-room3    room3   match   100.000000
-room3    room2   fail    50.000000
-room3    room2   fail    33.333333
-room3    room6   fail    25.000000
-room3    room6   fail    20.000000
-room3    room6   fail    16.666667
-room3    room3   match   28.571429
-room3    room3   match   37.500000
-door13   room4   fail    33.333333
-room1    room4   fail    30.000000
-...
-```
-`model007` turtlebot is a little better than `model006`.
-
-This is the `position` output,
-```
-side     corner  fail    0.000000
-side     side    match   50.000000
-corner   corner  match   66.666667
-side     side    match   75.000000
-side     side    match   80.000000
-centre   side    fail    66.666667
-side     side    match   71.428571
-corner   corner  match   75.000000
-corner   side    fail    66.666667
-...
-```
-Again, `model007` turtlebot is a little better than `model006`.
-
-The final run starts in room 5,
-```
-gazebo -u ~/turtlebot3_ws/src/TBOT01_ws/env006.model -s libgazebo_ros_init.so
-
-```
-with `location` output,
-```
-room5    room2   fail    0.000000
-room5    room4   fail    0.000000
-door56   room4   fail    0.000000
-room5    room4   fail    0.000000
-room5    room1   fail    0.000000
-room5    room2   fail    0.000000
-room5    room5   match   14.285714
-room5    room1   fail    12.500000
-room5    room1   fail    11.111111
-room5    room5   match   20.000000
-room5    room1   fail    18.181818
-door45   door45  match   25.000000
-room4    room4   match   30.769231
-...
-```
-`model007` turtlebot is similar to `model006`.
-
-This is the `position` output,
-```
-corner   corner  match   100.000000
-corner   side    fail    50.000000
-side     side    match   66.666667
-corner   side    fail    50.000000
-side     side    match   60.000000
-side     side    match   66.666667
-side     side    match   71.428571
-corner   corner  match   75.000000
-corner   corner  match   77.777778
-centre   centre  match   80.000000
-side     side    match   81.818182
-side     side    match   83.333333
-side     side    match   84.615385
-...
-```
-`model007` turtlebot is much better than `model006`.
-
-Overall, `model007` turtlebot is very similar to `model006`, perhaps better in small rooms but worse in the large room 1, which is consitently confused with room 4.
-
 Now let us see if we can encourage the turtlebot to travel between rooms by removing the bias to the right. We will set an interval that alternates the bias.
 
 The simulation was restarted in room 4,
@@ -1338,4 +1157,58 @@ The distribution of the `scan` *values* is very similar to the previous dataset.
 
 We can see from the `motor` *values* that the turtlebot generally moves straight ahead as before but now there is no bias for right turns over left turns.
 
-From the `location` and `position` *values*  we can also see that with this controller the turtlebot still tends to end up in the larger rooms, 1 and 4, but now there is no bias to room 4 and it spends a much proportion of its time in the smaller rooms. It still mainly skirts around the side of the rooms, but is more in the corner than before because of its slight indecisiveness. It also seems to have passed through the doorways more often.
+From the `location` and `position` *values*  we can also see that with this controller the turtlebot still tends to end up in the larger rooms, 1 and 4, but now there is no bias to room 4 and it spends a larger proportion of its time in the smaller rooms. It still mainly skirts around the side of the rooms, but is more in the corner than before because of its slight indecisiveness. It also seems to have passed through the doorways more often.
+
+Now let us *induce* a *model* from the new dataset `data003`. *Model* 9 uses the same parameters as *model* 1,
+```
+./main induce model009 4 >model009.log
+
+./main entropy model009 10 data003
+ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 40868.9
+```
+The *size-shuffle sum relative entopy* is not comparable because the *size* of the *history* is different, but we can compare *model* 1 using `data003` instead of `data002`,
+```
+./main entropy model001 10 data003
+ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 37847.2
+```
+Unsurprisingly, *model* 9 is the more *likely model* given `data003`.
+
+Here is the bitmap
+```
+./main bitmap_model model009 5 data003
+```
+![model009](images/model009.jpg?raw=true)
+
+Now the bias to the right has disappeared. The main root *alignment* depends on whether there is a near obstacle to either side or a near obstacle ahead or no near obstacle.
+
+We can look at the effect of increasing `fmax` from 127 to 512 in *model* 10,
+```
+./main induce model010 4 >model010.log
+
+./main entropy model010 10 data003
+ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 41970.1
+```
+We can see that there is only a small increase in the *likelihood*.
+
+Now let us *induce* a regional *model* from the new dataset `data003`. *Model* 11 uses the same parameters as *model* 4,
+```
+./main induce model011 4 >model011.log
+
+```
+Now let us create the *2-level model*. *Model 12* is *induced* from a lower *level* that consists of the *slice variables* of 12 *model 11* regions every 30 degrees. It has the same parameteres as *model* 5,
+```
+./main induce model012 4 >model012.log
+
+./main entropy model012 10 data003
+ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 40676.3
+```
+The *likelihood* is a little more than for *model* 9.
+
+This is the bitmap,
+```
+./main bitmap_model model012 data003
+
+```
+![model012](images/model012.jpg?raw=true)
+
+Interestingly some of the root *slices* have a left-right bias.

@@ -367,11 +367,11 @@ SystemHistoryRepaTuple TBOT01::recordListsHistoryRepaRegion(int d, int n, int s,
 	double f = (double)d / 4.0;
 	for (size_t j = 0; j < z; j++)
 	{
-		auto oi = rand() % (360 - n + 1);
+		auto oi = rand() % 360;
 		size_t jn = j*n;
 		auto& r = qq[j];
 		for (size_t i = 0; i < n; i++)
-			rr[jn + i] = (unsigned char)(r.sensor_scan[oi + i] * f);
+			rr[jn + i] = (unsigned char)(r.sensor_scan[(oi + i) % 360] * f);
 	}
 	hr->transpose();
 	return SystemHistoryRepaTuple(move(uu), move(ur), move(hr));
