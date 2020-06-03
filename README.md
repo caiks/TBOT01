@@ -1099,7 +1099,9 @@ cd ~/turtlebot3_ws/src/TBOT01_ws
 ros2 run TBOT01 controller data003.bin 250 1000
 
 ```
-Now the turtlebot moves between rooms more freely, although it tends to be a little indecisive in corners, especially around the rubbish bin in room 3. After 12 minutes it has visited all of them.
+Now the turtlebot moves between rooms more freely, although it tends to be a little indecisive in corners, especially around the rubbish bin in room 3. After 12 minutes it has visited all of them. 
+
+Note that because the left-right preference switches randomly (with the given timescale) the runs are not reproducible at all after the first turn.
 
 Again we can examine the statistics,
 ```
