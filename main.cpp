@@ -1290,7 +1290,7 @@ int main(int argc, char **argv)
 			{
 				files.clear();
 				files.push_back("data003.bin");
-			}			
+			}
 			HistoryRepaPtrList ll;
 			for (auto& f : files)
 			{

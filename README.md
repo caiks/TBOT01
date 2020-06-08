@@ -1197,7 +1197,7 @@ Now let us *induce* a regional *model* from the new dataset `data003`. *Model* 1
 ./main induce model011 4 >model011.log
 
 ```
-Now let us create the *2-level model*. *Model 12* is *induced* from a lower *level* that consists of the *slice variables* of 12 *model 11* regions every 30 degrees. It has the same parameteres as *model* 5,
+Now let us create the *2-level model*. *Model 12* is *induced* from a lower *level* that consists of the *slice variables* of 12 *model 11* regions every 30 degrees. It has the same parameters as *model* 5,
 ```
 ./main induce model012 4 >model012.log
 
@@ -1208,9 +1208,8 @@ The *likelihood* is a little more than for *model* 9.
 
 This is the bitmap,
 ```
-./main bitmap_model model012 data003
+./main bitmap_model model012 5 data003
 
 ```
 ![model012](images/model012.jpg?raw=true)
 
-Interestingly some of the root *slices* have a left-right bias.
