@@ -1213,3 +1213,43 @@ This is the bitmap,
 ```
 ![model012](images/model012.jpg?raw=true)
 
+Now let us *condition* *models* on the labels `motor`, `location` and `position`, given the `scan` *substrate*. *Model* 13 has the same parameters as *model* 6,
+```
+./main condition model013 4 motor >model013_motor.log
+
+./main entropy model013_motor 10 data003
+ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 12257.1
+
+./main condition model013 4 location >model013_location.log
+
+./main entropy model013_location 10 data003
+ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 18075.9
+
+./main condition model013 4 position >model013_position.log
+
+./main entropy model013_position 10 data003
+ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 13424.3
+```
+Again, all of these *models* are run to zero *label entropy*. The *likelihoods* of the *conditioned models* are all considerably lower than the *induced models*. Again, `location` is the most complex label, because it probably captures more of the *alignments*.
+
+Now let us run the same set of *conditioners* on a *level* that consists of the *slice variables* of 12 *model 11* regions every 30 degrees (which is the same *underlying level* in *model 12* above). *Model* 14 has the same parameters as *model* 7,
+```
+./main condition model014 4 motor >model014_motor.log
+
+./main entropy model014_motor 10 data003
+ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 28086.1
+
+./main condition model014 4 location >model014_location.log
+
+./main entropy model014_location 10 data003
+ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 39993.4
+
+./main condition model014 4 position >model014_position.log
+
+./main entropy model014_position 10 data003
+ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 30755.2
+```
+
+TODO -
+
+All of these also run to zero *label entropy* but require more *fuds* to do so. For example, to predict `location` *model 6* requires 421 *fuds* but *model 7* requires 626. From the point of view of these labels, the original *substrate* is more *causal* than the random region *level*. However, the *likelihoods* of the *models conditioned* on *underlying* regional *induced models* are all higher than those of the *models conditioned* directly on the *substrate*.
