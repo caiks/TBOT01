@@ -1250,6 +1250,23 @@ ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 39993.4
 ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 30755.2
 ```
 
-TODO -
+The *likelihood* of the `location` *conditioned model* 14 is almost the same as the *induced model* 12. We would therefore expect that *model* 14 will have a similar label accuracy to the *substrate conditioned model* 13, but be generally more robust.
 
-All of these also run to zero *label entropy* but require more *fuds* to do so. For example, to predict `location` *model 6* requires 421 *fuds* but *model 7* requires 626. From the point of view of these labels, the original *substrate* is more *causal* than the random region *level*. However, the *likelihoods* of the *models conditioned* on *underlying* regional *induced models* are all higher than those of the *models conditioned* directly on the *substrate*.
+Now let us test the `location` and `position` accuracy of the *induced* and *conditioned models* derived from `data003`. 
+
+The simulation was restarted in room 4,
+```
+gazebo -u --verbose ~/turtlebot3_ws/src/TBOT01_ws/env002.model -s libgazebo_ros_init.so
+
+```
+and the controller re-run, alternating the bias every 1000 ms,
+```
+cd ~/turtlebot3_ws/src/TBOT01_ws
+
+ros2 run TBOT01 controller data004.bin 250 1000
+
+ros2 run TBOT01 observer model013_location location 2500
+
+ros2 run TBOT01 observer model013_position position 2500
+
+```
