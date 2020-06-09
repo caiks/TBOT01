@@ -1254,8 +1254,12 @@ The *likelihood* of the `location` *conditioned model* 14 is almost the same as 
 
 Now let us test the `location` and `position` accuracy of the *induced* and *conditioned models* derived from `data003`. 
 
-The simulation was restarted in room 4,
+First we shall run *model* 13, which is *conditioned* on the *substrate*. The simulation was restarted in room 4,
 ```
+export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:~/turtlebot3_ws/src/TBOT01_ws/gazebo_models
+
+cd ~/turtlebot3_ws/src/TBOT01_ws
+
 gazebo -u --verbose ~/turtlebot3_ws/src/TBOT01_ws/env002.model -s libgazebo_ros_init.so
 
 ```
@@ -1270,3 +1274,66 @@ ros2 run TBOT01 observer model013_location location 2500
 ros2 run TBOT01 observer model013_position position 2500
 
 ```
+After around an hour the turtlebot has visited every room. The last few lines from the `location` observer are
+```
+[INFO] [TBOT01_observer_node]: room5    room5   match   59.247889
+[INFO] [TBOT01_observer_node]: room5    room4   fail    59.202454
+[INFO] [TBOT01_observer_node]: room5    room3   fail    59.157088
+[INFO] [TBOT01_observer_node]: room5    room5   match   59.188361
+[INFO] [TBOT01_observer_node]: room5    room6   fail    59.143076
+[INFO] [TBOT01_observer_node]: room5    room6   fail    59.097859
+[INFO] [TBOT01_observer_node]: room5    room4   fail    59.052712
+[INFO] [TBOT01_observer_node]: door45   room2   fail    59.007634
+[INFO] [TBOT01_observer_node]: room4    room4   match   59.038902
+[INFO] [TBOT01_observer_node]: room4    room1   fail    58.993902
+[INFO] [TBOT01_observer_node]: room4    room1   fail    58.948972
+[INFO] [TBOT01_observer_node]: room4    room1   fail    58.904110
+[INFO] [TBOT01_observer_node]: room4    room1   fail    58.859316
+[INFO] [TBOT01_observer_node]: room4    room1   fail    58.814590
+[INFO] [TBOT01_observer_node]: room4    room1   fail    58.769932
+[INFO] [TBOT01_observer_node]: room4    room4   match   58.801214
+[INFO] [TBOT01_observer_node]: room4    room4   match   58.832449
+[INFO] [TBOT01_observer_node]: room4    room4   match   58.863636
+[INFO] [TBOT01_observer_node]: room4    room4   match   58.894777
+```
+The *model* 13 `location` accuracy is around 59%.
+
+Similarly for the `position`,
+```
+[INFO] [TBOT01_observer_node]: corner   corner  match   72.371450
+[INFO] [TBOT01_observer_node]: corner   corner  match   72.392638
+[INFO] [TBOT01_observer_node]: corner   unknown fail    72.337165
+[INFO] [TBOT01_observer_node]: corner   unknown fail    72.281776
+[INFO] [TBOT01_observer_node]: corner   side    fail    72.226473
+[INFO] [TBOT01_observer_node]: centre   corner  fail    72.171254
+[INFO] [TBOT01_observer_node]: side     centre  fail    72.116119
+[INFO] [TBOT01_observer_node]: side     centre  fail    72.061069
+[INFO] [TBOT01_observer_node]: side     centre  fail    72.006102
+[INFO] [TBOT01_observer_node]: centre   side    fail    71.951220
+[INFO] [TBOT01_observer_node]: centre   side    fail    71.896420
+[INFO] [TBOT01_observer_node]: centre   centre  match   71.917808
+[INFO] [TBOT01_observer_node]: side     side    match   71.939163
+[INFO] [TBOT01_observer_node]: side     side    match   71.960486
+[INFO] [TBOT01_observer_node]: side     side    match   71.981777
+[INFO] [TBOT01_observer_node]: side     side    match   72.003035
+[INFO] [TBOT01_observer_node]: side     corner  fail    71.948446
+[INFO] [TBOT01_observer_node]: side     side    match   71.969697
+[INFO] [TBOT01_observer_node]: corner   corner  match   71.990916
+```
+The *model* 13 `position` accuracy is around 72%.
+
+Repeating for *model* 14,
+```
+cd ~/turtlebot3_ws/src/TBOT01_ws
+
+ros2 run TBOT01 controller data005.bin 250 1000
+
+ros2 run TBOT01 observer model014_location location 2500 data003
+...
+[INFO] [TBOT01_observer_node]: room1    room4   fail    63.630184
+
+ros2 run TBOT01 observer model014_position position 2500 data003
+...
+[INFO] [TBOT01_observer_node]: centre   centre  match   79.918312
+```
+The *model* 14 `location` accuracy is a little higher at around 64% and the `position` accuracy is higher at around 80%.

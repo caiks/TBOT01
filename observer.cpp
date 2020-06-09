@@ -13,7 +13,7 @@ typedef std::chrono::high_resolution_clock clk;
 #define EVALL(x) cout << #x << ": " << endl << (x) << endl
 #define TRUTH(x) cout << #x << ": " << ((x) ? "true" : "false") << endl
 
-Observer::Observer(const std::string& model, const std::string& label, std::chrono::milliseconds observe_interval)
+Observer::Observer(const std::string& model, const std::string& label, std::chrono::milliseconds observe_interval, const std::string& dataset)
 : Node("TBOT01_observer_node")
 {
 	_pose_updated = false;
@@ -33,6 +33,11 @@ Observer::Observer(const std::string& model, const std::string& label, std::chro
 		"data002_room5.bin",
 		"data002_room5_2.bin"
 	};
+	if (dataset == "data003")
+	{
+		files.clear();
+		files.push_back("data003.bin");
+	}
 	HistoryRepaPtrList ll;
 	for (auto& f : files)
 	{
@@ -192,9 +197,10 @@ int main(int argc, char** argv)
 	std::string model = string(argc >= 2 ? argv[1] : "model006_location");
 	std::string label = string(argc >= 3 ? argv[2] : "location");
 	std::chrono::milliseconds observe_interval(argc >= 4 ? std::atol(argv[3]) : 5*60);
+	string dataset = string(argc >= 5 ? argv[4] : "data002");
 
 	rclcpp::init(argc, argv);
-	rclcpp::spin(std::make_shared<Observer>(model, label, observe_interval));
+	rclcpp::spin(std::make_shared<Observer>(model, label, observe_interval, dataset));
 	rclcpp::shutdown();
 
 	return 0;

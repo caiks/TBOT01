@@ -11,7 +11,7 @@
 class Observer : public rclcpp::Node
 {
 public:
-	Observer(const std::string&, const std::string&, std::chrono::milliseconds);
+	Observer(const std::string&, const std::string&, std::chrono::milliseconds, const std::string&);
 	~Observer();
 
 private:
