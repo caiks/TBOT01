@@ -1267,7 +1267,7 @@ and the controller re-run, alternating the bias every 1000 ms,
 ```
 cd ~/turtlebot3_ws/src/TBOT01_ws
 
-ros2 run TBOT01 controller data004.bin 250 1000
+ros2 run TBOT01 controller data004_01.bin 250 1000
 
 ros2 run TBOT01 observer model013_location location 2500
 
@@ -1276,49 +1276,49 @@ ros2 run TBOT01 observer model013_position position 2500
 ```
 After around an hour the turtlebot has visited every room. The last few lines from the `location` observer are
 ```
-[INFO] [TBOT01_observer_node]: room5    room5   match   59.247889
-[INFO] [TBOT01_observer_node]: room5    room4   fail    59.202454
-[INFO] [TBOT01_observer_node]: room5    room3   fail    59.157088
-[INFO] [TBOT01_observer_node]: room5    room5   match   59.188361
-[INFO] [TBOT01_observer_node]: room5    room6   fail    59.143076
-[INFO] [TBOT01_observer_node]: room5    room6   fail    59.097859
-[INFO] [TBOT01_observer_node]: room5    room4   fail    59.052712
-[INFO] [TBOT01_observer_node]: door45   room2   fail    59.007634
-[INFO] [TBOT01_observer_node]: room4    room4   match   59.038902
-[INFO] [TBOT01_observer_node]: room4    room1   fail    58.993902
-[INFO] [TBOT01_observer_node]: room4    room1   fail    58.948972
-[INFO] [TBOT01_observer_node]: room4    room1   fail    58.904110
-[INFO] [TBOT01_observer_node]: room4    room1   fail    58.859316
-[INFO] [TBOT01_observer_node]: room4    room1   fail    58.814590
-[INFO] [TBOT01_observer_node]: room4    room1   fail    58.769932
-[INFO] [TBOT01_observer_node]: room4    room4   match   58.801214
-[INFO] [TBOT01_observer_node]: room4    room4   match   58.832449
-[INFO] [TBOT01_observer_node]: room4    room4   match   58.863636
-[INFO] [TBOT01_observer_node]: room4    room4   match   58.894777
+room5    room5   match   59.247889
+room5    room4   fail    59.202454
+room5    room3   fail    59.157088
+room5    room5   match   59.188361
+room5    room6   fail    59.143076
+room5    room6   fail    59.097859
+room5    room4   fail    59.052712
+door45   room2   fail    59.007634
+room4    room4   match   59.038902
+room4    room1   fail    58.993902
+room4    room1   fail    58.948972
+room4    room1   fail    58.904110
+room4    room1   fail    58.859316
+room4    room1   fail    58.814590
+room4    room1   fail    58.769932
+room4    room4   match   58.801214
+room4    room4   match   58.832449
+room4    room4   match   58.863636
+room4    room4   match   58.894777
 ```
 The *model* 13 `location` accuracy is around 59%.
 
 Similarly for the `position`,
 ```
-[INFO] [TBOT01_observer_node]: corner   corner  match   72.371450
-[INFO] [TBOT01_observer_node]: corner   corner  match   72.392638
-[INFO] [TBOT01_observer_node]: corner   unknown fail    72.337165
-[INFO] [TBOT01_observer_node]: corner   unknown fail    72.281776
-[INFO] [TBOT01_observer_node]: corner   side    fail    72.226473
-[INFO] [TBOT01_observer_node]: centre   corner  fail    72.171254
-[INFO] [TBOT01_observer_node]: side     centre  fail    72.116119
-[INFO] [TBOT01_observer_node]: side     centre  fail    72.061069
-[INFO] [TBOT01_observer_node]: side     centre  fail    72.006102
-[INFO] [TBOT01_observer_node]: centre   side    fail    71.951220
-[INFO] [TBOT01_observer_node]: centre   side    fail    71.896420
-[INFO] [TBOT01_observer_node]: centre   centre  match   71.917808
-[INFO] [TBOT01_observer_node]: side     side    match   71.939163
-[INFO] [TBOT01_observer_node]: side     side    match   71.960486
-[INFO] [TBOT01_observer_node]: side     side    match   71.981777
-[INFO] [TBOT01_observer_node]: side     side    match   72.003035
-[INFO] [TBOT01_observer_node]: side     corner  fail    71.948446
-[INFO] [TBOT01_observer_node]: side     side    match   71.969697
-[INFO] [TBOT01_observer_node]: corner   corner  match   71.990916
+corner   corner  match   72.371450
+corner   corner  match   72.392638
+corner   unknown fail    72.337165
+corner   unknown fail    72.281776
+corner   side    fail    72.226473
+centre   corner  fail    72.171254
+side     centre  fail    72.116119
+side     centre  fail    72.061069
+side     centre  fail    72.006102
+centre   side    fail    71.951220
+centre   side    fail    71.896420
+centre   centre  match   71.917808
+side     side    match   71.939163
+side     side    match   71.960486
+side     side    match   71.981777
+side     side    match   72.003035
+side     corner  fail    71.948446
+side     side    match   71.969697
+corner   corner  match   71.990916
 ```
 The *model* 13 `position` accuracy is around 72%.
 
@@ -1326,14 +1326,62 @@ Repeating for *model* 14,
 ```
 cd ~/turtlebot3_ws/src/TBOT01_ws
 
-ros2 run TBOT01 controller data005.bin 250 1000
+ros2 run TBOT01 controller data004_02.bin 250 1000
 
 ros2 run TBOT01 observer model014_location location 2500 data003
 ...
-[INFO] [TBOT01_observer_node]: room1    room4   fail    63.630184
+room1    room4   fail    63.630184
 
 ros2 run TBOT01 observer model014_position position 2500 data003
 ...
-[INFO] [TBOT01_observer_node]: centre   centre  match   79.918312
+centre   centre  match   79.918312
 ```
 The *model* 14 `location` accuracy is a little higher at around 64% and the `position` accuracy is higher at around 80%.
+
+We can compare the *conditioned models*, 13 and 14, above to the three *induced models* 9, 10 and 12,
+
+```
+cd ~/turtlebot3_ws/src/TBOT01_ws
+
+ros2 run TBOT01 controller data004_03.bin 250 1000
+
+ros2 run TBOT01 observer model009 location 2500 data003
+...
+room4    room1   fail    39.401294
+
+ros2 run TBOT01 observer model009 position 2500 data003
+...
+centre   centre  match   59.902991
+
+```
+The *model* 9 `location` accuracy is a considerably lower than either of the *conditioned models* at around 39% and the `position` accuracy is also lower at around 60%.
+
+```
+cd ~/turtlebot3_ws/src/TBOT01_ws
+
+ros2 run TBOT01 controller data004_04.bin 250 1000
+
+ros2 run TBOT01 observer model010 location 2500 data003
+...
+room2    room1   fail    41.637990
+
+ros2 run TBOT01 observer model010 position 2500 data003
+...
+corner   corner  match   56.129477
+
+```
+The *model* 10 is the same as *model* 9 but with a greater `fmax`. Its `location` accuracy is a slightly higher at around 42% and the `position` accuracy is  lower at around 56%.
+```
+cd ~/turtlebot3_ws/src/TBOT01_ws
+
+ros2 run TBOT01 controller data004_05.bin 250 1000
+
+ros2 run TBOT01 observer model012 location 2500 data003
+...
+room4    room5   fail    42.396313
+
+ros2 run TBOT01 observer model012 position 2500 data003
+...
+side     centre  fail    62.720984
+```
+*Model* 12 has a higher *likelihood* than *models* 9 or 10 and a slightly higher accuracy. Its `location` accuracy is around 42% and the `position` accuracy is around 63%.
