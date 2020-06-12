@@ -3166,7 +3166,7 @@ int main(int argc, char **argv)
 
 		auto hr1 = frmul(tint, *hr, *dr.fud);
 		auto sl = treesElements(*dr.slices);
-		size_t fmax = 2048;
+		size_t fmax = 4096;
 		auto dr2 = applicationer(fmax, tint, *sl, vvi[Variable(label)], *hr1, 1, *ur);
 		auto dr3 = drjoin(dr, *dr2);
 		std::ofstream out(model + "_" + label + ".dr", std::ios::binary);
