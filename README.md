@@ -330,7 +330,9 @@ ln -s ~/TBOT01_build/main main
 
 Now let us investigate various turtlebot3 controllers. 
 
-In the following, the rooms are numbered 1 to 6 in the [turtlebot3 house](http://emanual.robotis.com/docs/en/platform/turtlebot3/simulation/#3-turtlebot3-house) from top-left to bottom-right.
+In the following, the rooms are numbered 1 to 6 in the [turtlebot3 house](http://emanual.robotis.com/docs/en/platform/turtlebot3/simulation/#3-turtlebot3-house) from top-left to bottom-right,
+
+![turtlebot3_house](images/turtlebot3_house.png?raw=true)
 
 Let us start the turtlebot from room 4. We set the turtlebot pose in  [env001.world](https://github.com/caiks/TBOT01_ws/blob/master/env001.model),
 ```xml
@@ -1385,3 +1387,15 @@ ros2 run TBOT01 observer model012 position 2500 data003
 side     centre  fail    62.720984
 ```
 *Model* 12 has a higher *likelihood* than *models* 9 or 10 and a slightly higher accuracy. Its `location` accuracy is around 42% and the `position` accuracy is around 63%.
+
+Overall the results are as follows -
+
+Model|Type|Location %|Position %
+---|---|---|---
+9|induced|39|60
+10|induced|42|56
+12|induced|42|63
+13|conditioned|59|72
+14|conditioned|64|80
+
+Let us see if we can improve on *model* 14 with the additional data in `data004`,
