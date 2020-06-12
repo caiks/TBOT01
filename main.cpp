@@ -1291,6 +1291,16 @@ int main(int argc, char **argv)
 				files.clear();
 				files.push_back("data003.bin");
 			}
+			else if (dataset == "data004")
+			{
+				files.clear();
+				files.push_back("data003.bin");
+				files.push_back("data004_01.bin");
+				files.push_back("data004_02.bin");
+				files.push_back("data004_03.bin");
+				files.push_back("data004_04.bin");
+				files.push_back("data004_05.bin");
+			}
 			HistoryRepaPtrList ll;
 			for (auto& f : files)
 			{
@@ -1628,6 +1638,16 @@ int main(int argc, char **argv)
 			{
 				files.clear();
 				files.push_back("data003.bin");
+			}
+			else if (dataset == "data004")
+			{
+				files.clear();
+				files.push_back("data003.bin");
+				files.push_back("data004_01.bin");
+				files.push_back("data004_02.bin");
+				files.push_back("data004_03.bin");
+				files.push_back("data004_04.bin");
+				files.push_back("data004_05.bin");
 			}
 			HistoryRepaPtrList ll;
 			for (auto& f : files)
@@ -2375,6 +2395,16 @@ int main(int argc, char **argv)
 			{
 				files.clear();
 				files.push_back("data003.bin");
+			}
+			else if (dataset == "data004")
+			{
+				files.clear();
+				files.push_back("data003.bin");
+				files.push_back("data004_01.bin");
+				files.push_back("data004_02.bin");
+				files.push_back("data004_03.bin");
+				files.push_back("data004_04.bin");
+				files.push_back("data004_05.bin");
 			}
 			HistoryRepaPtrList ll;
 			for (auto& f : files)
