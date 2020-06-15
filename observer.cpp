@@ -38,6 +38,16 @@ Observer::Observer(const std::string& model, const std::string& label, std::chro
 		files.clear();
 		files.push_back("data003.bin");
 	}
+	else if (dataset == "data004")
+	{
+		files.clear();
+		files.push_back("data003.bin");
+		files.push_back("data004_01.bin");
+		files.push_back("data004_02.bin");
+		files.push_back("data004_03.bin");
+		files.push_back("data004_04.bin");
+		files.push_back("data004_05.bin");
+	}
 	HistoryRepaPtrList ll;
 	for (auto& f : files)
 	{
@@ -49,6 +59,7 @@ Observer::Observer(const std::string& model, const std::string& label, std::chro
 		ll.push_back(std::move(std::get<2>(xx)));
 	}
 	auto hr = vectorHistoryRepasConcat_u(ll);
+	ll.clear();
 
 	auto& vvi = ur->mapVarSize();
 
