@@ -362,6 +362,10 @@ int main(int argc, char **argv)
 		{
 			return eventsHistoryRepasHistoryRepaSelection_u(ll.size(), (std::size_t*)ll.data(), hr);
 		};
+		
+		size_t scale_vertical = argc >= 4 ? atoi(argv[3]) : 1;
+		size_t event_start = argc >= 5 ? atoi(argv[4]) : 0;
+		size_t event_end = argc >= 6 ? atoi(argv[5]) : 0;
 
 		std::ifstream in(string(argv[2]) + ".bin", std::ios::binary);
 		auto qq = persistentsRecordList(in);
@@ -376,8 +380,15 @@ int main(int argc, char **argv)
 			ur = std::move(std::get<1>(xx));
 			hr = std::move(std::get<2>(xx));
 		}
+		if (event_end > 0)
+		{
+			SizeList ll;
+			for (size_t i = event_start; i < event_end; i++)
+				ll.push_back(i);
+			hr = hrsel(*hr, ll);
+		}
 
-		auto bm = historyRepasBitmap((argc >= 4 ? atoi(argv[3]) : 1), 8, *hr);
+		auto bm = historyRepasBitmap(scale_vertical, 8, *hr);
 		bmwrite(string(argv[2]) + ".bmp", bm);
 	}
 

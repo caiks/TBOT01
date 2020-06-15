@@ -1398,4 +1398,71 @@ Model|Type|Location %|Position %
 13|conditioned|59|72
 14|conditioned|64|80
 
-Let us see if we can improve on *model* 14 with the additional data in `data004`,
+Let us see if we can improve on *model* 14 with the additional data in `data004`. 
+
+*Model 15* has the same configuration as *model 11* except its *history* consists of the union of the `data003` and `data004` records, and `fmax` is increased from 127 to 384,
+
+```
+./main induce model015 4 >model015.log
+
+```
+*Model 16* is *induced* from a lower *level* that consists of the *slice variables* of 12 *model 15* regions every 30 degrees. It has the same parameters as *model* 14 except its *history* consists of the union of the `data003` and `data004` records, and `fmax` is increased from 1024 to 4096,
+
+```
+./main condition model016 8 location >model016_location.log
+
+./main condition model016 8 position >model016_position.log
+
+```
+Even with an `fmax` of 4096, neither *conditioned model* is completely resolved. 
+
+When we compare the *likelihoods* to those of *model* 14, there is little change,
+```
+./main entropy model016_location 10 data004
+ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 235340
+
+./main entropy model014_location 10 data004
+ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 239912
+
+
+./main entropy model016_position 10 data004
+ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 197310
+
+./main entropy model014_position 10 data004
+ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 184506
+```
+Now, however, the label accuracy has improved considerably,
+```
+export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:~/turtlebot3_ws/src/TBOT01_ws/gazebo_models
+
+cd ~/turtlebot3_ws/src/TBOT01_ws
+
+gazebo -u --verbose ~/turtlebot3_ws/src/TBOT01_ws/env002.model -s libgazebo_ros_init.so
+
+```
+
+```
+cd ~/turtlebot3_ws/src/TBOT01_ws
+
+ros2 run TBOT01 controller data.bin 250 1000
+
+ros2 run TBOT01 observer model016_location location 2500 data004
+...
+room6    room6   match   85.122898
+
+ros2 run TBOT01 observer model016_position position 2500 data004
+...
+side     side    match   88.745149
+```
+We can update out table,
+
+Model|Type|Location %|Position %
+---|---|---|---
+9|induced|39|60
+10|induced|42|56
+12|induced|42|63
+13|conditioned|59|72
+14|conditioned|64|80
+16|conditioned|85|89
+
+*Model* 16 was *conditioned* on 81261 *events* and has 28315 *transforms*. No doubt larger *models* *conditioned* on more *history* would incrementally increase the label accuracy, but for now let us consider increasing the *substrate* instead with timewise *frames*.
