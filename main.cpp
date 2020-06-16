@@ -3185,6 +3185,161 @@ int main(int argc, char **argv)
 		applicationRepasPersistent(*dr3, out); cout << endl;
 		out.close();
 	}
+	
+	if (argc >= 3 && string(argv[1]) == "bitmap_slice_average")
+	{
+		auto uvars = systemsSetVar;
+		auto single = histogramSingleton_u;
+		auto aahr = [](const System& uu, const SystemRepa& ur, const Histogram& aa)
+		{
+			return systemsHistoriesHistoryRepa_u(uu, ur, *histogramsHistory_u(aa));
+		};
+		auto hrsel = eventsHistoryRepasHistoryRepaSelection_u;
+		auto hrhrred = setVarsHistoryRepasHistoryRepaReduced_u;
+		auto hrred = setVarsHistoryRepasReduce_u;
+		auto frmul = historyRepasFudRepasMultiply_u;
+		auto frvars = fudRepasSetVar;
+		auto frder = fudRepasDerived;
+		auto frund = fudRepasUnderlying;
+		auto frdep = fudRepasSetVarsDepends;
+		auto hrbm = historyRepasBitmapAverage;
+
+		string records = string(argv[2]);
+		string model = string(argv[3]);
+		string dataset = string(argc >= 5 ? argv[4] : "data002");
+		size_t scale_vertical = argc >= 6 ? atoi(argv[5]) : 1;
+		size_t event_start = argc >= 7 ? atoi(argv[6]) : 0;
+		size_t event_end = argc >= 8 ? atoi(argv[7]) : 0;
+
+		std::map<std::size_t, Bitmap> sbm;
+	
+		std::unique_ptr<Alignment::System> uu;
+		std::unique_ptr<Alignment::SystemRepa> ur;
+		std::unique_ptr<Alignment::HistoryRepa> hr;
+
+		{
+			std::vector<std::string> files{
+				"data002_room1.bin",
+				"data002_room2.bin",
+				"data002_room2_2.bin",
+				"data002_room3.bin",
+				"data002_room4.bin",
+				"data002_room5.bin",
+				"data002_room5_2.bin"
+			};
+			if (dataset == "data003")
+			{
+				files.clear();
+				files.push_back("data003.bin");
+			}
+			else if (dataset == "data004")
+			{
+				files.clear();
+				files.push_back("data003.bin");
+				files.push_back("data004_01.bin");
+				files.push_back("data004_02.bin");
+				files.push_back("data004_03.bin");
+				files.push_back("data004_04.bin");
+				files.push_back("data004_05.bin");
+			}
+			HistoryRepaPtrList ll;
+			for (auto& f : files)
+			{
+				std::ifstream in(f, std::ios::binary);
+				auto qq = persistentsRecordList(in);
+				in.close();
+				auto xx = recordListsHistoryRepa_2(8, *qq);
+				uu = std::move(std::get<0>(xx));
+				ur = std::move(std::get<1>(xx));
+				ll.push_back(std::move(std::get<2>(xx)));
+			}
+			hr = vectorHistoryRepasConcat_u(ll);
+		}
+
+		Variable motor("motor");
+		Variable location("location");
+		Variable position("position");
+		auto vv = *uvars(*uu);
+		auto vvk = VarUSet(vv);
+		vvk.erase(motor);
+		vvk.erase(location);
+		vvk.erase(position);
+
+		auto& vvi = ur->mapVarSize();
+		auto vvk0 = sorted(vvk);
+		SizeList vvk1;
+		for (auto& v : vvk0)
+			vvk1.push_back(vvi[v]);
+
+		std::unique_ptr<Alignment::SystemRepa> ur1;
+		std::unique_ptr<Alignment::ApplicationRepa> dr;
+		
+		{
+			StrVarPtrMap m;
+			std::ifstream in(model + ".dr", std::ios::binary);
+			ur1 = persistentsSystemRepa(in, m);
+			dr = persistentsApplicationRepa(in);
+			in.close();
+
+			auto hr1 = frmul(*hr, *dr->fud);
+			if (hr1->evient)
+				hr1->transpose();
+			auto z = hr1->size;
+			auto& mvv = hr1->mapVarInt();
+			auto sl = treesLeafElements(*dr->slices);
+			for (auto s : *sl)
+			{
+				SizeList ev;
+				auto pk = mvv[s];
+				for (std::size_t j = 0; j < z; j++)
+				{
+					std::size_t u = hr1->arr[pk*z + j];
+					if (u)
+						ev.push_back(j);
+				}
+				if (ev.size())
+					sbm[s] = historyRepasBitmapAverage(scale_vertical,8,*hrhrred(vvk1.size(), vvk1.data(), *hrsel(ev.size(), ev.data(), *hr1)));
+				else
+					sbm[s] = Bitmap(scale_vertical,360);
+			}
+		}
+		{
+			std::ifstream in(records + ".bin", std::ios::binary);
+			auto qq = persistentsRecordList(in);
+			in.close();
+			
+			auto xx = recordListsHistoryRepa_2(8, *qq);
+			hr = std::move(std::get<2>(xx));
+			if (event_end > 0)
+			{
+				SizeList ev;
+				for (size_t i = event_start; i < event_end; i++)
+					ev.push_back(i);
+				hr = hrsel(ev.size(), ev.data(), *hr);
+			}
+			auto sl = treesLeafElements(*dr->slices);
+			auto hr1 = hrhrred(sl->size(), sl->data(), *frmul(*hr, *dr->fud));
+			if (!hr1->evient)
+				hr1->transpose();	
+			auto z = hr1->size;
+			auto n = hr1->dimension;
+			auto vv = hr1->vectorVar;
+			auto sh = hr1->shape;
+			auto rr = hr1->arr;
+			std::vector<Bitmap> ll;
+			for (std::size_t j = 0; j < z; j++)
+				for (std::size_t i = 0; i < n; i++)
+				{
+					std::size_t u = rr[j*n + i];
+					if (u)
+					{
+						ll.push_back(sbm[vv[i]]);
+						break;
+					}
+				}
+			bmwrite(records + "_" + model + "_" + dataset + ".bmp", bmvstack(ll));
+		}
+	}
 
 	return 0;
 }

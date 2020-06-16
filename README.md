@@ -1390,13 +1390,13 @@ side     centre  fail    62.720984
 
 Overall the results are as follows -
 
-Model|Type|Location %|Position %
----|---|---|---
-9|induced|39|60
-10|induced|42|56
-12|induced|42|63
-13|conditioned|59|72
-14|conditioned|64|80
+Model|Type|Dataset|Location %|Position %
+---|---|---|---|---
+9|induced|3|39|60
+10|induced|3|42|56
+12|induced|3|42|63
+13|conditioned|3|59|72
+14|conditioned|3|64|80
 
 Let us see if we can improve on *model* 14 with the additional data in `data004`. 
 
@@ -1456,13 +1456,42 @@ side     side    match   88.745149
 ```
 We can update out table,
 
-Model|Type|Location %|Position %
----|---|---|---
-9|induced|39|60
-10|induced|42|56
-12|induced|42|63
-13|conditioned|59|72
-14|conditioned|64|80
-16|conditioned|85|89
+Model|Type|Dataset|Location %|Position %
+---|---|---|---|---
+9|induced|3|39|60
+10|induced|3|42|56
+12|induced|3|42|63
+13|conditioned|3|59|72
+14|conditioned|3|64|80
+16|conditioned|4|85|89
 
 *Model* 16 was *conditioned* on 81261 *events* and has 28315 *transforms*. No doubt larger *models* *conditioned* on more *history* would incrementally increase the label accuracy, but for now let us consider increasing the *substrate* instead with timewise *frames*.
+
+To do that we must first select which of the past records will comprise the short term memory, i.e. the *frames*. Let us image the first 60 *events* in `data003`,
+```
+cd ~/TBOT01_ws
+./main bitmap data003 10 0 59
+
+```
+Each *event* is scaled vertically by 10 pixels,
+
+![data003](images/data003.bmp?raw=true)
+
+We can *apply* a *model* to the 60 *events*  and average the corresponding *slice* to see the *history* as turtlebot sees it. For eaxmple, we *apply* *model* 9 with the *model* *history* `data003`,
+```
+./main bitmap_slice_average data003 model009 data003 10 0 59
+
+```
+![data003 model009 data003](images/data003_model009_data003.bmp?raw=true)
+
+Let us do this for the other *models* and display them side by side,
+```
+./main bitmap_slice_average data003 model012 data003 10 0 59
+./main bitmap_slice_average data003 model013_location data003 10 0 59
+./main bitmap_slice_average data003 model014_location data003 10 0 59
+./main bitmap_slice_average data003 model016_location data004 10 0 59
+
+```
+data003|model009|model012|model013|model014|model016
+---|---|---|---|---|---
+![data003](images/data003.bmp?raw=true)|![data003 model009 data003](images/data003_model009_data003.bmp?raw=true)|![data003 model012 data003](images/data003_model012_data003.bmp?raw=true)|![data003 model013_location data003](images/data003_model013_location_data003.bmp?raw=true)|![data003 model014_location data003](images/data003_model014_location_data003.bmp?raw=true)|![data003 model016_location data004](images/data003_model016_location_data004.bmp?raw=true)
