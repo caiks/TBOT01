@@ -1403,12 +1403,14 @@ Let us see if we can improve on *model* 14 with the additional data in `data004`
 *Model 15* has the same configuration as *model 11* except its *history* consists of the union of the `data003` and `data004` records, and `fmax` is increased from 127 to 384,
 
 ```
+cd ~/TBOT01_ws
 ./main induce model015 4 >model015.log
 
 ```
 *Model 16* is *induced* from a lower *level* that consists of the *slice variables* of 12 *model 15* regions every 30 degrees. It has the same parameters as *model* 14 except its *history* consists of the union of the `data003` and `data004` records, and `fmax` is increased from 1024 to 4096,
 
 ```
+cd ~/TBOT01_ws
 ./main condition model016 8 location >model016_location.log
 
 ./main condition model016 8 position >model016_position.log
@@ -1454,7 +1456,18 @@ ros2 run TBOT01 observer model016_position position 2500 data004
 ...
 side     side    match   88.745149
 ```
-We can update out table,
+
+Now let us *induce* a *model* to a similar depth for comparison. *Model* 17 have the same parameters as *model* 12, but the *underlying model* is *model* 15 and the `fmax` is increased to 4096,
+```
+cd ~/TBOT01_ws
+./main induce model017 8 >model017.log
+
+./main entropy model017 10 data004
+
+```
+TODO
+
+We can update our table,
 
 Model|Type|Dataset|Location %|Position %
 ---|---|---|---|---
@@ -1464,6 +1477,9 @@ Model|Type|Dataset|Location %|Position %
 13|conditioned|3|59|72
 14|conditioned|3|64|80
 16|conditioned|4|85|89
+
+
+
 
 *Model* 16 was *conditioned* on 81261 *events* and has 28315 *transforms*. No doubt larger *models* *conditioned* on more *history* would incrementally increase the label accuracy, but for now let us consider increasing the *substrate* instead with timewise *frames*.
 
@@ -1495,3 +1511,4 @@ Let us do this for the other *models* and display them side by side,
 data003|model009|model012|model013|model014|model016
 ---|---|---|---|---|---
 ![data003](images/data003.bmp?raw=true)|![data003 model009 data003](images/data003_model009_data003.bmp?raw=true)|![data003 model012 data003](images/data003_model012_data003.bmp?raw=true)|![data003 model013_location data003](images/data003_model013_location_data003.bmp?raw=true)|![data003 model014_location data003](images/data003_model014_location_data003.bmp?raw=true)|![data003 model016_location data004](images/data003_model016_location_data004.bmp?raw=true)
+
