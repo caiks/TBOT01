@@ -1170,7 +1170,7 @@ Now let us *induce* a *model* from the new dataset `data003`. *Model* 9 uses the
 ./main entropy model009 10 data003
 ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 40868.9
 ```
-The *size-shuffle sum relative entopy* is not comparable because the *size* of the *history* is different, but we can compare *model* 1 using `data003` instead of `data002`,
+The *size-shuffle sum relative entropy* is not comparable because the *size* of the *history* is different, but we can compare *model* 1 using `data003` instead of `data002`,
 ```
 ./main entropy model001 10 data003
 ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 37847.2
@@ -1462,21 +1462,40 @@ Now let us *induce* a *model* to a similar depth for comparison. *Model* 17 have
 cd ~/TBOT01_ws
 ./main induce model017 8 >model017.log
 
-./main entropy model017 10 data004
-
+./main entropy model017 1 data004
+ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 108041
 ```
-TODO
+The *model* 17 has 72652 *transforms* so its *size-shuffle sum relative entropy* is calculated here without *shuffle scaling* to minimise the memory required. Compare the other *models* with the same *scaling* and *history*,
+```
+./main entropy model009 1 data004
+ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 98888.3
 
+./main entropy model010 1 data004
+ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 100474
+
+./main entropy model012 1 data004
+ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 99696.5
+
+./main entropy model013_location 1 data004
+ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 45334.5
+
+./main entropy model014_location 1 data004
+ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 97843.5
+
+./main entropy model016_location 1 data004
+ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 97093.9
+```
 We can update our table,
 
-Model|Type|Dataset|Location %|Position %
----|---|---|---|---
-9|induced|3|39|60
-10|induced|3|42|56
-12|induced|3|42|63
-13|conditioned|3|59|72
-14|conditioned|3|64|80
-16|conditioned|4|85|89
+Model|Type|Dataset|Likelihood|Location %|Position %
+---|---|---|---|---|---
+9|induced|3|98,888|39|60
+10|induced|3|100,474|42|56
+12|induced|3|99,696|42|63
+13|conditioned|3|45,334|59|72
+14|conditioned|3|97,843|64|80
+16|conditioned|4|97,093|85|89
+17|induced|4|108,041|TODO|TODO
 
 
 
