@@ -1456,8 +1456,7 @@ ros2 run TBOT01 observer model016_position position 2500 data004
 ...
 side     side    match   88.745149
 ```
-
-Now let us *induce* a *model* to a similar depth for comparison. *Model* 17 have the same parameters as *model* 12, but the *underlying model* is *model* 15 and the `fmax` is increased to 4096,
+Now let us *induce* a *model* to a similar depth for comparison. *Model* 17 has the same parameters as *model* 12, but the *underlying model* is *model* 15 and the `fmax` is increased to 4096,
 ```
 cd ~/TBOT01_ws
 ./main induce model017 8 >model017.log
@@ -1485,20 +1484,42 @@ ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 97843.5
 ./main entropy model016_location 1 data004
 ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 97093.9
 ```
+Now we find the label accuracy for *model* 17,
+```
+export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:~/turtlebot3_ws/src/TBOT01_ws/gazebo_models
+
+cd ~/turtlebot3_ws/src/TBOT01_ws
+
+gazebo -u --verbose ~/turtlebot3_ws/src/TBOT01_ws/env002.model -s libgazebo_ros_init.so
+
+```
+
+```
+cd ~/turtlebot3_ws/src/TBOT01_ws
+
+ros2 run TBOT01 controller data.bin 250 1000
+
+ros2 run TBOT01 observer model017 location 2500 data004
+...
+door56   room5   fail    58.469388
+
+ros2 run TBOT01 observer model017 position 2500 data004
+...
+side     side    match   68.536461
+```
 We can update our table,
 
-Model|Type|Dataset|Likelihood|Location %|Position %
----|---|---|---|---|---
-9|induced|3|98,888|39|60
-10|induced|3|100,474|42|56
-12|induced|3|99,696|42|63
-13|conditioned|3|45,334|59|72
-14|conditioned|3|97,843|64|80
-16|conditioned|4|97,093|85|89
-17|induced|4|108,041|TODO|TODO
+Model|Type|Underlying|Fmax|Dataset|Likelihood|Location %|Position %
+---|---|---|---|---|---|---|---
+9|induced|substrate|127|3|98,888|39|60
+10|induced|substrate|512|3|100,474|42|56
+12|induced|model 11|127|3|99,696|42|63
+17|induced|model 15|4096|4|108,041|58|69
+13|conditioned|substrate|1024|3|45,334|59|72
+14|conditioned|model 11|1024|3|97,843|64|80
+16|conditioned|model 15|4096|4|97,093|85|89
 
-
-
+We can see that *induced model* 17 is considerably more accurate than *induced model* 12, but it is still less accurate than any of the *conditioned models*. The *induced models* are all more *likely* than any of the *conditioned models*, however. The larger *induced models* with 2 *levels* have the greatest *likelihoods*.
 
 *Model* 16 was *conditioned* on 81261 *events* and has 28315 *transforms*. No doubt larger *models* *conditioned* on more *history* would incrementally increase the label accuracy, but for now let us consider increasing the *substrate* instead with timewise *frames*.
 
@@ -1512,11 +1533,19 @@ Each *event* is scaled vertically by 10 pixels,
 
 ![data003](images/data003.bmp?raw=true)
 
-We can *apply* a *model* to the 60 *events*  and average the corresponding *slice* to see the *history* as turtlebot sees it. For eaxmple, we *apply* *model* 9 with the *model* *history* `data003`,
+In these 12 seconds, the turtlebot starts in the room 4 and moves towards room 1,
+
+1s|12s
+---|---|---|---|---|---
+![env002_1s](images/env002_1s.jpg?raw=true)|![env002_12s](images/env002_12s.jpg?raw=true)
+
+We can *apply* a *model* to the 60 *events*  and average the corresponding *slice* to see the *history* as turtlebot 'sees' it. For example, if we *apply* *model* 9 with the *model* *history* `data003`,
 ```
 ./main bitmap_slice_average data003 model009 data003 10 0 59
 
 ```
+the turtlebot 'sees' this -
+
 ![data003 model009 data003](images/data003_model009_data003.bmp?raw=true)
 
 Let us do this for the other *models* and display them side by side,
