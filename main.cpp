@@ -3282,6 +3282,7 @@ int main(int argc, char **argv)
 			in.close();
 
 			auto hr1 = frmul(*hr, *dr->fud);
+			auto hr2 = hrhrred(vvk1.size(), vvk1.data(), *hr);
 			if (hr1->evient)
 				hr1->transpose();
 			auto z = hr1->size;
@@ -3298,7 +3299,7 @@ int main(int argc, char **argv)
 						ev.push_back(j);
 				}
 				if (ev.size())
-					sbm[s] = historyRepasBitmapAverage(scale_vertical,8,*hrhrred(vvk1.size(), vvk1.data(), *hrsel(ev.size(), ev.data(), *hr1)));
+					sbm[s] = historyRepasBitmapAverage(scale_vertical,8,*hrsel(ev.size(), ev.data(), *hr2));
 				else
 					sbm[s] = Bitmap(scale_vertical,360);
 			}

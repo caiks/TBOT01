@@ -1521,13 +1521,25 @@ We can *apply* a *model* to the 60 *events*  and average the corresponding *slic
 
 Let us do this for the other *models* and display them side by side,
 ```
+./main bitmap_slice_average data003 model010 data003 10 0 59
 ./main bitmap_slice_average data003 model012 data003 10 0 59
 ./main bitmap_slice_average data003 model013_location data003 10 0 59
 ./main bitmap_slice_average data003 model014_location data003 10 0 59
 ./main bitmap_slice_average data003 model016_location data004 10 0 59
+./main bitmap_slice_average data003 model017 data004 10 0 59
 
 ```
-data003|model009|model012|model013|model014|model016
+First, the *induced models*,
+
+data003|model010|model012|model017
 ---|---|---|---|---|---
-![data003](images/data003.bmp?raw=true)|![data003 model009 data003](images/data003_model009_data003.bmp?raw=true)|![data003 model012 data003](images/data003_model012_data003.bmp?raw=true)|![data003 model013_location data003](images/data003_model013_location_data003.bmp?raw=true)|![data003 model014_location data003](images/data003_model014_location_data003.bmp?raw=true)|![data003 model016_location data004](images/data003_model016_location_data004.bmp?raw=true)
+![data003](images/data003.bmp?raw=true)|![data003 model010 data003](images/data003_model010_data003.bmp?raw=true)|![data003 model012 data003](images/data003_model012_data003.bmp?raw=true)|![data003 model017 data004](images/data003_model017_data004.bmp?raw=true)
+
+Then, the *conditioned models*,
+
+data003|model013|model014|model016
+---|---|---|---|---|---
+![data003](images/data003.bmp?raw=true)|![data003 model013_location data003](images/data003_model013_location_data003.bmp?raw=true)|![data003 model014_location data003](images/data003_model014_location_data003.bmp?raw=true)|![data003 model016_location data004](images/data003_model016_location_data004.bmp?raw=true)
+
+Note that the *induced model* 12 has only 127 *fuds*, which explains its blurriness compared to its neighbours.
 
