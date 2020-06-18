@@ -1535,9 +1535,9 @@ Each *event* is scaled vertically by 10 pixels,
 
 In these 12 seconds, the turtlebot starts in the room 4, facing to the right, turns to the left by 30 degrees and then moves towards the corridor to room 1,
 
-1 second | 12 seconds
----|---|---|---|---|---
-![env002_1s](images/env002_1s.jpg?raw=true) | ![env002_12s](images/env002_12s.jpg?raw=true)
+1 second|12 seconds
+---|---
+![env002_1s](images/env002_1s.jpg?raw=true)|![env002_12s](images/env002_12s.jpg?raw=true)
 
 We can *apply* a *model* to the 60 *events*  and average the corresponding *slice* to see the *history* as turtlebot 'sees' it. For example, if we *apply* *model* 9 with the *model* *history* `data003`,
 ```
@@ -1561,13 +1561,13 @@ Let us do this for the other *models* and display them side by side,
 First, the *induced models*,
 
 data003|model010|model012|model017
----|---|---|---|---|---
+---|---|---|---
 ![data003](images/data003.bmp?raw=true)|![data003 model010 data003](images/data003_model010_data003.bmp?raw=true)|![data003 model012 data003](images/data003_model012_data003.bmp?raw=true)|![data003 model017 data004](images/data003_model017_data004.bmp?raw=true)
 
 Then, the *conditioned models*,
 
 data003|model013|model014|model016
----|---|---|---|---|---
+---|---|---|---
 ![data003](images/data003.bmp?raw=true)|![data003 model013_location data003](images/data003_model013_location_data003.bmp?raw=true)|![data003 model014_location data003](images/data003_model014_location_data003.bmp?raw=true)|![data003 model016_location data004](images/data003_model016_location_data004.bmp?raw=true)
 
 Note that the *induced model* 12 has only 127 *fuds*, which explains its blurriness compared to its neighbours. Perhaps the most literal of the images that of *incduced model* 17. Its counterpart, *conditioned model* 16 is considerably smoother, which suggests that the detail is not relevant to the `location` label. Compare it to *conditioned model* 13, a one *level model* *depending* directly on the *substrate*, which superficially captures a lot of the detail but is less accurate and frequently is mistaken about individual *events*.
