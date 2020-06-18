@@ -1519,7 +1519,7 @@ Model|Type|Underlying|Fmax|Dataset|Likelihood|Location %|Position %
 14|conditioned|model 11|1024|3|97,843|64|80
 16|conditioned|model 15|4096|4|97,093|85|89
 
-We can see that *induced model* 17 is considerably more accurate than *induced model* 12, but it is still less accurate than any of the *conditioned models*. The *induced models* are all more *likely* than any of the *conditioned models*, however. The larger *induced models* with 2 *levels* have the greatest *likelihoods*.
+We can see that *induced model* 17 is considerably more accurate than *induced model* 12, but it is still less accurate than any of the *conditioned models*. The *induced models* are all more *likely* than any of the *conditioned models*, however. The larger *induced models* with 2 *levels* have the greatest *likelihoods*, but the increase in *likelihood* is small which suggests that most of the interesting *alignments* have already been captured.
 
 *Model* 16 was *conditioned* on 81261 *events* and has 28315 *transforms*. No doubt larger *models* *conditioned* on more *history* would incrementally increase the label accuracy, but for now let us consider increasing the *substrate* instead with timewise *frames*.
 
@@ -1535,7 +1535,7 @@ Each *event* is scaled vertically by 10 pixels,
 
 In these 12 seconds, the turtlebot starts in the room 4 and moves towards room 1,
 
-1s|12s
+1 second|12 seconds
 ---|---|---|---|---|---
 ![env002_1s](images/env002_1s.jpg?raw=true)|![env002_12s](images/env002_12s.jpg?raw=true)
 
@@ -1570,5 +1570,146 @@ data003|model013|model014|model016
 ---|---|---|---|---|---
 ![data003](images/data003.bmp?raw=true)|![data003 model013_location data003](images/data003_model013_location_data003.bmp?raw=true)|![data003 model014_location data003](images/data003_model014_location_data003.bmp?raw=true)|![data003 model016_location data004](images/data003_model016_location_data004.bmp?raw=true)
 
-Note that the *induced model* 12 has only 127 *fuds*, which explains its blurriness compared to its neighbours.
+Note that the *induced model* 12 has only 127 *fuds*, which explains its blurriness compared to its neighbours. Perhaps the most literal of the images that of *incduced model* 17. Its counterpart, *conditioned model* 16 is considerably smoother, which suggests that the detail is not relevant to the `location` label. Compare it to *conditioned model* 13, a one *level model* *depending* directly on the *substrate*, which superficially captures a lot of the detail but is less accurate and frequently is mistaken about individual *events*.
 
+Let us observe the *slice variables* and the label matches for each *event*. First *induced model* 17,
+```
+cd ~/TBOT01_ws
+./main observe data003 model017 data004 location 0 59
+
+```
+event|variable|location|guess|match?
+---|---|---|---|---
+0|<<<0,1123>,s>,2>|room4|room1|fail
+1|<<<0,2053>,s>,2>|room4|room4|match
+2|<<<0,3055>,s>,2>|room4|room4|match
+3|<<<0,3055>,s>,2>|room4|room4|match
+4|<<<0,3055>,s>,2>|room4|room4|match
+5|<<<0,2029>,s>,2>|room4|room4|match
+6|<<<0,2029>,s>,2>|room4|room4|match
+7|<<<0,2029>,s>,2>|room4|room4|match
+8|<<<0,1384>,s>,2>|room4|room4|match
+9|<<<0,1384>,s>,2>|room4|room4|match
+10|<<<0,1384>,s>,2>|room4|room4|match
+11|<<<0,2380>,s>,1>|room4|room1|fail
+12|<<<0,1807>,s>,2>|room4|room4|match
+13|<<<0,1807>,s>,2>|room4|room4|match
+14|<<<0,1807>,s>,2>|room4|room4|match
+15|<<<0,1807>,s>,2>|room4|room4|match
+16|<<<0,1807>,s>,2>|room4|room4|match
+17|<<<0,2463>,s>,1>|room4|room4|match
+18|<<<0,2463>,s>,1>|room4|room4|match
+19|<<<0,2463>,s>,2>|room4|room4|match
+20|<<<0,2463>,s>,3>|room4|room4|match
+21|<<<0,3023>,s>,1>|room4|room4|match
+22|<<<0,2478>,s>,2>|room4|room4|match
+23|<<<0,2478>,s>,2>|room4|room4|match
+24|<<<0,2478>,s>,2>|room4|room4|match
+25|<<<0,162>,s>,1>|room4|room1|fail
+26|<<<0,2995>,s>,1>|room4|room4|match
+27|<<<0,2995>,s>,1>|room4|room4|match
+28|<<<0,2611>,s>,2>|room4|room4|match
+29|<<<0,3318>,s>,1>|room4|room4|match
+30|<<<0,2320>,s>,2>|room4|room4|match
+31|<<<0,2320>,s>,2>|room4|room4|match
+32|<<<0,3067>,s>,2>|room4|door13|fail
+33|<<<0,3508>,s>,1>|room4|room4|match
+34|<<<0,3508>,s>,1>|room4|room4|match
+35|<<<0,3508>,s>,2>|room4|room4|match
+36|<<<0,1278>,s>,2>|room4|room4|match
+37|<<<0,4077>,s>,1>|room4|room4|match
+38|<<<0,4077>,s>,1>|room4|room4|match
+39|<<<0,1465>,s>,2>|room4|room4|match
+40|<<<0,844>,s>,2>|room4|room4|match
+41|<<<0,844>,s>,2>|room4|room4|match
+42|<<<0,1517>,s>,2>|room4|room4|match
+43|<<<0,3702>,s>,2>|room4|room4|match
+44|<<<0,3702>,s>,1>|room4|room1|fail
+45|<<<0,3702>,s>,1>|room4|room1|fail
+46|<<<0,1835>,s>,1>|room4|room4|match
+47|<<<0,428>,s>,2>|room4|room2|fail
+48|<<<0,2492>,s>,2>|room4|room4|match
+49|<<<0,2737>,s>,1>|room4|room5|fail
+50|<<<0,2052>,s>,1>|room4|room4|match
+51|<<<0,3592>,s>,1>|room4|room4|match
+52|<<<0,3592>,s>,1>|room4|room4|match
+53|<<<0,3592>,s>,1>|room4|room4|match
+54|<<<0,2837>,s>,1>|room4|room4|match
+55|<<<0,2641>,s>,1>|room4|room4|match
+56|<<<0,4086>,s>,1>|room4|room4|match
+57|<<<0,3325>,s>,2>|room4|room4|match
+58|<<<0,2488>,s>,3>|room4|room4|match
+59|<<<0,2488>,s>,3>|room4|room4|match
+
+Of these 60 *events* there are 38 unique consecutive *slices*, which suggests a *frame* every 2 *events* or 0.5 seconds.
+
+Now *conditioned model* 16,
+```
+cd ~/TBOT01_ws
+./main observe data003 model016_location data004 location 0 59
+
+```
+event|variable|location|guess|match?
+---|---|---|---|---
+0|<<<1,445>,s>,2>|room4|room4|match
+1|<<<1,3146>,s>,1>|room4|room4|match
+2|<<<1,2853>,s>,2>|room4|room4|match
+3|<<<1,3948>,s>,1>|room4|room4|match
+4|<<<1,3948>,s>,1>|room4|room4|match
+5|<<<1,3948>,s>,1>|room4|room4|match
+6|<<<1,3948>,s>,1>|room4|room4|match
+7|<<<1,3948>,s>,1>|room4|room4|match
+8|<<<1,3948>,s>,1>|room4|room4|match
+9|<<<1,3948>,s>,1>|room4|room4|match
+10|<<<1,3948>,s>,1>|room4|room4|match
+11|<<<1,3948>,s>,1>|room4|room4|match
+12|<<<1,2105>,s>,2>|room4|room4|match
+13|<<<1,2850>,s>,2>|room4|room4|match
+14|<<<1,3532>,s>,1>|room4|room4|match
+15|<<<1,3532>,s>,1>|room4|room4|match
+16|<<<1,3532>,s>,1>|room4|room4|match
+17|<<<1,3689>,s>,1>|room4|room4|match
+18|<<<1,3689>,s>,1>|room4|room4|match
+19|<<<1,1624>,s>,2>|room4|room4|match
+20|<<<1,1624>,s>,2>|room4|room4|match
+21|<<<1,3111>,s>,2>|room4|room4|match
+22|<<<1,3373>,s>,1>|room4|room4|match
+23|<<<1,3373>,s>,1>|room4|room4|match
+24|<<<1,3373>,s>,1>|room4|room4|match
+25|<<<1,3373>,s>,1>|room4|room4|match
+26|<<<1,2629>,s>,2>|room4|room4|match
+27|<<<1,3373>,s>,1>|room4|room4|match
+28|<<<1,3146>,s>,1>|room4|room4|match
+29|<<<1,2876>,s>,2>|room4|room4|match
+30|<<<1,790>,s>,2>|room4|room4|match
+31|<<<1,790>,s>,2>|room4|room4|match
+32|<<<1,790>,s>,2>|room4|room4|match
+33|<<<1,790>,s>,2>|room4|room4|match
+34|<<<1,790>,s>,2>|room4|room4|match
+35|<<<1,914>,s>,2>|room4|room4|match
+36|<<<1,3146>,s>,1>|room4|room4|match
+37|<<<1,2853>,s>,2>|room4|room4|match
+38|<<<1,2853>,s>,2>|room4|room4|match
+39|<<<1,2853>,s>,2>|room4|room4|match
+40|<<<1,2853>,s>,2>|room4|room4|match
+41|<<<1,2853>,s>,2>|room4|room4|match
+42|<<<1,3146>,s>,1>|room4|room4|match
+43|<<<1,2940>,s>,2>|room4|room4|match
+44|<<<1,790>,s>,2>|room4|room4|match
+45|<<<1,2492>,s>,1>|room4|room4|match
+46|<<<1,2492>,s>,1>|room4|room4|match
+47|<<<1,2492>,s>,1>|room4|room4|match
+48|<<<1,2492>,s>,1>|room4|room4|match
+49|<<<1,4037>,s>,1>|room4|room4|match
+50|<<<1,4037>,s>,1>|room4|room4|match
+51|<<<1,4037>,s>,1>|room4|room4|match
+52|<<<1,4037>,s>,1>|room4|room4|match
+53|<<<1,4037>,s>,1>|room4|room4|match
+54|<<<1,4037>,s>,1>|room4|room4|match
+55|<<<1,2994>,s>,2>|room4|room4|match
+56|<<<1,3923>,s>,1>|room4|room4|match
+57|<<<1,1085>,s>,2>|room4|room4|match
+58|<<<1,1085>,s>,2>|room4|room4|match
+59|<<<1,1085>,s>,2>|room4|room4|match
+
+Of these 27 *events* there are 38 unique consecutive *slices*, which also suggests a *frame* every 0.5 seconds.
