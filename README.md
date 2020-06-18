@@ -1533,11 +1533,11 @@ Each *event* is scaled vertically by 10 pixels,
 
 ![data003](images/data003.bmp?raw=true)
 
-In these 12 seconds, the turtlebot starts in the room 4 and moves towards room 1,
+In these 12 seconds, the turtlebot starts in the room 4, facing to the right, turns to the left by 30 degrees and then moves towards the corridor to room 1,
 
-1 second|12 seconds
+1 second | 12 seconds
 ---|---|---|---|---|---
-![env002_1s](images/env002_1s.jpg?raw=true)|![env002_12s](images/env002_12s.jpg?raw=true)
+![env002_1s](images/env002_1s.jpg?raw=true) | ![env002_12s](images/env002_12s.jpg?raw=true)
 
 We can *apply* a *model* to the 60 *events*  and average the corresponding *slice* to see the *history* as turtlebot 'sees' it. For example, if we *apply* *model* 9 with the *model* *history* `data003`,
 ```
