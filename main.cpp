@@ -3186,7 +3186,7 @@ int main(int argc, char **argv)
 		out.close();
 	}
 	
-	if (argc >= 3 && string(argv[1]) == "bitmap_slice_average")
+	if (argc >= 3 && string(argv[1]) == "observe_bitmap")
 	{
 		auto uvars = systemsSetVar;
 		auto single = histogramSingleton_u;
@@ -3486,10 +3486,6 @@ int main(int argc, char **argv)
 	{
 		auto uvars = systemsSetVar;
 		auto single = histogramSingleton_u;
-		auto aahr = [](const System& uu, const SystemRepa& ur, const Histogram& aa)
-		{
-			return systemsHistoriesHistoryRepa_u(uu, ur, *histogramsHistory_u(aa));
-		};
 		auto hrsel = eventsHistoryRepasHistoryRepaSelection_u;
 		auto hrhrred = setVarsHistoryRepasHistoryRepaReduced_u;
 		auto hrred = setVarsHistoryRepasReduce_u;
@@ -3550,8 +3546,6 @@ int main(int argc, char **argv)
 			hr = vectorHistoryRepasConcat_u(ll);
 		}
 
-		auto& vvi = ur->mapVarSize();
-
 		std::unique_ptr<Alignment::SystemRepa> ur1;
 		std::unique_ptr<Alignment::ApplicationRepa> dr;
 		
@@ -3559,6 +3553,8 @@ int main(int argc, char **argv)
 		std::size_t pl;	
 		
 		{
+			auto& vvi = ur->mapVarSize();
+			
 			StrVarPtrMap m;
 			std::ifstream in(model + ".dr", std::ios::binary);
 			ur1 = persistentsSystemRepa(in, m);
@@ -3618,9 +3614,10 @@ int main(int argc, char **argv)
 					ev.push_back(i);
 				hr = hrsel(ev.size(), ev.data(), *hr);
 			}
-			std::vector<std::string> locations{ "door12", "door13", "door14", "door45", "door56", "room1", "room2", "room3", "room4", "room5", "room6", "unknown" };
-			std::vector<std::string> positions{ "centre", "corner", "side",
-			"unknown" };
+			std::vector<std::string> locations{ 
+				"door12", "door13", "door14", "door45", "door56", 
+				"room1", "room2", "room3", "room4", "room5", "room6", "unknown" };
+			std::vector<std::string> positions{ "centre", "corner", "side", "unknown" };
 			SizeList ww{ pl };
 			auto nn = treesLeafNodes(*dr->slices);
 			for (auto& s : *nn)
@@ -3634,20 +3631,35 @@ int main(int argc, char **argv)
 			auto sh = hr1->shape;
 			auto rr = hr1->arr;
 			auto sl = sh[0];
-			std::size_t cl = rr[0];
-			std::size_t l = sl;
+			SizeSet slice_unique;
+			std::size_t consecutive_unique_count = 0;
+			std::size_t slice_last = 0;
+			std::size_t match_count = 0;
+			cout << "event|slice|location|guess|match?" << endl;
+			cout << "---|---|---|---|---" << endl;
 			for (std::size_t j = 0; j < z; j++)
 			{
+				std::size_t cl = rr[j*n];
+				std::size_t l = sl;
 				std::size_t i = 1;
 				for (; i < n; i++)
 				{
 					std::size_t u = rr[j*n + i];
 					if (u)
 					{
-						l = su[vv[i]];
+						auto s = vv[i];
+						l = su[s];
+						if (slice_last != s)
+						{
+							consecutive_unique_count++;
+							slice_last = s;
+							slice_unique.insert(s);
+						}
 						break;
 					}
 				}
+				if (l == cl)
+					match_count++;
 				cout << j;
 				if (i<n)
 					cout << "|" << *ur1->listVarSizePair[vv[i]].first;
@@ -3657,6 +3669,10 @@ int main(int argc, char **argv)
 				cout << "|" << (label == "location" ? locations[l] : positions[l]);
 				cout << "|" << (l == cl ? "match" : "fail") << endl;
 			}
+			EVAL(z);
+			EVAL(slice_unique.size());
+			EVAL(consecutive_unique_count);
+			EVAL(match_count);
 		}
 	}
 	

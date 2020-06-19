@@ -1541,7 +1541,7 @@ In these 12 seconds, the turtlebot starts in the room 4, facing to the right, tu
 
 We can *apply* a *model* to the 60 *events*  and average the corresponding *slice* to see the *history* as turtlebot 'sees' it. For example, if we *apply* *model* 9 with the *model* *history* `data003`,
 ```
-./main bitmap_slice_average data003 model009 data003 10 0 59
+./main observe_bitmap data003 model009 data003 10 0 59
 
 ```
 the turtlebot 'sees' this -
@@ -1550,12 +1550,12 @@ the turtlebot 'sees' this -
 
 Let us do this for the other *models* and display them side by side,
 ```
-./main bitmap_slice_average data003 model010 data003 10 0 59
-./main bitmap_slice_average data003 model012 data003 10 0 59
-./main bitmap_slice_average data003 model013_location data003 10 0 59
-./main bitmap_slice_average data003 model014_location data003 10 0 59
-./main bitmap_slice_average data003 model016_location data004 10 0 59
-./main bitmap_slice_average data003 model017 data004 10 0 59
+./main observe_bitmap data003 model010 data003 10 0 59
+./main observe_bitmap data003 model012 data003 10 0 59
+./main observe_bitmap data003 model013_location data003 10 0 59
+./main observe_bitmap data003 model014_location data003 10 0 59
+./main observe_bitmap data003 model016_location data004 10 0 59
+./main observe_bitmap data003 model017 data004 10 0 59
 
 ```
 First, the *induced models*,
@@ -1574,7 +1574,6 @@ Note that the *induced model* 12 has only 127 *fuds*, which explains its blurrin
 
 Let us observe the *slice variables* and the label matches for each *event*. First *induced model* 17,
 ```
-cd ~/TBOT01_ws
 ./main observe data003 model017 data004 location 0 59
 
 ```
@@ -1645,7 +1644,6 @@ Of these 60 *events* there are 38 unique consecutive *slices*, which suggests a 
 
 Now *conditioned model* 16,
 ```
-cd ~/TBOT01_ws
 ./main observe data003 model016_location data004 location 0 59
 
 ```
@@ -1712,4 +1710,31 @@ event|variable|location|guess|match?
 58|<<<1,1085>,s>,2>|room4|room4|match
 59|<<<1,1085>,s>,2>|room4|room4|match
 
-Of these 27 *events* there are 38 unique consecutive *slices*, which also suggests a *frame* every 0.5 seconds.
+Of these 60 *events* there are 27 unique consecutive *slices*, which also suggests a *frame* every 0.5 seconds. Let us check that this rate applies in general,
+
+```
+./main observe data003 model017 data004 location
+z: 13381
+slice_unique.size(): 3595
+consecutive_unique_count: 7765
+match_count: 10256
+
+./main observe data004_04 model017 data004 location
+z: 14546
+slice_unique.size(): 3635
+consecutive_unique_count: 8581
+match_count: 11031
+
+./main observe data003 model016_location data004 location
+z: 13381
+slice_unique.size(): 2216
+consecutive_unique_count: 5489
+match_count: 12962
+
+./main observe data004_04 model016_location data004 location
+z: 14546
+slice_unique.size(): 2290
+consecutive_unique_count: 6199
+match_count: 14015
+```
+Note that the number of matches here is higher than for the table above. This is because the *models* were *induced* or *conditioned* on `data004` which includes `data003`.
