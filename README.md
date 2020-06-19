@@ -699,7 +699,7 @@ Although the *history* is not very evenly spatially distributed, let us *induce*
 We can compare this *model* to the *models* below by using a proxy for the *size-volume scaled component size cardinality sum relative entropy* which substitutes a *scaled shuffle* for the *cartesian*. As the *shuffle* is *scaled* the *relative entropy* gradually converges, so it is a reasonable proxy for the *model likelihood*.
 ```
 ./main entropy model001 10
-ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 17842.3
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 17842.3
 ```
 
 We can view a bitmap of the averaged *slices* in the *decomposition* tree,
@@ -743,7 +743,7 @@ Now let us consider a *2-level model*. *Model 5* is *induced* from a lower *leve
 ./main induce model005 4 >model005.log
 
 ./main entropy model005 10
-ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 16878.8
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 16878.8
 ```
 The *likelihood* is a little less than for *model* 1.
 ```
@@ -761,17 +761,17 @@ Now let us *condition* *models* on the labels `motor`, `location` and `position`
 ./main condition model006 4 motor >model006_motor.log
 
 ./main entropy model006_motor 10
-ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 4532.53
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 4532.53
 
 ./main condition model006 4 location >model006_location.log
 
 ./main entropy model006_location 10
-ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 6729.56
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 6729.56
 
 ./main condition model006 4 position >model006_position.log
 
 ./main entropy model006_position 10
-ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 5625.21
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 5625.21
 ```
 All of these *models* are run to zero *label entropy*. That means that if they were applied to the training *history* they would have 100% prediction accuracy. The *likelihoods* of the *conditioned models* are all considerably lower than the *induced models*. Note that `location` is the most complex label, so perhaps it captures more of the *alignments*.
 
@@ -780,17 +780,17 @@ Now let us run the same set of *conditioners* on a *level* that consists of the 
 ./main condition model007 4 motor >model007_motor.log
 
 ./main entropy model007_motor 10
-ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 8118.53
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 8118.53
 
 ./main condition model007 4 location >model007_location.log
 
 ./main entropy model007_location 10
-ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 14054.9
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 14054.9
 
 ./main condition model007 4 position >model007_position.log
 
 ./main entropy model007_position 10
-ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 13948.5
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 13948.5
 ```
 All of these also run to zero *label entropy* but require more *fuds* to do so. For example, to predict `location` *model 6* requires 421 *fuds* but *model 7* requires 626. From the point of view of these labels, the original *substrate* is more *causal* than the random region *level*. However, the *likelihoods* of the *models conditioned* on *underlying* regional *induced models* are all higher than those of the *models conditioned* directly on the *substrate*.
 
@@ -1168,12 +1168,12 @@ Now let us *induce* a *model* from the new dataset `data003`. *Model* 9 uses the
 ./main induce model009 4 >model009.log
 
 ./main entropy model009 10 data003
-ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 40868.9
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 40868.9
 ```
 The *size-shuffle sum relative entropy* is not comparable because the *size* of the *history* is different, but we can compare *model* 1 using `data003` instead of `data002`,
 ```
 ./main entropy model001 10 data003
-ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 37847.2
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 37847.2
 ```
 Unsurprisingly, *model* 9 is the more *likely model* given `data003`.
 
@@ -1190,7 +1190,7 @@ We can look at the effect of increasing `fmax` from 127 to 512 in *model* 10,
 ./main induce model010 4 >model010.log
 
 ./main entropy model010 10 data003
-ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 41970.1
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 41970.1
 ```
 We can see that there is only a small increase in the *likelihood*.
 
@@ -1204,7 +1204,7 @@ Now let us create the *2-level model*. *Model 12* is *induced* from a lower *lev
 ./main induce model012 4 >model012.log
 
 ./main entropy model012 10 data003
-ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 40676.3
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 40676.3
 ```
 The *likelihood* is a little more than for *model* 9.
 
@@ -1220,17 +1220,17 @@ Now let us *condition* *models* on the labels `motor`, `location` and `position`
 ./main condition model013 4 motor >model013_motor.log
 
 ./main entropy model013_motor 10 data003
-ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 12257.1
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 12257.1
 
 ./main condition model013 4 location >model013_location.log
 
 ./main entropy model013_location 10 data003
-ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 18075.9
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 18075.9
 
 ./main condition model013 4 position >model013_position.log
 
 ./main entropy model013_position 10 data003
-ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 13424.3
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 13424.3
 ```
 Again, all of these *models* are run to zero *label entropy*. The *likelihoods* of the *conditioned models* are all considerably lower than the *induced models*. Again, `location` is the most complex label, because it probably captures more of the *alignments*.
 
@@ -1239,17 +1239,17 @@ Now let us run the same set of *conditioners* on a *level* that consists of the 
 ./main condition model014 4 motor >model014_motor.log
 
 ./main entropy model014_motor 10 data003
-ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 28086.1
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 28086.1
 
 ./main condition model014 4 location >model014_location.log
 
 ./main entropy model014_location 10 data003
-ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 39993.4
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 39993.4
 
 ./main condition model014 4 position >model014_position.log
 
 ./main entropy model014_position 10 data003
-ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 30755.2
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 30755.2
 ```
 
 The *likelihood* of the `location` *conditioned model* 14 is almost the same as the *induced model* 12. We would therefore expect that *model* 14 will have a similar label accuracy to the *substrate conditioned model* 13, but be generally more robust.
@@ -1407,6 +1407,14 @@ cd ~/TBOT01_ws
 ./main induce model015 4 >model015.log
 
 ```
+Let us compare its *likelihood* to that of *model* 11,
+```
+./main entropy_region model015 1 data004
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 969469
+
+./main entropy_region model011 1 data004
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 935217
+```
 *Model 16* is *induced* from a lower *level* that consists of the *slice variables* of 12 *model 15* regions every 30 degrees. It has the same parameters as *model* 14 except its *history* consists of the union of the `data003` and `data004` records, and `fmax` is increased from 1024 to 4096,
 
 ```
@@ -1421,17 +1429,17 @@ Even with an `fmax` of 4096, neither *conditioned model* is completely resolved.
 When we compare the *likelihoods* to those of *model* 14, there is little change,
 ```
 ./main entropy model016_location 10 data004
-ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 235340
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 235340
 
 ./main entropy model014_location 10 data004
-ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 239912
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 239912
 
 
 ./main entropy model016_position 10 data004
-ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 197310
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 197310
 
 ./main entropy model014_position 10 data004
-ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 184506
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 184506
 ```
 Now, however, the label accuracy has improved considerably,
 ```
@@ -1462,27 +1470,27 @@ cd ~/TBOT01_ws
 ./main induce model017 8 >model017.log
 
 ./main entropy model017 1 data004
-ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 108041
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 108041
 ```
 The *model* 17 has 72652 *transforms* so its *size-shuffle sum relative entropy* is calculated here without *shuffle scaling* to minimise the memory required. Compare the other *models* with the same *scaling* and *history*,
 ```
 ./main entropy model009 1 data004
-ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 98888.3
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 98888.3
 
 ./main entropy model010 1 data004
-ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 100474
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 100474
 
 ./main entropy model012 1 data004
-ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 99696.5
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 99696.5
 
 ./main entropy model013_location 1 data004
-ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 45334.5
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 45334.5
 
 ./main entropy model014_location 1 data004
-ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 97843.5
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 97843.5
 
 ./main entropy model016_location 1 data004
-ent(*cc) * (z+v) - ent(*aa) * z - ent(*bb) * v: 97093.9
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 97093.9
 ```
 Now we find the label accuracy for *model* 17,
 ```
@@ -1714,27 +1722,53 @@ Of these 60 *events* there are 27 unique consecutive *slices*, which also sugges
 
 ```
 ./main observe data003 model017 data004 location
+...
 z: 13381
 slice_unique.size(): 3595
 consecutive_unique_count: 7765
 match_count: 10256
 
 ./main observe data004_04 model017 data004 location
+...
 z: 14546
 slice_unique.size(): 3635
 consecutive_unique_count: 8581
 match_count: 11031
 
 ./main observe data003 model016_location data004 location
+...
 z: 13381
 slice_unique.size(): 2216
 consecutive_unique_count: 5489
 match_count: 12962
 
 ./main observe data004_04 model016_location data004 location
+...
 z: 14546
 slice_unique.size(): 2290
 consecutive_unique_count: 6199
 match_count: 14015
+
+./main observe data003 model017 data004 position
+...
+z: 13381
+slice_unique.size(): 3595
+consecutive_unique_count: 7765
+match_count: 11409
+
+./main observe data003 model016_position data004 position
+...
+z: 13381
+slice_unique.size(): 1973
+consecutive_unique_count: 6236
+match_count: 13158
 ```
-Note that the number of matches here is higher than for the table above. This is because the *models* were *induced* or *conditioned* on `data004` which includes `data003`.
+Note that the number of matches here is higher than for the table above. This is because the *models* were *induced* or *conditioned* on `data004` which includes the `data003` records.
+
+The addition of timewise *frames* requires scaling the *models*, so before we do that let us consider the *underlying level models* *models* 11 and 15. We saw above that the *likelihoods* are not much different, but *model* 11 has only 2487 *transforms* while *model* 15 has 6685. The *derived induced models* 12 and 17 have 5600 and 72652 *transforms* respectively. Of course, this may be purely due to `fmax` increasing from 127 to 4096, but let us check this in a new *induced model* 18 that has *model* 11 for its *underlying*, but is otherwise the same as *model 17*.
+```
+cd ~/TBOT01_ws
+./main induce model018 8 >model018.log
+
+./main entropy model018 1 data004
+```
