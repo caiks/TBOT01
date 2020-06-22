@@ -1312,6 +1312,11 @@ int main(int argc, char **argv)
 				files.push_back("data004_04.bin");
 				files.push_back("data004_05.bin");
 			}
+			else if (dataset != "data002")
+			{
+				files.clear();
+				files.push_back(dataset+".bin");
+			}
 			HistoryRepaPtrList ll;
 			for (auto& f : files)
 			{
@@ -1659,6 +1664,11 @@ int main(int argc, char **argv)
 				files.push_back("data004_03.bin");
 				files.push_back("data004_04.bin");
 				files.push_back("data004_05.bin");
+			}
+			else if (dataset != "data002")
+			{
+				files.clear();
+				files.push_back(dataset+".bin");
 			}
 			HistoryRepaPtrList ll;
 			for (auto& f : files)
@@ -2417,6 +2427,11 @@ int main(int argc, char **argv)
 				files.push_back("data004_04.bin");
 				files.push_back("data004_05.bin");
 			}
+			else if (dataset != "data002")
+			{
+				files.clear();
+				files.push_back(dataset+".bin");
+			}			
 			HistoryRepaPtrList ll;
 			for (auto& f : files)
 			{
@@ -2546,6 +2561,11 @@ int main(int argc, char **argv)
 				files.push_back("data004_04.bin");
 				files.push_back("data004_05.bin");
 			}
+			else if (dataset != "data002")
+			{
+				files.clear();
+				files.push_back(dataset+".bin");
+			}			
 			HistoryRepaPtrList ll;
 			int s = 17;
 			for (auto& f : files)
@@ -3360,6 +3380,11 @@ int main(int argc, char **argv)
 				files.push_back("data004_04.bin");
 				files.push_back("data004_05.bin");
 			}
+			else if (dataset != "data002")
+			{
+				files.clear();
+				files.push_back(dataset+".bin");
+			}			
 			HistoryRepaPtrList ll;
 			for (auto& f : files)
 			{
@@ -3650,6 +3675,11 @@ int main(int argc, char **argv)
 				files.push_back("data004_04.bin");
 				files.push_back("data004_05.bin");
 			}
+			else if (dataset != "data002")
+			{
+				files.clear();
+				files.push_back(dataset+".bin");
+			}			
 			HistoryRepaPtrList ll;
 			for (auto& f : files)
 			{
@@ -3791,6 +3821,7 @@ int main(int argc, char **argv)
 			EVAL(slice_unique.size());
 			EVAL(consecutive_unique_count);
 			EVAL(match_count);
+			EVAL(100.0*match_count/z);
 		}
 	}
 	

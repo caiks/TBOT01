@@ -1771,4 +1771,77 @@ cd ~/TBOT01_ws
 ./main induce model018 8 >model018.log
 
 ./main entropy model018 1 data004
+...
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 110278
+
+./main entropy model019_location 1 data004
+...
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 106063
 ```
+Let us also also observe the accuracy using a common test dataset `data005` that has not been used for *modelling*,
+
+```
+cd ~/TBOT01_ws
+./main observe data005 model018 data004 location
+...
+100.0*match_count/z: 56.7202
+
+./main observe data005 model018 data004 position
+...
+100.0*match_count/z: 71.6021
+
+./main observe data005 model017 data004 location
+...
+100.0*match_count/z: 59.5346
+
+./main observe data005 model017 data004 position
+...
+100.0*match_count/z: 71.7463
+
+./main observe data005 model019_location data004 location
+...
+100.0*match_count/z: 84.7405
+
+./main observe data005 model019_position data004 position
+...
+100.0*match_count/z: 89.3259
+
+./main observe data005 model016_location data004 location
+...
+100.0*match_count/z: 86.285
+
+./main observe data005 model016_position data004 position
+...
+100.0*match_count/z: 89.8339
+
+./main bitmap data005 10 0 59
+./main observe_bitmap data005 model018 data004 10 0 59
+./main observe_bitmap data005 model017 data004 10 0 59
+./main observe_bitmap data005 model019_location data004 10 0 59
+./main observe_bitmap data005 model016_location data004 10 0 59
+
+```
+
+Model|Type|Underlying|Fmax|Dataset|Likelihood|Location %|Position %
+---|---|---|---|---|---|---|---
+18|induced|model 11|4096|4|110,278|57|72
+17|induced|model 15|4096|4|108,041|60|72
+19|conditioned|model 11|4096|4|106,063|85|89
+16|conditioned|model 15|4096|4|97,093|86|90
+
+
+First, the *induced models*,
+
+data005|model018|model017
+---|---|---
+![data005](images/data005.bmp?raw=true)|![data005 model018 data004](images/data005_model018_data004.bmp?raw=true)|![data005 model017 data004](images/data005_model017_data004.bmp?raw=true)
+
+Then, the *conditioned models*,
+
+data005|model019|model016
+---|---|---
+![data005](images/data005.bmp?raw=true)|![data005 model019_location data004](images/data005_model019_location_data004.bmp?raw=true)|![data005 model016_location data004](images/data005_model016_location_data004.bmp?raw=true)
+
+So the smaller *underlying model* has little effect on the accuracy and actually increases the *likelihood*.
+
+
