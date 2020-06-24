@@ -4115,10 +4115,15 @@ int main(int argc, char **argv)
 		size_t step_count = argc >= 6 ? atoi(argv[5]) : 1;
 		size_t step_interval = argc >= 7 ? atoi(argv[6]) : 1;
 		
+		EVAL(model);
+		EVAL(tint);
+		EVAL(label);
+		EVAL(step_count);
+		EVAL(step_interval);
+		
 		std::unique_ptr<Alignment::System> uu;
 		std::unique_ptr<Alignment::SystemRepa> ur;
 		std::unique_ptr<Alignment::HistoryRepa> hr;
-
 		{
 			std::vector<std::string> files{
 				"data003.bin",
@@ -4147,39 +4152,7 @@ int main(int argc, char **argv)
 		
 		auto& llu = ur->listVarSizePair;
 		auto n0 = llu.size();
-
-		auto ur1 = std::make_unique<SystemRepa>();
-		auto& llu1 = ur1->listVarSizePair;	
-		std::unique_ptr<HistoryRepa> hr1;
-		{
-			auto z = hr->size;
-			HistoryRepaPtrList llh;
-			auto vframe = std::make_shared<Variable>("t");
-			for (size_t k = 0; k < step_count*step_interval; k+=step_interval)
-			{
-				auto vk = std::make_shared<Variable>(vframe, std::make_shared<Variable>((int)k));
-				SizeSizeUMap nn;
-				nn.reserve(n0);
-				for (std::size_t i = 0; i < llu.size(); i++)
-				{
-					auto& p = llu[i];
-					auto v = std::make_shared<Variable>(vk, p.first);
-					llu1.push_back(VarSizePair(v, p.second));
-					nn[i] = llu1.size() - 1;
-				}
-				SizeList ll;
-				for (size_t j = (step_count-1)*step_interval-k; j < z-k; j+=step_interval)
-					ll.push_back(j);
-				auto hr0 = hrsel(ll.size(), ll.data(), *hr);
-				hr0->reframe_u(nn);
-				llh.push_back(std::move(hr0));
-			}
-			hr1 = hrjoin(llh);
-		}
 		
-		EVAL(hr1->dimension);
-		EVAL(hr1->size);
-
 		ApplicationRepa dr;
 		{
 			StrVarPtrMap m;
@@ -4194,10 +4167,10 @@ int main(int argc, char **argv)
 			size_t b = 60;
 			llu.reserve(n*a / b + a);
 			dr.slices = std::make_shared<SizeTree>();
-			dr.slices->_list.reserve(dr1->slices->_list.size() * step_count * a / b);
+			dr.slices->_list.reserve(dr1->slices->_list.size() * a / b);
 			dr.fud = std::make_shared<FudRepa>();
 			dr.fud->layers.reserve(dr1->fud->layers.size());
-			dr.substrate.reserve(dr1->substrate.size() * step_count * a / b);
+			dr.substrate.reserve(dr1->substrate.size() * a / b);
 			auto vframe = std::make_shared<Variable>("f");
 			for (int i = 0; i < a * 2 / b; i++)
 			{
@@ -4243,12 +4216,44 @@ int main(int argc, char **argv)
 			}
 		}
 		
+		auto ur1 = std::make_unique<SystemRepa>();
+		auto& llu1 = ur1->listVarSizePair;	
+		std::unique_ptr<HistoryRepa> hr1;
+		{
+			auto z = hr->size;
+			HistoryRepaPtrList llh;
+			auto vframe = std::make_shared<Variable>("t");
+			for (size_t k = 0; k < step_count*step_interval; k += step_interval)
+			{
+				auto vk = std::make_shared<Variable>(vframe, std::make_shared<Variable>((int)k));
+				SizeSizeUMap nn;
+				nn.reserve(n0);
+				for (std::size_t i = 0; i < n0; i++)
+				{
+					auto& p = llu[i];
+					auto v = std::make_shared<Variable>(vk, p.first);
+					llu1.push_back(VarSizePair(v, p.second));
+					nn[i] = llu1.size() - 1;
+				}
+				SizeList ll;
+				for (size_t j = (step_count-1)*step_interval-k; j < z-k; j++)
+					ll.push_back(j);
+				auto hr0 = hrsel(ll.size(), ll.data(), *hr);
+				hr0->reframe_u(nn);
+				llh.push_back(std::move(hr0));
+			}
+			hr1 = hrjoin(llh);
+		}
+		
+		EVAL(hr1->dimension);
+		EVAL(hr1->size);
+
 		std::vector<std::shared_ptr<ApplicationRepa>> lld;
 		{
 			auto z = hr->size;
 			HistoryRepaPtrList llh;
 			auto vframe = std::make_shared<Variable>("t");
-			for (size_t k = 0; k < step_count*step_interval; k+=step_interval)
+			for (size_t k = 0; k < step_count*step_interval; k += step_interval)
 			{
 				auto vk = std::make_shared<Variable>(vframe, std::make_shared<Variable>((int)k));
 				SizeSizeUMap nn;
@@ -4264,6 +4269,7 @@ int main(int argc, char **argv)
 				}
 				auto dr0 = drcopy(dr);
 				dr0->reframe_u(nn);
+				lld.push_back(std::move(dr0));
 			}
 		}
 		
@@ -4297,7 +4303,7 @@ int main(int argc, char **argv)
 		auto vl = std::make_shared<Variable>(label);
 		auto l = ur1->mapVarSize()[Variable(vt,vl)];
 		size_t fmax = 4096;
-		auto dr2 = applicationer(fmax, tint, *sl, l, *hr2, step_count+1, *ur1);
+		auto dr2 = applicationer(fmax, tint, *sl, l, *hr2, 1, *ur1);
 		auto dr3 = drjoin(dr1, *dr2);
 		std::ofstream out(model + "_" + label + "_" + std::to_string(step_count) + "_" + std::to_string(step_interval) + ".dr", std::ios::binary);
 		systemRepasPersistent(*ur1, out); cout << endl;
@@ -4343,9 +4349,160 @@ int main(int argc, char **argv)
 		EVAL(step_count);
 		EVAL(step_interval);
 
-		std::unique_ptr<System> uu;
-		std::unique_ptr<SystemRepa> ur;
-		std::unique_ptr<HistoryRepa> hr;
+		std::unique_ptr<Alignment::System> uu;
+		std::unique_ptr<Alignment::SystemRepa> ur;
+		std::unique_ptr<Alignment::HistoryRepa> hr;
+		{
+			std::vector<std::string> files{
+				"data002_room1.bin",
+				"data002_room2.bin",
+				"data002_room2_2.bin",
+				"data002_room3.bin",
+				"data002_room4.bin",
+				"data002_room5.bin",
+				"data002_room5_2.bin"
+			};
+			if (dataset == "data003")
+			{
+				files.clear();
+				files.push_back("data003.bin");
+			}
+			else if (dataset == "data004")
+			{
+				files.clear();
+				files.push_back("data003.bin");
+				files.push_back("data004_01.bin");
+				files.push_back("data004_02.bin");
+				files.push_back("data004_03.bin");
+				files.push_back("data004_04.bin");
+				files.push_back("data004_05.bin");
+			}
+			else if (dataset != "data002")
+			{
+				files.clear();
+				files.push_back(dataset+".bin");
+			}			
+			HistoryRepaPtrList ll;
+			for (auto& f : files)
+			{
+				std::ifstream in(f, std::ios::binary);
+				auto qq = persistentsRecordList(in);
+				in.close();
+				auto xx = recordListsHistoryRepa_2(8, *qq);
+				uu = std::move(std::get<0>(xx));
+				ur = std::move(std::get<1>(xx));
+				ll.push_back(std::move(std::get<2>(xx)));
+			}
+			hr = vectorHistoryRepasConcat_u(ll);
+		}
+		
+		std::unique_ptr<Alignment::HistoryRepa> hrs;
+		{
+			HistoryRepaPtrList qq;
+			qq.reserve(mult);
+			for (std::size_t i = 1; i <= mult; i++)
+				qq.push_back(hrshuffle(*hr, (unsigned int)(12345+i*hr->size)));
+			hrs = hrconcat(qq);
+		}
+		
+		auto& llu = ur->listVarSizePair;
+		auto n0 = llu.size();			
+		{
+			auto ur1 = std::make_unique<SystemRepa>();
+			auto& llu1 = ur1->listVarSizePair;	
+			auto z = hr->size;
+			HistoryRepaPtrList llh;
+			HistoryRepaPtrList llhs;
+			auto vframe = std::make_shared<Variable>("t");
+			for (size_t k = 0; k < step_count*step_interval; k+=step_interval)
+			{
+				auto vk = std::make_shared<Variable>(vframe, std::make_shared<Variable>((int)k));
+				SizeSizeUMap nn;
+				nn.reserve(n0);
+				for (std::size_t i = 0; i < n0; i++)
+				{
+					auto& p = llu[i];
+					auto v = std::make_shared<Variable>(vk, p.first);
+					llu1.push_back(VarSizePair(v, p.second));
+					nn[i] = llu1.size() - 1;
+				}
+				SizeList ll;
+				for (size_t j = (step_count-1)*step_interval-k; j < z-k; j++)
+					ll.push_back(j);
+				auto hr0 = hrsel(ll.size(), ll.data(), *hr);
+				hr0->reframe_u(nn);
+				llh.push_back(std::move(hr0));
+				hr0 = hrsel(ll.size(), ll.data(), *hrs);
+				hr0->reframe_u(nn);
+				llhs.push_back(std::move(hr0));
+			}
+			hr = hrjoin(llh);
+			hrs = hrjoin(llhs);
+		}
+		
+		ECHO(auto z = hr->size);
+		EVAL(z);
+		ECHO(auto v = z * mult);
+		EVAL(v);
+		
+		StrVarPtrMap m;
+		std::ifstream in(model + ".dr", std::ios::binary);
+		auto ur1 = persistentsSystemRepa(in, m);
+		auto dr = persistentsApplicationRepa(in);
+		in.close();
+
+		EVAL(fudRepasSize(*dr->fud));
+		EVAL(frder(*dr->fud)->size());
+		EVAL(frund(*dr->fud)->size());
+		EVAL(treesSize(*dr->slices));
+		EVAL(treesLeafElements(*dr->slices)->size());
+
+		auto hrp = hrpart(*hr, *dr, *ur1);
+		uruu(*ur1, *uu);
+		auto aa = araa(*uu, *ur1, *hrred(*hrp, *ur1, VarList{ Variable("partition0"), Variable("partition1") }));
+		EVAL(ent(*aa) * z);
+		auto hrsp = hrpart(*hrs, *dr, *ur1);
+		auto bb = araa(*uu, *ur1, *hrred(*hrsp, *ur1, VarList{ Variable("partition0"), Variable("partition1") }));
+		EVAL(ent(*bb) * v);
+		EVAL(ent(*add(*aa,*bb)) * (z+v));
+		EVAL(ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v);
+	}
+	
+	if (argc >= 3 && string(argv[1]) == "observe_timewise")
+	{
+		auto uvars = systemsSetVar;
+		auto single = histogramSingleton_u;
+		auto hrsel = eventsHistoryRepasHistoryRepaSelection_u;
+		auto hrhrred = setVarsHistoryRepasHistoryRepaReduced_u;
+		auto hrred = setVarsHistoryRepasReduce_u;
+		auto hrjoin = vectorHistoryRepasJoin_u;
+		auto frmul = historyRepasFudRepasMultiply_u;
+		auto frvars = fudRepasSetVar;
+		auto frder = fudRepasDerived;
+		auto frund = fudRepasUnderlying;
+		auto frdep = fudRepasSetVarsDepends;
+
+		string records = string(argv[2]);
+		string model = string(argv[3]);
+		string dataset = string(argc >= 5 ? argv[4] : "data002");
+		string label = string(argc >= 6 ? argv[5] : "location");
+		size_t step_count = argc >= 7 ? atoi(argv[6]) : 1;
+		size_t step_interval = argc >= 8 ? atoi(argv[7]) : 1;	
+		size_t event_start = argc >= 9 ? atoi(argv[8]) : 0;
+		size_t event_end = argc >= 10 ? atoi(argv[9]) : 0;
+		
+		EVAL(records);
+		EVAL(model);
+		EVAL(dataset);
+		EVAL(label);
+		EVAL(step_count);
+		EVAL(step_interval);			
+		EVAL(event_start);
+		EVAL(event_end);
+		
+		std::unique_ptr<Alignment::System> uu;
+		std::unique_ptr<Alignment::SystemRepa> ur;
+		std::unique_ptr<Alignment::HistoryRepa> hr;
 		{
 			std::vector<std::string> files{
 				"data002_room1.bin",
@@ -4390,28 +4547,20 @@ int main(int argc, char **argv)
 			hr = vectorHistoryRepasConcat_u(ll);
 		}
 
-		HistoryRepaPtrList qq;
-		qq.reserve(mult);
-		for (std::size_t i = 1; i <= mult; i++)
-			qq.push_back(hrshuffle(*hr, (unsigned int)(12345+i*hr->size)));
-		auto hrs = hrconcat(qq);
-		
 		auto& llu = ur->listVarSizePair;
-		auto n0 = llu.size();
-				
+		auto n0 = llu.size();			
 		{
 			auto ur1 = std::make_unique<SystemRepa>();
 			auto& llu1 = ur1->listVarSizePair;	
 			auto z = hr->size;
 			HistoryRepaPtrList llh;
-			HistoryRepaPtrList llhs;
 			auto vframe = std::make_shared<Variable>("t");
 			for (size_t k = 0; k < step_count*step_interval; k+=step_interval)
 			{
 				auto vk = std::make_shared<Variable>(vframe, std::make_shared<Variable>((int)k));
 				SizeSizeUMap nn;
 				nn.reserve(n0);
-				for (std::size_t i = 0; i < llu.size(); i++)
+				for (std::size_t i = 0; i < n0; i++)
 				{
 					auto& p = llu[i];
 					auto v = std::make_shared<Variable>(vk, p.first);
@@ -4419,45 +4568,169 @@ int main(int argc, char **argv)
 					nn[i] = llu1.size() - 1;
 				}
 				SizeList ll;
-				for (size_t j = (step_count-1)*step_interval-k; j < z-k; j+=step_interval)
+				for (size_t j = (step_count-1)*step_interval-k; j < z-k; j++)
 					ll.push_back(j);
 				auto hr0 = hrsel(ll.size(), ll.data(), *hr);
 				hr0->reframe_u(nn);
 				llh.push_back(std::move(hr0));
-				hr0 = hrsel(ll.size(), ll.data(), *hrs);
-				hr0->reframe_u(nn);
-				llhs.push_back(std::move(hr0));
 			}
 			hr = hrjoin(llh);
-			hrs = hrjoin(llhs);
 		}
 		
-		ECHO(auto z = hr->size);
-		EVAL(z);
-		ECHO(auto v = z * mult);
-		EVAL(v);
-		
-		StrVarPtrMap m;
-		std::ifstream in(model + ".dr", std::ios::binary);
-		auto ur1 = persistentsSystemRepa(in, m);
-		auto dr = persistentsApplicationRepa(in);
-		in.close();
+		std::unique_ptr<Alignment::SystemRepa> ur1;
+		std::unique_ptr<Alignment::ApplicationRepa> dr;	
+		std::map<std::size_t, std::size_t> su;
+		std::size_t pl;		
+		{
+			auto& vvi = ur->mapVarSize();
+			
+			StrVarPtrMap m;
+			std::ifstream in(model + ".dr", std::ios::binary);
+			ur1 = persistentsSystemRepa(in, m);
+			dr = persistentsApplicationRepa(in);
+			in.close();
 
-		EVAL(fudRepasSize(*dr->fud));
-		EVAL(frder(*dr->fud)->size());
-		EVAL(frund(*dr->fud)->size());
-		EVAL(treesSize(*dr->slices));
-		EVAL(treesLeafElements(*dr->slices)->size());
-
-		auto hrp = hrpart(*hr, *dr, *ur1);
-		uruu(*ur1, *uu);
-		auto aa = araa(*uu, *ur1, *hrred(*hrp, *ur1, VarList{ Variable("partition0"), Variable("partition1") }));
-		EVAL(ent(*aa) * z);
-		auto hrsp = hrpart(*hrs, *dr, *ur1);
-		auto bb = araa(*uu, *ur1, *hrred(*hrsp, *ur1, VarList{ Variable("partition0"), Variable("partition1") }));
-		EVAL(ent(*bb) * v);
-		EVAL(ent(*add(*aa,*bb)) * (z+v));
-		EVAL(ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v);
+			auto hr1 = frmul(*hr, *dr->fud);
+			if (hr1->evient)
+				hr1->transpose();
+			auto z = hr1->size;
+			auto& mvv = hr1->mapVarInt();
+			auto sh = hr1->shape;
+			auto rr = hr1->arr;
+			pl = mvv[vvi[Variable(label)]];
+			auto sl = sh[pl];
+			auto nn = treesLeafNodes(*dr->slices);
+			SizeList al(sl);
+			for (auto& s : *nn)
+			{
+				for (std::size_t k = 0; k < sl; k++)
+					al[k] = 0;
+				auto pk = mvv[s.first];
+				for (std::size_t j = 0; j < z; j++)
+				{
+					std::size_t u = rr[pk*z + j];
+					if (u)
+					{
+						std::size_t w = rr[pl*z + j];
+						al[w]++;
+					}
+				}
+				std::size_t c = 0;
+				std::size_t cl = sl;
+				for (std::size_t k = 0; k < sl; k++)
+				{
+					auto u = al[k];
+					if (u > c)
+					{
+						c = u;
+						cl = k;
+					}
+				}
+				su[s.first] = cl;
+			}
+		}
+		{
+			std::ifstream in(records + ".bin", std::ios::binary);
+			auto qq = persistentsRecordList(in);
+			in.close();
+			
+			auto xx = recordListsHistoryRepa_2(8, *qq);
+			hr = std::move(std::get<2>(xx));
+			{
+				auto ur1 = std::make_unique<SystemRepa>();
+				auto& llu1 = ur1->listVarSizePair;	
+				auto z = hr->size;
+				HistoryRepaPtrList llh;
+				auto vframe = std::make_shared<Variable>("t");
+				for (size_t k = 0; k < step_count*step_interval; k+=step_interval)
+				{
+					auto vk = std::make_shared<Variable>(vframe, std::make_shared<Variable>((int)k));
+					SizeSizeUMap nn;
+					nn.reserve(n0);
+					for (std::size_t i = 0; i < n0; i++)
+					{
+						auto& p = llu[i];
+						auto v = std::make_shared<Variable>(vk, p.first);
+						llu1.push_back(VarSizePair(v, p.second));
+						nn[i] = llu1.size() - 1;
+					}
+					SizeList ll;
+					for (size_t j = (step_count-1)*step_interval-k; j < z-k; j++)
+						ll.push_back(j);
+					auto hr0 = hrsel(ll.size(), ll.data(), *hr);
+					hr0->reframe_u(nn);
+					llh.push_back(std::move(hr0));
+				}
+				hr = hrjoin(llh);
+			}
+			if (event_end > 0)
+			{
+				SizeList ev;
+				for (size_t i = event_start; i <= event_end; i++)
+					ev.push_back(i);
+				hr = hrsel(ev.size(), ev.data(), *hr);
+			}
+			std::vector<std::string> locations{ 
+				"door12", "door13", "door14", "door45", "door56", 
+				"room1", "room2", "room3", "room4", "room5", "room6", "unknown" };
+			std::vector<std::string> positions{ "centre", "corner", "side", "unknown" };
+			SizeList ww{ pl };
+			auto nn = treesLeafNodes(*dr->slices);
+			for (auto& s : *nn)
+				ww.push_back(s.first);
+			auto hr1 = hrhrred(ww.size(), ww.data(), *frmul(*hr, *dr->fud));
+			if (!hr1->evient)
+				hr1->transpose();
+			auto z = hr1->size;
+			auto n = hr1->dimension;
+			auto vv = hr1->vectorVar;
+			auto sh = hr1->shape;
+			auto rr = hr1->arr;
+			auto sl = sh[0];
+			SizeSet slice_unique;
+			std::size_t consecutive_unique_count = 0;
+			std::size_t slice_last = 0;
+			std::size_t match_count = 0;
+			cout << "event|slice|location|guess|match?" << endl;
+			cout << "---|---|---|---|---" << endl;
+			for (std::size_t j = 0; j < z; j++)
+			{
+				std::size_t cl = rr[j*n];
+				std::size_t l = sl;
+				std::size_t i = 1;
+				for (; i < n; i++)
+				{
+					std::size_t u = rr[j*n + i];
+					if (u)
+					{
+						auto s = vv[i];
+						l = su[s];
+						if (slice_last != s)
+						{
+							consecutive_unique_count++;
+							slice_last = s;
+							slice_unique.insert(s);
+						}
+						break;
+					}
+				}
+				if (l == cl)
+					match_count++;
+				cout << j;
+				if (i<n)
+					cout << "|" << *ur1->listVarSizePair[vv[i]].first;
+				else
+					cout << ",no var";
+				cout << "|" << (label == "location" ? locations[cl] : positions[cl]);
+				cout << "|" << (label == "location" ? locations[l] : positions[l]);
+				cout << "|" << (l == cl ? "match" : "fail") << endl;
+			}
+			EVAL(z);
+			EVAL(slice_unique.size());
+			EVAL(consecutive_unique_count);
+			EVAL(match_count);
+			EVAL(100.0*match_count/z);
+		}
 	}
 	
 	return 0;
