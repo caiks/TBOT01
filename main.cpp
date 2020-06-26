@@ -1947,7 +1947,6 @@ int main(int argc, char **argv)
 		out.close();
 	}
 
-
 	if (argc >= 3 && string(argv[1]) == "induce" && string(argv[2]) == "model001_1")
 	{
 		auto uvars = systemsSetVar;
@@ -3001,7 +3000,7 @@ int main(int argc, char **argv)
 		out.close();
 	}
 	
-		if (argc >= 3 && string(argv[1]) == "condition" && string(argv[2]) == "model014")
+	if (argc >= 3 && string(argv[1]) == "condition" && string(argv[2]) == "model014")
 	{
 		auto uvars = systemsSetVar;
 		auto frmul = historyRepasFudRepasMultiply_up;
@@ -3127,7 +3126,7 @@ int main(int argc, char **argv)
 		out.close();
 	}
 	
-		if (argc >= 3 && string(argv[1]) == "induce" && string(argv[2]) == "model015")
+	if (argc >= 3 && string(argv[1]) == "induce" && string(argv[2]) == "model015")
 	{
 		auto uvars = systemsSetVar;
 		auto applicationer = parametersSystemsFudRepasHistoryRepasApplicationerSubstrateEntropyMaxRollByMExcludedSelfHighestFmaxIORepa_p;
@@ -3649,7 +3648,6 @@ int main(int argc, char **argv)
 		std::unique_ptr<Alignment::System> uu;
 		std::unique_ptr<Alignment::SystemRepa> ur;
 		std::unique_ptr<Alignment::HistoryRepa> hr;
-
 		{
 			std::vector<std::string> files{
 				"data002_room1.bin",
@@ -3695,11 +3693,9 @@ int main(int argc, char **argv)
 		}
 
 		std::unique_ptr<Alignment::SystemRepa> ur1;
-		std::unique_ptr<Alignment::ApplicationRepa> dr;
-		
+		std::unique_ptr<Alignment::ApplicationRepa> dr;	
 		std::map<std::size_t, std::size_t> su;
 		std::size_t pl;	
-		
 		{
 			auto& vvi = ur->mapVarSize();
 			
@@ -3748,81 +3744,80 @@ int main(int argc, char **argv)
 				su[s.first] = cl;
 			}
 		}
+		
+		std::ifstream in(records + ".bin", std::ios::binary);
+		auto qq = persistentsRecordList(in);
+		in.close();
+		
+		auto xx = recordListsHistoryRepa_2(8, *qq);
+		hr = std::move(std::get<2>(xx));
+		if (event_end > 0)
 		{
-			std::ifstream in(records + ".bin", std::ios::binary);
-			auto qq = persistentsRecordList(in);
-			in.close();
-			
-			auto xx = recordListsHistoryRepa_2(8, *qq);
-			hr = std::move(std::get<2>(xx));
-			if (event_end > 0)
-			{
-				SizeList ev;
-				for (size_t i = event_start; i <= event_end; i++)
-					ev.push_back(i);
-				hr = hrsel(ev.size(), ev.data(), *hr);
-			}
-			std::vector<std::string> locations{ 
-				"door12", "door13", "door14", "door45", "door56", 
-				"room1", "room2", "room3", "room4", "room5", "room6", "unknown" };
-			std::vector<std::string> positions{ "centre", "corner", "side", "unknown" };
-			SizeList ww{ pl };
-			auto nn = treesLeafNodes(*dr->slices);
-			for (auto& s : *nn)
-				ww.push_back(s.first);
-			auto hr1 = hrhrred(ww.size(), ww.data(), *frmul(*hr, *dr->fud));
-			if (!hr1->evient)
-				hr1->transpose();
-			auto z = hr1->size;
-			auto n = hr1->dimension;
-			auto vv = hr1->vectorVar;
-			auto sh = hr1->shape;
-			auto rr = hr1->arr;
-			auto sl = sh[0];
-			SizeSet slice_unique;
-			std::size_t consecutive_unique_count = 0;
-			std::size_t slice_last = 0;
-			std::size_t match_count = 0;
-			cout << "event|slice|location|guess|match?" << endl;
-			cout << "---|---|---|---|---" << endl;
-			for (std::size_t j = 0; j < z; j++)
-			{
-				std::size_t cl = rr[j*n];
-				std::size_t l = sl;
-				std::size_t i = 1;
-				for (; i < n; i++)
-				{
-					std::size_t u = rr[j*n + i];
-					if (u)
-					{
-						auto s = vv[i];
-						l = su[s];
-						if (slice_last != s)
-						{
-							consecutive_unique_count++;
-							slice_last = s;
-							slice_unique.insert(s);
-						}
-						break;
-					}
-				}
-				if (l == cl)
-					match_count++;
-				cout << j;
-				if (i<n)
-					cout << "|" << *ur1->listVarSizePair[vv[i]].first;
-				else
-					cout << ",no var";
-				cout << "|" << (label == "location" ? locations[cl] : positions[cl]);
-				cout << "|" << (label == "location" ? locations[l] : positions[l]);
-				cout << "|" << (l == cl ? "match" : "fail") << endl;
-			}
-			EVAL(z);
-			EVAL(slice_unique.size());
-			EVAL(consecutive_unique_count);
-			EVAL(match_count);
-			EVAL(100.0*match_count/z);
+			SizeList ev;
+			for (size_t i = event_start; i <= event_end; i++)
+				ev.push_back(i);
+			hr = hrsel(ev.size(), ev.data(), *hr);
 		}
+		std::vector<std::string> locations{ 
+			"door12", "door13", "door14", "door45", "door56", 
+			"room1", "room2", "room3", "room4", "room5", "room6", "unknown" };
+		std::vector<std::string> positions{ "centre", "corner", "side", "unknown" };
+		SizeList ww{ pl };
+		auto nn = treesLeafNodes(*dr->slices);
+		for (auto& s : *nn)
+			ww.push_back(s.first);
+		auto hr1 = hrhrred(ww.size(), ww.data(), *frmul(*hr, *dr->fud));
+		if (!hr1->evient)
+			hr1->transpose();
+		auto z = hr1->size;
+		auto n = hr1->dimension;
+		auto vv = hr1->vectorVar;
+		auto sh = hr1->shape;
+		auto rr = hr1->arr;
+		auto sl = sh[0];
+		SizeSet slice_unique;
+		std::size_t consecutive_unique_count = 0;
+		std::size_t slice_last = 0;
+		std::size_t match_count = 0;
+		cout << "event|slice|location|guess|match?" << endl;
+		cout << "---|---|---|---|---" << endl;
+		for (std::size_t j = 0; j < z; j++)
+		{
+			std::size_t cl = rr[j*n];
+			std::size_t l = sl;
+			std::size_t i = 1;
+			for (; i < n; i++)
+			{
+				std::size_t u = rr[j*n + i];
+				if (u)
+				{
+					auto s = vv[i];
+					l = su[s];
+					if (slice_last != s)
+					{
+						consecutive_unique_count++;
+						slice_last = s;
+						slice_unique.insert(s);
+					}
+					break;
+				}
+			}
+			if (l == cl)
+				match_count++;
+			cout << j;
+			if (i<n)
+				cout << "|" << *ur1->listVarSizePair[vv[i]].first;
+			else
+				cout << ",no var";
+			cout << "|" << (label == "location" ? locations[cl] : positions[cl]);
+			cout << "|" << (label == "location" ? locations[l] : positions[l]);
+			cout << "|" << (l == cl ? "match" : "fail") << endl;
+		}
+		EVAL(z);
+		EVAL(slice_unique.size());
+		EVAL(consecutive_unique_count);
+		EVAL(match_count);
+		EVAL(100.0*match_count/z);
 	}
 	
 	if (argc >= 3 && string(argv[1]) == "induce" && string(argv[2]) == "model018")
