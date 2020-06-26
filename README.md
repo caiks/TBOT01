@@ -1844,4 +1844,39 @@ data005|model019|model016
 
 So the smaller *underlying model* has little effect on the accuracy and actually increases the *likelihood*.
 
+Now let us consider timewise sequences of *frames* to see if the added *substrate* improves either *likelihood* or label accuracy. *Model* 20 is a copy of *conditioned model* 19 except that the *substrate* includes `sequence_count` *frames* of the immediately previous *events* every `sequence_interval` *events*. Let us first check that a single *frame* has the same results as for *model* 19,
+```
+./main condition model020 8 location 1 1 >model020_location_1_1.log
+
+./main entropy_sequence model020_location_1_1 1 data004 1 1
+...
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 106063
+
+./main observe_sequence data005 model020_location_1_1 data004 location 1 1
+...
+100.0*match_count/z: 84.7405
+
+./main entropy model019_location 1 data004
+...
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 106063
+
+./main observe data005 model019_location data004 location
+...
+100.0*match_count/z: 84.7405
+```
+This is indeed the case. Now let us present the results for *model* 20 for various sequence parameters. In addition *induced model* 21 will be the timewise version of *induced model* 18. Also we shall compare these to the two *level models* *conditioned model* 22 and *induced model* 23 where the *underlying model* is *model* 18 rather than 12 spacewise instances of *model* 11. All will have a `sequence_interval` of 4 *events* or 1 second,
+
+Model|Type|Underlying|Fmax|Dataset|Sequence length|Likelihood|Location %|Position %
+---|---|---|---|---|---|---|---|---
+18|induced|model 11|4096|4|1|110,278|57|72
+21|induced|model 11|4096|4|2|110,310|52|-
+21|induced|model 11|4096|4|3|109,378|50|-
+23|induced|model 18|4096|4|2|109,218|53|-
+19|conditioned|model 11|4096|4|1|106,063|85|89
+20|conditioned|model 11|4096|4|2|105,960|83|-
+20|conditioned|model 11|4096|4|3|103,220|82|-
+20|conditioned|model 11|4096|4|7|103,874|80|-
+22|conditioned|model 18|4096|4|2|107,855|64|-
+
+We can see that the addition to the *substrate* for each *variable* the *values* as they were in the *events* a few seconds ago, make little difference to the *likelihood* and in all cases reduces the `location` accuracy.
 
