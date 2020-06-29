@@ -1864,7 +1864,7 @@ ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 106063
 ...
 100.0*match_count/z: 84.7405
 ```
-This is indeed the case. Now let us present the results for *model* 20 for various sequence parameters. In addition *induced model* 21 will be the timewise version of *induced model* 18. Also we shall compare these to the two *level models* *conditioned model* 22 and *induced model* 23 where the *underlying model* is *model* 18 rather than 12 spacewise instances of *model* 11. All will have a `sequence_interval` of 4 *events* or 1 second,
+This is indeed the case. Now let us present the results for *model* 20 for various sequence parameters. In addition, *induced model* 21 will be the timewise version of *induced model* 18. Also we shall compare these to two *level models*, *conditioned model* 22 and *induced model* 23, where the *underlying model* is *model* 18 rather than 12 spacewise instances of *model* 11. All will have a `sequence_interval` of 4 *events* or 1 second,
 
 Model|Type|Underlying|Fmax|Dataset|Sequence length|Likelihood|Location %|Position %
 ---|---|---|---|---|---|---|---|---
@@ -1878,5 +1878,5 @@ Model|Type|Underlying|Fmax|Dataset|Sequence length|Likelihood|Location %|Positio
 20|conditioned|model 11|4096|4|7|103,874|80|-
 22|conditioned|model 18|4096|4|2|107,855|64|-
 
-We can see that the addition to the *substrate* for each *variable* the *values* as they were in the *events* a few seconds ago, make little difference to the *likelihood* and in all cases reduces the `location` accuracy.
+We can see that the addition of the *values* as they were in the *events* a few seconds ago, makes little difference to the *likelihood* and in all cases reduces the `location` accuracy. Clearly the *alignments* within the *frames* are much greater than those between the *frames*, suggesting that for the `data004` *history size*, at least, the static information is more important than the dynamic. Also the dynamic information perhaps causes some over-fitting in the *conditioned models* leading to lower *likelihoods* and label accuracies.
 
