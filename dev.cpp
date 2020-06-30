@@ -335,11 +335,18 @@ SystemHistoryRepaTuple TBOT01::recordListsHistoryRepa(int d, const RecordList& q
 	return SystemHistoryRepaTuple(move(uu), move(ur), move(hr));
 }
 
-SystemHistoryRepaTuple TBOT01::recordListsHistoryRepaRegion(int d, int n, int s, const RecordList& qq)
+SystemHistoryRepaTuple TBOT01::recordListsHistoryRepaRegion(int d, int n, int s, const RecordList& qq0, int event_start, int event_end)
 {
 	auto lluu = listsSystem_u;
 	auto uuur = systemsSystemRepa;
 
+	srand(s);
+	RecordList qq;
+	if (event_end > 0)
+		for (size_t i = event_start; i <= event_end; i++)
+			qq.push_back(qq0[i]);
+	else
+		qq = qq0;
 	std::size_t z = qq.size();
 	ValSet buckets;
 	for (int i = 0; i < d; i++)
