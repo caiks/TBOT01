@@ -73,7 +73,7 @@ namespace TBOT01
 	void bmwrite(std::string, const Bitmap&);
 
 	Bitmap historyRepasBitmap(int, int, const Alignment::HistoryRepa&);
-
+	Bitmap historyRepasBitmapUncentred(int, int, const Alignment::HistoryRepa&);
 	Bitmap historyRepasBitmapAverage(int, int, const Alignment::HistoryRepa&);
 
 	typedef std::tuple<std::unique_ptr<Alignment::System>, std::unique_ptr<Alignment::SystemRepa>, std::unique_ptr<Alignment::HistoryRepa>> SystemHistoryRepaTuple;

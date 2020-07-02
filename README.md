@@ -1410,10 +1410,10 @@ cd ~/TBOT01_ws
 Let us compare its *likelihood* to that of *model* 11,
 ```
 ./main entropy_region model015 1 data004
-ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 969469
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 968762
 
 ./main entropy_region model011 1 data004
-ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 935217
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 933468
 ```
 *Model 16* is *induced* from a lower *level* that consists of the *slice variables* of 12 *model 15* regions every 30 degrees. It has the same parameters as *model* 14 except its *history* consists of the union of the `data003` and `data004` records, and `fmax` is increased from 1024 to 4096,
 
@@ -1879,4 +1879,39 @@ Model|Type|Underlying|Fmax|Dataset|Sequence length|Likelihood|Location %|Positio
 22|conditioned|model 18|4096|4|2|107,855|64|-
 
 We can see that the addition of the *values* as they were in the *events* a few seconds ago, makes little difference to the *likelihood* and in all cases reduces the `location` accuracy. Clearly the *alignments* within the *frames* are much greater than those between the *frames*, suggesting that for the `data004` *history size*, at least, the static information is more important than the dynamic. Also the dynamic information perhaps causes some over-fitting in the *conditioned models* leading to lower *likelihoods* and label accuracies.
+
+Before we move on to consider *models* that control the `motor` *variable*, let us increase the random region *substrate* with timewise *frames* as the *underlying* in a two *level model*. *Model* 24 is a timewise version of *model* 15, with *frames* every half second for three seconds,
+```
+./main induce model024 8 7 2  >model024.log
+
+```
+We can view the first 60 *events*,
+```
+./main bitmap_reqion_sequence 7 2 10 0 59
+
+```
+The sequence of 7 *frames* has the earliest *frame* on the left and the latest on the right,
+
+![data004_7_2](images/data004_7_2.bmp?raw=true)
+
+We can compare the regional *likelihoods* (all with a scaling factor of 1 to make them comparable),
+```
+./main entropy_region model011 1 data004 1
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 93433.5
+
+./main entropy_region model015 1 data004 1
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 97069.6
+
+./main entropy_region_sequence model024 1 7 2
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 101416
+```
+Model|Type|Fmax|Dataset|Sequence length|Likelihood
+---|---|---|---|---|---
+11|induced|127|4|1|93,433
+15|induced|384|4|1|97,069
+24|induced|384|4|7|101,416
+
+We can see that the timewise regional *model* is only a little more *likely*.
+
+Finally let us generate *conditioned model* 25 with 12 spacewise *frames* of *underlying model* 24,
 

@@ -268,6 +268,27 @@ Bitmap TBOT01::historyRepasBitmap(int c, int d, const HistoryRepa& hr)
 	return bm;
 }
 
+Bitmap TBOT01::historyRepasBitmapUncentred(int c, int d, const HistoryRepa& hr)
+{
+	int n = (int)hr.dimension;
+	int z = (int)hr.size;
+	Bitmap bm(z*c, n);
+	auto rr = hr.arr;
+	std::size_t p = 0;
+	for (int j = 0; j<n; j++) {
+		for (int i = 0; i < z; i++) {
+			for (int m = 0; m < c; m++)
+			{
+				int k = (i*c+m)*n * 3 + (n - 1 - j) * 3;
+				for (int l = 0; l<3; l++)
+					bm.image[k + l] = 255 - rr[p]*255/d;
+			}
+			p++;
+		}
+	}
+	return bm;
+}
+
 Bitmap TBOT01::historyRepasBitmapAverage(int c, int d, const HistoryRepa& hr)
 {
 	int n = (int)hr.dimension;
