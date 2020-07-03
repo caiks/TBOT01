@@ -4413,12 +4413,16 @@ int main(int argc, char **argv)
 			for (size_t k = 0; k < sequence_count*sequence_interval; k+=sequence_interval)
 			{
 				auto vk = std::make_shared<Variable>(vframe, std::make_shared<Variable>((int)k));
+				if (model=="model025")
+					vk = std::make_shared<Variable>(std::string("t") + std::to_string(k));
 				SizeSizeUMap nn;
 				nn.reserve(n0);
 				for (std::size_t i = 0; i < n0; i++)
 				{
 					auto& p = llu[i];
 					auto v = std::make_shared<Variable>(vk, p.first);
+					if (model=="model025")
+						v = std::make_shared<Variable>(p.first, vk);
 					llu1.push_back(VarSizePair(v, p.second));
 					nn[i] = llu1.size() - 1;
 				}
@@ -4554,12 +4558,16 @@ int main(int argc, char **argv)
 			for (size_t k = 0; k < sequence_count*sequence_interval; k+=sequence_interval)
 			{
 				auto vk = std::make_shared<Variable>(vframe, std::make_shared<Variable>((int)k));
+				if (model=="model025")
+					vk = std::make_shared<Variable>(std::string("t") + std::to_string(k));				
 				SizeSizeUMap nn;
 				nn.reserve(n0);
 				for (std::size_t i = 0; i < n0; i++)
 				{
 					auto& p = llu[i];
 					auto v = std::make_shared<Variable>(vk, p.first);
+					if (model=="model025")
+						v = std::make_shared<Variable>(p.first, vk);
 					llu1.push_back(VarSizePair(v, p.second));
 					nn[i] = llu1.size() - 1;
 				}
@@ -4641,12 +4649,16 @@ int main(int argc, char **argv)
 				for (size_t k = 0; k < sequence_count*sequence_interval; k+=sequence_interval)
 				{
 					auto vk = std::make_shared<Variable>(vframe, std::make_shared<Variable>((int)k));
+				if (model=="model025")
+					vk = std::make_shared<Variable>(std::string("t") + std::to_string(k));					
 					SizeSizeUMap nn;
 					nn.reserve(n0);
 					for (std::size_t i = 0; i < n0; i++)
 					{
 						auto& p = llu[i];
 						auto v = std::make_shared<Variable>(vk, p.first);
+						if (model=="model025")
+							v = std::make_shared<Variable>(p.first, vk);
 						llu1.push_back(VarSizePair(v, p.second));
 						nn[i] = llu1.size() - 1;
 					}
@@ -5803,9 +5815,9 @@ int main(int argc, char **argv)
 		EVAL(hr2->size);
 		
 		auto sl = treesElements(*dr.slices);
-		auto vt = std::make_shared<Variable>(std::make_shared<Variable>("t"),std::make_shared<Variable>(0));
+		auto vt = std::make_shared<Variable>("t0");
 		auto vl = std::make_shared<Variable>(label);
-		auto l = ur1->mapVarSize()[Variable(vt,vl)];
+		auto l = ur1->mapVarSize()[Variable(vl,vt)];
 		size_t fmax = 4096;
 		auto dr2 = applicationer(fmax, tint, *sl, l, *hr2, 1, *ur1);
 		auto dr3 = drjoin(dr, *dr2);
