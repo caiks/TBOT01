@@ -5312,21 +5312,20 @@ int main(int argc, char **argv)
 				auto z = qq->size();
 				HistoryRepaPtrList llh;
 				VarSizeUMap urm = ur1->mapVarSize();
-				auto vframe = std::make_shared<Variable>("t");
 				for (size_t k = 0; k < sequence_count*sequence_interval; k += sequence_interval)
 				{
 					auto xx = recordListsHistoryRepaRegion(8, 60, 17, *qq, (sequence_count-1)*sequence_interval-k, z-k-1);
 					auto uu = std::move(std::get<0>(xx));
 					auto ur = std::move(std::get<1>(xx));					
 					auto hr0 = std::move(std::get<2>(xx));
-					auto vk = std::make_shared<Variable>(vframe, std::make_shared<Variable>((int)k));
+					auto vk = std::make_shared<Variable>(std::string("t") + std::to_string(k));
 					auto& llu = ur->listVarSizePair;
 					SizeSizeUMap nn;
 					nn.reserve(llu.size());
 					for (std::size_t i = 0; i < llu.size(); i++)
 					{
 						auto& p = llu[i];
-						auto v = std::make_shared<Variable>(vk, p.first);
+						auto v = std::make_shared<Variable>(p.first, vk);
 						auto it = urm.find(*v);
 						if (it != urm.end())
 						{
@@ -5374,16 +5373,15 @@ int main(int argc, char **argv)
 			dr.substrate.reserve(dr0->substrate.size() * sequence_count);
 			VarSizeUMap urm = ur1->mapVarSize();
 			auto& llu = ur->listVarSizePair;
-			auto vframe = std::make_shared<Variable>("t");
 			for (size_t k = 0; k < sequence_count*sequence_interval; k += sequence_interval)
 			{
-				auto vk = std::make_shared<Variable>(vframe, std::make_shared<Variable>((int)k));
+				auto vk = std::make_shared<Variable>(std::string("t") + std::to_string(k));
 				SizeSizeUMap nn;
 				nn.reserve(llu.size());
 				for (std::size_t i = 0; i < llu.size(); i++)
 				{
 					auto& p = llu[i];
-					auto v = std::make_shared<Variable>(vk, p.first);
+					auto v = std::make_shared<Variable>(p.first, vk);
 					auto it = urm.find(*v);
 					if (it != urm.end())
 					{
@@ -5474,21 +5472,20 @@ int main(int argc, char **argv)
 				auto z = qq->size();
 				HistoryRepaPtrList llh;
 				VarSizeUMap urm = ur1->mapVarSize();
-				auto vframe = std::make_shared<Variable>("t");
 				for (size_t k = 0; k < sequence_count*sequence_interval; k += sequence_interval)
 				{
 					auto xx = recordListsHistoryRepaRegion(8, 60, 17, *qq, (sequence_count-1)*sequence_interval-k, z-k-1);
 					auto uu = std::move(std::get<0>(xx));
 					auto ur = std::move(std::get<1>(xx));					
 					auto hr0 = std::move(std::get<2>(xx));
-					auto vk = std::make_shared<Variable>(vframe, std::make_shared<Variable>((int)k));
+					auto vk = std::make_shared<Variable>(std::string("t") + std::to_string(k));
 					auto& llu = ur->listVarSizePair;
 					SizeSizeUMap nn;
 					nn.reserve(llu.size());
 					for (std::size_t i = 0; i < llu.size(); i++)
 					{
 						auto& p = llu[i];
-						auto v = std::make_shared<Variable>(vk, p.first);
+						auto v = std::make_shared<Variable>(p.first, vk);
 						auto it = urm.find(*v);
 						if (it != urm.end())
 						{
@@ -5579,21 +5576,20 @@ int main(int argc, char **argv)
 				auto z = qq->size();
 				HistoryRepaPtrList llh;
 				VarSizeUMap urm = ur1->mapVarSize();
-				auto vframe = std::make_shared<Variable>("t");
 				for (size_t k = 0; k < sequence_count*sequence_interval; k += sequence_interval)
 				{
 					auto xx = recordListsHistoryRepaRegion(8, 60, 17, *qq, (sequence_count-1)*sequence_interval-k, z-k-1);
 					auto uu = std::move(std::get<0>(xx));
 					auto ur = std::move(std::get<1>(xx));					
 					auto hr0 = std::move(std::get<2>(xx));
-					auto vk = std::make_shared<Variable>(vframe, std::make_shared<Variable>((int)k));
+					auto vk = std::make_shared<Variable>(std::string("t") + std::to_string(k));
 					auto& llu = ur->listVarSizePair;
 					SizeSizeUMap nn;
 					nn.reserve(llu.size());
 					for (std::size_t i = 0; i < llu.size(); i++)
 					{
 						auto& p = llu[i];
-						auto v = std::make_shared<Variable>(vk, p.first);
+						auto v = std::make_shared<Variable>(p.first, vk);
 						auto it = urm.find(*v);
 						if (it != urm.end())
 						{
@@ -5697,21 +5693,20 @@ int main(int argc, char **argv)
 				auto z = qq->size();
 				HistoryRepaPtrList llh;
 				VarSizeUMap urm = ur1->mapVarSize();
-				auto vframe = std::make_shared<Variable>("t");
 				for (size_t k = 0; k < sequence_count*sequence_interval; k += sequence_interval)
 				{
 					auto xx = recordListsHistoryRepa_2(8, *qq);
 					auto uu = std::move(std::get<0>(xx));
 					auto ur = std::move(std::get<1>(xx));					
 					auto hr0 = std::move(std::get<2>(xx));
-					auto vk = std::make_shared<Variable>(vframe, std::make_shared<Variable>((int)k));
+					auto vk = std::make_shared<Variable>(std::string("t") + std::to_string(k));
 					auto& llu = ur->listVarSizePair;
 					SizeSizeUMap nn;
 					nn.reserve(llu.size());
 					for (std::size_t i = 0; i < llu.size(); i++)
 					{
 						auto& p = llu[i];
-						auto v = std::make_shared<Variable>(vk, p.first);
+						auto v = std::make_shared<Variable>(p.first, vk);
 						auto it = urm.find(*v);
 						if (it != urm.end())
 						{
@@ -5766,13 +5761,12 @@ int main(int argc, char **argv)
 				for (auto x1 : dr0->substrate)
 				{
 					auto& p = llu[x1];
-					auto v0 = p.first->_var0;
-					auto v1 = p.first->_var1;
-					auto v2 = v1->_var0;					
-					auto v3 = std::make_shared<Variable>((int)(v1->_var1->_int + i*b / 2 - 1));
-					auto v4 = std::make_shared<Variable>(v2, v3);
-					auto v5 = std::make_shared<Variable>(v0, v4);
-					nn[x1] = urm1[*v5];
+					auto v0 = p.first->_var0;					
+					auto v1 = p.first->_var1;	
+					auto v2 = v0->_var0;			
+					auto v3 = std::make_shared<Variable>((int)((v0->_var1->_int + i*b / 2 - 1) % a) + 1);				
+					auto v = std::make_shared<Variable>(std::make_shared<Variable>(v2,v3), v1);
+					nn[x1] = urm1[*v];
 				}
 				auto vk = std::make_shared<Variable>(vframe, std::make_shared<Variable>((int)i + 1));
 				for (auto& ll : dr0->fud->layers)
