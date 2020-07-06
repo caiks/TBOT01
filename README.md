@@ -1914,4 +1914,30 @@ Model|Type|Fmax|Dataset|Sequence length|Likelihood
 We can see that the timewise regional *model* is only a little more *likely*.
 
 Finally let us generate *conditioned model* 25 with 12 spacewise *frames* of *underlying model* 24,
+```
+./main condition model025 8 location 7 2 >model025_location_7_2.log
+
+./main entropy_sequence model025_location_7_2 1 data004 7 2
+...
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 103393
+
+./main observe_sequence data005 model025_location_7_2 data004 location 7 2
+...
+100.0*match_count/z: 73.8733
+
+```
+Model|Type|Underlying|Fmax|Dataset|Sequence length|Sequence step|Likelihood|Location %|Position %
+---|---|---|---|---|---|---|---|---|---
+18|induced|model 11|4096|4|1|4|110,278|57|72
+21|induced|model 11|4096|4|2|4|110,310|52|-
+21|induced|model 11|4096|4|3|4|109,378|50|-
+23|induced|model 18|4096|4|2|4|109,218|53|-
+19|conditioned|model 11|4096|4|1|4|106,063|85|89
+20|conditioned|model 11|4096|4|2|4|105,960|83|-
+20|conditioned|model 11|4096|4|3|4|103,220|82|-
+20|conditioned|model 11|4096|4|7|4|103,874|80|-
+22|conditioned|model 18|4096|4|2|4|107,855|64|-
+25|conditioned|model 24|4096|4|7|2|103,393|74|-
+
+*Model* 25 is a three *level model* with the top *level conditioned* on a spacewise *substrate* of two *level model 24 induced* on a timewise *substrate* of one *level model 11 induced* on a random region *substrate*. Compare it to *model* 22 which is a three *level model* with the top *level conditioned* on a timewise *substrate* of two *level model 18 induced* on a spacewise *substrate* of one *level model 11 induced* on a random region *substrate*. *Model* 25 has a lower *likelihood* but a higher accuracy than *model* 22. So *model* 25 is intermediate between *model* 22 and *model* 20, which is the two *level conditioned* on a spacetimewise *substrate* of one *level model 11 induced* on a random region *substrate*. This confirms that the static information is more important than the dynamic.
 
