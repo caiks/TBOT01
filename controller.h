@@ -59,6 +59,7 @@ private:
 	bool _pose_updated;
 	bool _scan_updated;
 	bool _action_updated;
+	bool _crashed;
 
 	std::chrono::time_point<std::chrono::high_resolution_clock> _record_start;
 

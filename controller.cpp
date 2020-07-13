@@ -4,6 +4,7 @@
 
 #include <stdlib.h>
 #include <cmath>
+#include <sstream>
 
 using namespace Alignment;
 using namespace TBOT01;
@@ -31,6 +32,7 @@ Controller::Controller(const std::string& filename, std::chrono::milliseconds re
 	_pose_updated = false;
 	_scan_updated = false;
 	_action_updated = false;
+	_crashed = false;
 
 	auto tenms = 10ms;
 
@@ -79,7 +81,7 @@ void Controller::odom_callback(const nav_msgs::msg::Odometry::SharedPtr msg)
 	_record.sensor_pose[4] = msg->pose.pose.orientation.y;
 	_record.sensor_pose[5] = msg->pose.pose.orientation.z;
 	_record.sensor_pose[6] = msg->pose.pose.orientation.w;
-	_pose_updated = true;
+	_pose_updated = true;		
 }
 
 void Controller::scan_callback(const sensor_msgs::msg::LaserScan::SharedPtr msg)
@@ -193,11 +195,22 @@ void Controller::update_callback()
 
 void Controller::record_callback()
 {
-	if (_pose_updated && _scan_updated && _action_updated)
+	if (_pose_updated && _scan_updated && _action_updated && !_crashed)
 	{
-		_record.ts = ((sec)(clk::now() - _record_start)).count();
-		recordsPersistent(_record, _record_out);
-		_record.id++;
+		if (_record.sensor_pose[2] < 0.02)
+		{
+			_record.ts = ((sec)(clk::now() - _record_start)).count();
+			recordsPersistent(_record, _record_out);
+			_record.id++;	
+		}
+		else 
+		{
+			_crashed = true;
+			_record_out.close();
+			std::ostringstream str;
+			str << "TBOT01 crashed at event " << _record;
+			RCLCPP_INFO(this->get_logger(), str.str());
+		}
 	}
 }
 
