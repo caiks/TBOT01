@@ -38,6 +38,9 @@ Then download the [TBOT01 workspace repository](https://github.com/caiks/TBOT01_
 ```
 git clone https://github.com/caiks/TBOT01_ws.git
 
+cat data008a* >data008.bin
+cat data009a* >data009.bin
+
 ```
 Then build -
 ```
@@ -329,6 +332,8 @@ ln -s ~/TBOT01_build/main main
 ## Discussion
 
 Now let us investigate various turtlebot3 controllers. 
+
+### Sensors, motors, environment and the collision avoidance controller
 
 In the following, the rooms are numbered 1 to 6 in the [turtlebot3 house](http://emanual.robotis.com/docs/en/platform/turtlebot3/simulation/#3-turtlebot3-house) from top-left to bottom-right,
 
@@ -691,6 +696,8 @@ We can see from the `motor` *values* that the turtlebot generally moves straight
 
 From the `location` and `position` *values*  we can also see that with this controller the turtlebot tends to end up in the larger rooms, 1 and 4, and mainly skirts around the side of the rooms. 
 
+### Models of the scan substrate
+
 Although the *history* is not very evenly spatially distributed, let us *induce* a *model* of the 360 sensor `scan` *variables*,
 ```
 ./main induce model001 4 >model001.log
@@ -756,6 +763,8 @@ This is the bitmap,
 
 The *decomposition* is narrower and deeper than that of *model 1*. Near the root there is no *slice* for near-object-ahead. These *alignments* are pushed downwards into the children *slices*.
 
+### Models conditioned on location and position
+
 Now let us *condition* *models* on the labels `motor`, `location` and `position`, given the `scan` *substrate*,
 ```
 ./main condition model006 4 motor >model006_motor.log
@@ -793,6 +802,8 @@ ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 14054.9
 ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 13948.5
 ```
 All of these also run to zero *label entropy* but require more *fuds* to do so. For example, to predict `location` *model 6* requires 421 *fuds* but *model 7* requires 626. From the point of view of these labels, the original *substrate* is more *causal* than the random region *level*. However, the *likelihoods* of the *models conditioned* on *underlying* regional *induced models* are all higher than those of the *models conditioned* directly on the *substrate*.
+
+### Location and position observer
 
 Now let us use the *models* we have created to make guesses about the `location` and `position` in a ROS node that observes the turtlebot at it moves around the turtlebot house in the gazebo simulation. The `TBOT01` [observer](https://github.com/caiks/TBOT01/blob/master/observer.h) node is given a *model*, a label *variable* and a observe interval. At each observation it *applies* the *model* to the current *event* to determine its *slice*. The prediction of the label is the most common *value* of the label *variable* in the `data002` *history's slice*. The prediction is reported along with the actual *value*, calculated from the current *event's* odometry, and a running average of the matches is calculated.
 
@@ -1086,6 +1097,8 @@ side     centre  fail    46.153846
 ...
 ```
 The `position` results are similar to those of room 3.
+
+### Modelling with an unbiased controller
 
 Now let us see if we can encourage the turtlebot to travel between rooms by removing the bias to the right. We will set an interval that alternates the bias.
 
@@ -1529,6 +1542,8 @@ Model|Type|Underlying|Fmax|Dataset|Likelihood|Location %|Position %
 
 We can see that *induced model* 17 is considerably more accurate than *induced model* 12, but it is still less accurate than any of the *conditioned models*. The *induced models* are all more *likely* than any of the *conditioned models*, however. The larger *induced models* with 2 *levels* have the greatest *likelihoods*, but the increase in *likelihood* is small which suggests that most of the interesting *alignments* have already been captured.
 
+### Timewise frames
+
 *Model* 16 was *conditioned* on 81261 *events* and has 28315 *transforms*. No doubt larger *models* *conditioned* on more *history* would incrementally increase the label accuracy, but for now let us consider increasing the *substrate* instead with timewise *frames*.
 
 To do that we must first select which of the past records will comprise the short term memory, i.e. the *frames*. Let us image the first 60 *events* in `data003`,
@@ -1727,6 +1742,7 @@ z: 13381
 slice_unique.size(): 3595
 consecutive_unique_count: 7765
 match_count: 10256
+100.0*match_count/z: 76.646
 
 ./main observe data004_04 model017 data004 location
 ...
@@ -1734,6 +1750,7 @@ z: 14546
 slice_unique.size(): 3635
 consecutive_unique_count: 8581
 match_count: 11031
+100.0*match_count/z: 75.8353
 
 ./main observe data003 model016_location data004 location
 ...
@@ -1741,6 +1758,7 @@ z: 13381
 slice_unique.size(): 2216
 consecutive_unique_count: 5489
 match_count: 12962
+100.0*match_count/z: 96.8687
 
 ./main observe data004_04 model016_location data004 location
 ...
@@ -1748,6 +1766,7 @@ z: 14546
 slice_unique.size(): 2290
 consecutive_unique_count: 6199
 match_count: 14015
+100.0*match_count/z: 96.3495
 
 ./main observe data003 model017 data004 position
 ...
@@ -1755,6 +1774,7 @@ z: 13381
 slice_unique.size(): 3595
 consecutive_unique_count: 7765
 match_count: 11409
+00.0*match_count/z: 85.2627
 
 ./main observe data003 model016_position data004 position
 ...
@@ -1762,6 +1782,7 @@ z: 13381
 slice_unique.size(): 1973
 consecutive_unique_count: 6236
 match_count: 13158
+100.0*match_count/z: 98.3335
 ```
 Note that the number of matches here is higher than for the table above. This is because the *models* were *induced* or *conditioned* on `data004` which includes the `data003` records.
 
@@ -1941,3 +1962,6 @@ Model|Type|Underlying|Fmax|Dataset|Sequence length|Sequence step|Likelihood|Loca
 
 *Model* 25 is a three *level model* with the top *level conditioned* on a spacewise *substrate* of two *level model 24 induced* on a timewise *substrate* of one *level model 11 induced* on a random region *substrate*. Compare it to *model* 22 which is a three *level model* with the top *level conditioned* on a timewise *substrate* of two *level model 18 induced* on a spacewise *substrate* of one *level model 11 induced* on a random region *substrate*. *Model* 25 has a lower *likelihood* but a higher accuracy than *model* 22. So *model* 25 is intermediate between *model* 22 and *model* 20, which is the two *level conditioned* on a spacetimewise *substrate* of one *level model 11 induced* on a random region *substrate*. This confirms that the static information is more important than the dynamic.
 
+### Motor actions
+
+In order to consider motor actions 
