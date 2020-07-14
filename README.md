@@ -1795,6 +1795,8 @@ cd ~/TBOT01_ws
 ...
 ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 110278
 
+./main condition model019 8 location >model019_location.log
+
 ./main entropy model019_location 1 data004
 ...
 ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 106063
