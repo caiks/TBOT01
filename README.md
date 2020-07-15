@@ -38,12 +38,14 @@ Then download the [TBOT01 workspace repository](https://github.com/caiks/TBOT01_
 ```
 git clone https://github.com/caiks/TBOT01_ws.git
 
+cd ~/TBOT01_ws
 cat data008a* >data008.bin
 cat data009a* >data009.bin
 
 ```
 Then build -
 ```
+cd
 cp TBOT01/CMakeLists_noros.txt TBOT01/CMakeLists.txt
 mkdir TBOT01_build
 cd TBOT01_build
