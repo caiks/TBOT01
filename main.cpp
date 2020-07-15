@@ -5959,7 +5959,6 @@ int main(int argc, char **argv)
 			dr.fud = std::make_shared<FudRepa>();
 			dr.fud->layers.reserve(dr1->fud->layers.size());
 			dr.substrate.reserve(dr1->substrate.size() * a / b);
-			auto vframe = std::make_shared<Variable>("f");
 			for (int i = 0; i < a*2/b; i++)
 			{
 				auto dr2 = drcopy(*dr1);
@@ -5973,22 +5972,14 @@ int main(int argc, char **argv)
 					auto v = std::make_shared<Variable>(v1, v2);
 					nn[x1] = ur0[*v];
 				}
-				auto v3 = std::make_shared<Variable>((int)i+1);
-				auto vd1 = std::make_shared<Variable>(vframe, v3);
+				auto vk = std::make_shared<Variable>((int)i + 1);
 				for (auto& ll : dr1->fud->layers)
 					for (auto& tr : ll)
 					{
 						auto x1 = tr->derived;
 						auto& p = llu1[x1];
-						auto vdfl = p.first->_var0;
-						auto vb = p.first->_var1;
-						auto vdf = vdfl->_var0;
-						auto vl = vdfl->_var1;
-						auto vf = vdf->_var1;
-						auto vdf1 = std::make_shared<Variable>(vd1, vf);
-						auto vdfl1 = std::make_shared<Variable>(vdf1, vl);
-						auto vdflb1 = std::make_shared<Variable>(vdfl1, vb);
-						llu.push_back(VarSizePair(vdflb1, p.second));
+						auto v = std::make_shared<Variable>(p.first, vk);
+						llu.push_back(VarSizePair(v, p.second)				
 						nn[x1] = llu.size() - 1;
 					}
 				dr2->reframe_u(nn);
@@ -6095,7 +6086,6 @@ int main(int argc, char **argv)
 			dr.fud = std::make_shared<FudRepa>();
 			dr.fud->layers.reserve(dr1->fud->layers.size());
 			dr.substrate.reserve(dr1->substrate.size() * a / b);
-			auto vframe = std::make_shared<Variable>("f");
 			for (int i = 0; i < a * 2 / b; i++)
 			{
 				auto dr2 = drcopy(*dr1);
@@ -6109,22 +6099,14 @@ int main(int argc, char **argv)
 					auto v = std::make_shared<Variable>(v1, v2);
 					nn[x1] = ur0[*v];
 				}
-				auto v3 = std::make_shared<Variable>((int)i + 1);
-				auto vd1 = std::make_shared<Variable>(vframe, v3);
+				auto vk = std::make_shared<Variable>((int)i + 1);
 				for (auto& ll : dr1->fud->layers)
 					for (auto& tr : ll)
 					{
 						auto x1 = tr->derived;
 						auto& p = llu1[x1];
-						auto vdfl = p.first->_var0;
-						auto vb = p.first->_var1;
-						auto vdf = vdfl->_var0;
-						auto vl = vdfl->_var1;
-						auto vf = vdf->_var1;
-						auto vdf1 = std::make_shared<Variable>(vd1, vf);
-						auto vdfl1 = std::make_shared<Variable>(vdf1, vl);
-						auto vdflb1 = std::make_shared<Variable>(vdfl1, vb);
-						llu.push_back(VarSizePair(vdflb1, p.second));
+						auto v = std::make_shared<Variable>(p.first, vk);
+						llu.push_back(VarSizePair(v, p.second));
 						nn[x1] = llu.size() - 1;
 					}
 				dr2->reframe_u(nn);
