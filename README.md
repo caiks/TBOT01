@@ -1968,4 +1968,201 @@ Model|Type|Underlying|Fmax|Dataset|Sequence length|Sequence step|Likelihood|Loca
 
 ### Motor actions
 
-In order to consider motor actions 
+Given that we wish now to move on to motor actions, we are interested in the sequence of *events* in order to determine future labels for each *event*. It was found, however, that the existing collision avoidance algorithm was not enough to prevent occasional crashes in the previous datasets, making it difficult to obtain long sequences. The crashes were due to collisions with the open shelves and bookcases. The solution was to simply turn the shelves and bookcases around so that they were closed and thus detectable by the turtlebot's lidar. The new environment is `env009`.
+
+In addition, we have added a random turn interval to the controller. If the turtlebot is going straight it will randomly turn left or right on a timescale on the order of the turn interval.
+
+We ran the simulation with the new environment,
+```
+export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:~/turtlebot3_ws/src/TBOT01_ws/gazebo_models
+
+cd ~/turtlebot3_ws/src/TBOT01_ws
+
+gazebo -u --verbose ~/turtlebot3_ws/src/TBOT01_ws/env009.model -s libgazebo_ros_init.so
+
+```
+and ran the new controller with a random turn interval of 5000 ms -
+```
+cd ~/turtlebot3_ws/src/TBOT01_ws
+
+ros2 run TBOT01 controller data008.bin 250 5000 5000 
+
+```
+Note that the bias interval has been increased to 5000 ms to reduce dither in the corners.
+
+The turtlebot ran for 5.5 hours to create a test dataset `data008`,
+```
+cd ~/TBOT01_ws
+
+./main analyse data008
+hr->dimension: 363
+hr->size: 78612
+({(<scan,1>,0)},283 % 1)
+({(<scan,1>,1)},15049 % 1)
+({(<scan,1>,2)},12504 % 1)
+({(<scan,1>,3)},9952 % 1)
+({(<scan,1>,4)},7933 % 1)
+({(<scan,1>,5)},6710 % 1)
+({(<scan,1>,6)},5842 % 1)
+({(<scan,1>,7)},20339 % 1)
+
+({(<scan,180>,0)},398 % 1)
+({(<scan,180>,1)},8726 % 1)
+({(<scan,180>,2)},11379 % 1)
+({(<scan,180>,3)},10790 % 1)
+({(<scan,180>,4)},8291 % 1)
+({(<scan,180>,5)},7373 % 1)
+({(<scan,180>,6)},6584 % 1)
+({(<scan,180>,7)},25071 % 1)
+
+({(motor,0)},8255 % 1)
+({(motor,1)},62301 % 1)
+({(motor,2)},8056 % 1)
+
+({(location,door12)},580 % 1)
+({(location,door13)},524 % 1)
+({(location,door14)},1023 % 1)
+({(location,door45)},899 % 1)
+({(location,door56)},1805 % 1)
+({(location,room1)},14793 % 1)
+({(location,room2)},4446 % 1)
+({(location,room3)},3478 % 1)
+({(location,room4)},26175 % 1)
+({(location,room5)},10508 % 1)
+({(location,room6)},14381 % 1)
+
+({(position,centre)},19756 % 1)
+({(position,corner)},16408 % 1)
+({(position,side)},42448 % 1)
+```
+The turtlebot spent 65% of its time in rooms 4, 5 and 6.
+
+Compare to `data003`,
+```
+./main analyse data003
+hr->dimension: 363
+hr->size: 13381
+...
+({(motor,0)},1140 % 1)
+({(motor,1)},11096 % 1)
+({(motor,2)},1145 % 1)
+
+({(location,door12)},178 % 1)
+({(location,door13)},120 % 1)
+({(location,door14)},196 % 1)
+({(location,door45)},86 % 1)
+({(location,door56)},191 % 1)
+({(location,room1)},3852 % 1)
+({(location,room2)},1307 % 1)
+({(location,room3)},925 % 1)
+({(location,room4)},3796 % 1)
+({(location,room5)},977 % 1)
+({(location,room6)},1753 % 1)
+
+({(position,centre)},3478 % 1)
+({(position,corner)},3028 % 1)
+({(position,side)},6875 % 1)
+```
+In `data009` 3% more time is spent in a turn but 2% less time is spent in a corner.
+
+We ran the turtlebot again to create a training dataset, `data009`, this time for 12 hours -
+```
+cd ~/turtlebot3_ws/src/TBOT01_ws
+
+ros2 run TBOT01 controller data009.bin 250 5000 5000 
+
+```
+Now the turtlebot spends 48% of its time in rooms 4, 5 and 6 -
+```
+cd ~/TBOT01_ws
+
+./main analyse data009
+hr->dimension: 363
+hr->size: 172301
+({(<scan,1>,0)},692 % 1)
+({(<scan,1>,1)},33376 % 1)
+({(<scan,1>,2)},27585 % 1)
+({(<scan,1>,3)},22370 % 1)
+({(<scan,1>,4)},17382 % 1)
+({(<scan,1>,5)},14909 % 1)
+({(<scan,1>,6)},12968 % 1)
+({(<scan,1>,7)},43019 % 1)
+
+({(<scan,180>,0)},890 % 1)
+({(<scan,180>,1)},19205 % 1)
+({(<scan,180>,2)},25416 % 1)
+({(<scan,180>,3)},23958 % 1)
+({(<scan,180>,4)},18528 % 1)
+({(<scan,180>,5)},16419 % 1)
+({(<scan,180>,6)},14367 % 1)
+({(<scan,180>,7)},53518 % 1)
+
+({(motor,0)},17809 % 1)
+({(motor,1)},136432 % 1)
+({(motor,2)},18060 % 1)
+
+({(location,door12)},2067 % 1)
+({(location,door13)},2365 % 1)
+({(location,door14)},2012 % 1)
+({(location,door45)},1288 % 1)
+({(location,door56)},2314 % 1)
+({(location,room1)},42708 % 1)
+({(location,room2)},19975 % 1)
+({(location,room3)},17110 % 1)
+({(location,room4)},45058 % 1)
+({(location,room5)},16658 % 1)
+({(location,room6)},20746 % 1)
+
+({(position,centre)},41677 % 1)
+({(position,corner)},38736 % 1)
+({(position,side)},91888 % 1)
+```
+We then *induced* random regional *model* 26,
+```
+./main induce model026 8 >model026.log
+
+./main entropy_region model011 1 data009
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 1.97725e+06
+
+./main entropy_region model026 1 data009
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 1.96486e+06
+```
+Its *likelihood* is very similar to that of *model* 11.
+
+Then we *induced model* 27 and compared it to *model* 18,
+```
+./main induce model027 32 >model027.log
+
+./main entropy model018 1 data009
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 229325
+
+./main entropy model027 1 data009
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 231911
+
+./main observe data008 model018 data009 location
+100.0*match_count/z: 59.3599
+
+./main observe data008 model027 data009 location
+100.0*match_count/z: 63.9114
+```
+Both the *likelihood* and the `location` accuracy were a little higher in *model* 27.
+
+Then we *conditioned model* 28 on `location` and compared it to *model* 19,
+```
+./main condition model028 8 location >model028_location.log
+
+./main entropy model019_location 1 data009
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 220714
+
+./main entropy model028_location 1 data009
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 215919
+
+./main observe data008 model019_location data009 location
+100.0*match_count/z: 75.893
+
+./main observe data008 model028_location data009 location
+100.0*match_count/z: 86.698
+```
+*Model* 28 has lower *likelihood* but higher label accuracy than *model* 19 in test dataset 8.
+
+
