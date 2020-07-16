@@ -6276,5 +6276,55 @@ int main(int argc, char **argv)
 		EVAL(100.0*match_count/z);
 	} */
 	
+	if (argc >= 2 && string(argv[1]) == "analyse_3")
+	{
+		auto aall = histogramsList;
+		auto araa = systemsHistogramRepasHistogram_u;
+		auto hrred = [](const HistoryRepa& hr, const SystemRepa& ur, const VarList& kk)
+		{
+			auto& vvi = ur.mapVarSize();
+			std::size_t m = kk.size();
+			SizeList kk1;
+			for (std::size_t i = 0; i < m; i++)
+				kk1.push_back(vvi[kk[i]]);
+			return setVarsHistoryRepasReduce_u(1.0, m, kk1.data(), hr);
+		};
+		
+		string dataset = string(argc >= 3 ? argv[2] : "data008");
+		
+		std::unique_ptr<Alignment::System> uu;
+		std::unique_ptr<Alignment::SystemRepa> ur;
+		std::unique_ptr<Alignment::HistoryRepa> hr;
+
+		{
+			std::ifstream in(dataset+".bin", std::ios::binary);
+			auto qq = persistentsRecordList(in);
+			in.close();
+			auto xx = recordListsHistoryRepa_3(8, *qq);
+			uu = std::move(std::get<0>(xx));
+			ur = std::move(std::get<1>(xx));
+			hr = std::move(std::get<2>(xx));
+		}
+
+		EVAL(hr->dimension);
+		EVAL(hr->size);
+
+		rpln(cout, sorted(*aall(*araa(*uu, *ur, *hrred(*hr, *ur, VarList{ Variable(Variable("scan"),Variable(1)) })))));
+		cout << endl;
+		rpln(cout, sorted(*aall(*araa(*uu, *ur, *hrred(*hr, *ur, VarList{ Variable(Variable("scan"),Variable(180)) })))));
+		cout << endl;
+		rpln(cout, sorted(*aall(*araa(*uu, *ur, *hrred(*hr, *ur, VarList{ Variable("motor") })))));
+		cout << endl;
+		rpln(cout, sorted(*aall(*araa(*uu, *ur, *hrred(*hr, *ur, VarList{ Variable("location") })))));
+		cout << endl;
+		rpln(cout, sorted(*aall(*araa(*uu, *ur, *hrred(*hr, *ur, VarList{ Variable("position") })))));
+		cout << endl;
+		rpln(cout, sorted(*aall(*araa(*uu, *ur, *hrred(*hr, *ur, VarList{ Variable("location_next") })))));
+		cout << endl;
+		rpln(cout, sorted(*aall(*araa(*uu, *ur, *hrred(*hr, *ur, VarList{ Variable("position_next") })))));		
+
+	}
+
+
 	return 0;
 }

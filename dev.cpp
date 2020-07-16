@@ -506,3 +506,74 @@ SystemHistoryRepaTuple TBOT01::recordListsHistoryRepa_2(int d, const RecordList&
 	hr->transpose();
 	return SystemHistoryRepaTuple(move(uu), move(ur), move(hr));
 }
+
+SystemHistoryRepaTuple TBOT01::recordListsHistoryRepa_3(int d, const RecordList& qq)
+{
+	auto lluu = listsSystem_u;
+	auto hrjoin = vectorHistoryRepasJoin_u;
+	
+	auto xx = recordListsHistoryRepa_2(d, qq);
+	auto uu = std::move(std::get<0>(xx));
+	auto ur = std::move(std::get<1>(xx));
+	auto hr = std::move(std::get<2>(xx));
+
+	auto& vvu = ur->mapVarSize();	
+	auto& llu = ur->listVarSizePair;	
+	auto z = hr->size;
+	auto rr = hr->arr;
+	auto& mvv = hr->mapVarInt();
+	
+	vector<Variable> ll {Variable("location"),Variable("position")};
+	SizeList pp;
+	for (auto v : ll)
+		pp.push_back(mvv[vvu[v]]);
+	
+	ValSet locations{ Value("door12"), Value("door13"), Value("door14"), Value("door45"), Value("door56"),
+		Value("room1"), Value("room2"), Value("room3"), Value("room4"), Value("room5"), Value("room6"), Value("unknown") };
+	ValSet positions{ Value("centre"), Value("corner"), Value("side"), Value("unknown") };
+	
+	vector<VarValSetPair> ll1;
+	ll1.push_back(VarValSetPair(Variable("location_next"), locations));
+	ll1.push_back(VarValSetPair(Variable("position_next"), positions));
+	uu->update(*lluu(ll1));	
+	
+	std::size_t n1 = ll1.size();
+	auto hr1 = make_unique<HistoryRepa>();
+	hr1->dimension = n1;
+	hr1->vectorVar = new size_t[n1];
+	auto vv1 = hr1->vectorVar;
+	hr1->shape = new size_t[n1];
+	auto sh1 = hr1->shape;
+	hr1->size = z;
+	hr1->evient = false;
+	hr1->arr = new unsigned char[z*n1];
+	auto rr1 = hr1->arr;
+	for (size_t i = 0; i < n1; i++)
+	{
+		auto& vww = ll1[i];
+		llu.push_back(VarSizePair(std::make_shared<Variable>(vww.first), vww.second.size()));
+		vv1[i] = llu.size() - 1;	
+		sh1[i] = vww.second.size();
+	}
+	for (size_t i = 0; i < n1; i++)
+	{
+		size_t iz = i*z;
+		for (size_t j = 0; j < z; j++)
+		{
+			auto u = rr[iz+j];
+			rr1[iz+j] = (unsigned char)(sh1[i]-1);
+			for (size_t k = j+1; k < z; k++)
+			{
+				auto w = rr[iz+k];
+				if (w != u)
+				{
+					rr1[iz+j] = w;		
+					break;					
+				}
+			}
+		}
+	}
+	hr = hrjoin(HistoryRepaPtrList {move(hr), move(hr1)});	
+	return SystemHistoryRepaTuple(move(uu), move(ur), move(hr));
+}
+
