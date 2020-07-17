@@ -560,14 +560,14 @@ SystemHistoryRepaTuple TBOT01::recordListsHistoryRepa_3(int d, const RecordList&
 		size_t iz = i*z;
 		for (size_t j = 0; j < z; j++)
 		{
-			auto u = rr[iz+j];
-			rr1[iz+j] = (unsigned char)(sh1[i]-1);
+			rr1[iz + j] = (unsigned char)(sh1[i]-1);
+			auto u = rr[pp[i]*z + j];
 			for (size_t k = j+1; k < z; k++)
 			{
-				auto w = rr[iz+k];
+				auto w = rr[pp[i]*z + k];
 				if (w != u)
 				{
-					rr1[iz+j] = w;		
+					rr1[iz + j] = w;		
 					break;					
 				}
 			}
