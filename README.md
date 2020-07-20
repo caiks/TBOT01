@@ -2145,7 +2145,7 @@ ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 231911
 ./main observe data008 model027 data009 location
 100.0*match_count/z: 63.9114
 ```
-Both the *likelihood* and the `location` accuracy were a little higher in *model* 27.
+Both the *likelihood* and the `location` accuracy were a little higher in *model* 27 using the new dataset.
 
 Then we *conditioned model* 28 on `location` and compared it to *model* 19,
 ```
@@ -2164,5 +2164,118 @@ ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 215919
 100.0*match_count/z: 86.698
 ```
 *Model* 28 has lower *likelihood* but higher label accuracy than *model* 19 in test dataset 8.
+
+Now let us create new *substrate variables* `location_next` and `position_next`. These are *variables* that look forward from the current *event* until a `location` or `position` transition. A *history* in the new *substrate* 3 is obtained with the  `recordListsHistoryRepa_3` function in [dev.h](https://github.com/caiks/TBOT01/blob/master/dev.h),
+```cpp
+cd ~/TBOT01_ws
+./main analyse_substrate003 data008
+...
+({(location_next,door12)},7951 % 1)
+({(location_next,door13)},8184 % 1)
+({(location_next,door14)},16717 % 1)
+({(location_next,door45)},10830 % 1)
+({(location_next,door56)},18869 % 1)
+({(location_next,room1)},1073 % 1)
+({(location_next,room2)},298 % 1)
+({(location_next,room3)},258 % 1)
+({(location_next,room4)},3528 % 1)
+({(location_next,room5)},9808 % 1)
+({(location_next,room6)},998 % 1)
+({(location_next,unknown)},98 % 1)
+
+({(position_next,centre)},22150 % 1)
+({(position_next,corner)},20604 % 1)
+({(position_next,side)},35845 % 1)
+({(position_next,unknown)},13 % 1)
+```
+Now let us *condition model* 29 on `location_next` rather than `location`,
+```
+./main condition model029 8 location_next >model029_location_next.log
+...
+fud: 4096
+fud slice size: 39
+sized entropy label : 58.8561
+...
+
+./main entropy model029_location_next 1 data009 substrate003
+...
+fudRepasSize(*dr->fud): 18712
+frder(*dr->fud)->size(): 4097
+frund(*dr->fud)->size(): 360
+treesSize(*dr->slices): 8192
+treesLeafElements(*dr->slices)->size(): 4097
+...
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 213890
+
+./main observe data008 model029_location_next data009 location 0 0 substrate003
+...
+100.0*match_count/z: 82.0422
+
+./main observe data008 model029_location_next data009 location_next 0 0 substrate003
+...
+100.0*match_count/z: 54.0732
+```
+The *likelihood* of 213,890 is a little less than *model* 29. The label accuracy is a lot lower at 54% instead of 87%, but of course the label is considerably more ambiguous being the next `location` rather than the current `location`.
+
+Now let us add `motor` to the *substrate* accessible to the *conditioner*, to see if it can disambiguate the next label.
+```
+./main condition model030 8 location_next >model030_location_next.log
+...
+fud: 4096
+fud slice size: 61
+sized entropy label : 57.0735
+...
+
+./main entropy model030_location_next 1 data009 substrate003
+...
+fudRepasSize(*dr->fud): 18813
+frder(*dr->fud)->size(): 4240
+frund(*dr->fud)->size(): 361
+treesSize(*dr->slices): 8335
+treesLeafElements(*dr->slices)->size(): 4240
+...
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 213915
+
+./main observe data008 model030_location_next data009 location 0 0 substrate003
+...
+100.0*match_count/z: 81.7852
+
+./main observe data008 model030_location_next data009 location_next 0 0 substrate003
+...
+100.0*match_count/z: 53.9421
+```
+We can see that the *likelihood* and label accuracy are very similar to *model* 29. However the *underlying* has 361 *variables* which means that it includes `motor`. When we examine the log we can see that `motor` is the *entropy variable* in 143 of the 4096 *fuds* and that the trailing *sized slice entropy* is 57.0735 rather than 58.8561 without `motor` (compare to 18.1327 for `location` *conditioned model* 28). That is, `motor` is having some effect in *conditioning* the *model* even if it does not show itself in the accuracy.
+
+In order to increase the effect let us use an `fmax` of 16384 in *model* 31,
+```
+./main condition model031 16 location_next >model031_location_next.log
+
+./main entropy model031_location_next 1 data009 substrate003
+...
+fudRepasSize(*dr->fud): 49897
+frder(*dr->fud)->size(): 16909
+frund(*dr->fud)->size(): 361
+treesSize(*dr->slices): 33292
+treesLeafElements(*dr->slices)->size(): 16909
+...
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 218519
+
+./main observe data008 model031_location_next data009 location_next 0 0 substrate003
+...
+100.0*match_count/z: 56.0576
+```
+Now there is a definite increase in both the *likelihood*, at 218,519, and the next label accuracy, at 56%. In total, 524 of the 16384 *fuds depend* on `motor`,
+
+Model|Type|Underlying|Fmax|Dataset|Substrate|Likelihood|Location %|Next Location %
+---|---|---|---|---|---|---|---|---
+18|induced|model 11|4096|4|2|229,325|59|
+27|induced|model 26|4096|9|2|231,911|64|
+19|conditioned|model 11|4096|4|2|220,714|76|
+28|conditioned|model 26|4096|9|2|215,919|87|
+29|conditioned|model 26|4096|9|3|213,890|82|54
+30|conditioned|model 26|4096|9|3|213,915|82|54
+31|conditioned|model 26|16384|9|3|218,519||56
+
+Given that the `motor` *value* has at least a weak functional relation to the next `location`, let us now write a new controller than accepts requests to turn made by the observer or by a user. These requests will only be accepted when the turtlebot is moving straight ahead.
 
 
