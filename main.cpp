@@ -6339,7 +6339,7 @@ int main(int argc, char **argv)
 
 	}
 
-	if (argc >= 3 && string(argv[1]) == "condition" && (string(argv[2]) == "model029" || string(argv[2]) == "model030"))
+	if (argc >= 3 && string(argv[1]) == "condition" && (string(argv[2]) == "model029" || string(argv[2]) == "model030" || string(argv[2]) == "model031"))
 	{
 		auto uvars = systemsSetVar;
 		auto frmul = historyRepasFudRepasMultiply_up;
@@ -6434,9 +6434,9 @@ int main(int argc, char **argv)
 		auto& vvi = ur->mapVarSize();
 		auto hr1 = frmul(tint, *hr, *dr.fud);
 		auto sl = treesElements(*dr.slices);
-		if (model == "model030")
+		if (model == "model030" || model == "model031")
 			sl->push_back(vvi[Variable("motor")]);		
-		size_t fmax = 4096;
+		size_t fmax = model == "model031" ? 4096*4 : 4096;
 		auto dr2 = applicationer(fmax, tint, *sl, vvi[Variable(label)], *hr1, 1, *ur);
 		auto dr3 = drjoin(dr, *dr2);
 		std::ofstream out(model + "_" + label + ".dr", std::ios::binary);
