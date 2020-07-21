@@ -5,6 +5,7 @@
 
 #include <geometry_msgs/msg/twist.hpp>
 #include <nav_msgs/msg/odometry.hpp>
+#include <std_msgs/msg/string.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/laser_scan.hpp>
 #include <tf2/LinearMath/Matrix3x3.h>
@@ -47,6 +48,7 @@ private:
 
 	rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr _scan_sub;
 	rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr _odom_sub;
+	rclcpp::Subscription<std_msgs::msg::String>::SharedPtr _turn_request_sub;
 
 	rclcpp::TimerBase::SharedPtr _update_timer;
 	rclcpp::TimerBase::SharedPtr _record_timer;
@@ -68,11 +70,14 @@ private:
 	bool _bias_right;
 	int _bias_factor;
 	int _turn_factor;
+	
+	std::string _turn_request;
 
 	void update_callback();
 	void record_callback();
 	void update_cmd_vel(double linear, double angular);
 	void scan_callback(const sensor_msgs::msg::LaserScan::SharedPtr msg);
 	void odom_callback(const nav_msgs::msg::Odometry::SharedPtr msg);
+	void turn_request_callback(const std_msgs::msg::String::SharedPtr msg);
 };
 #endif // CONTROLLER_H

@@ -39,6 +39,8 @@ Controller::Controller(const std::string& filename, std::chrono::milliseconds re
 	_bias_right = true;
 	_bias_factor = bias_interval.count() / tenms.count();
 	_turn_factor = turn_interval.count() / tenms.count();
+	
+	_turn_request = "";
 
 	_record_start = clk::now();
 	_record_out = std::ofstream(filename, std::ios::binary);
@@ -49,7 +51,9 @@ Controller::Controller(const std::string& filename, std::chrono::milliseconds re
 		"scan", rclcpp::SensorDataQoS(), std::bind(&Controller::scan_callback, this, std::placeholders::_1));
 	_odom_sub = this->create_subscription<nav_msgs::msg::Odometry>(
 		"odom", rclcpp::QoS(rclcpp::KeepLast(10)), std::bind(&Controller::odom_callback, this, std::placeholders::_1));
-
+	_turn_request_sub = this->create_subscription<std_msgs::msg::String>(
+		"turn_request", 10, std::bind(&Controller::turn_request_callback, this, std::placeholders::_1));
+		
 	_update_timer = this->create_wall_timer(10ms, std::bind(&Controller::update_callback, this));
 	_record_timer = this->create_wall_timer(record_interval, std::bind(&Controller::record_callback, this));
 
@@ -105,6 +109,14 @@ void Controller::scan_callback(const sensor_msgs::msg::LaserScan::SharedPtr msg)
 	}
 	_scan_updated = true;
 }
+
+void Controller::turn_request_callback(const std_msgs::msg::String::SharedPtr msg)
+{
+	_turn_request = msg->data;
+	bool right = _turn_request[0] == 'r' || _turn_request[0] == 'R';
+	RCLCPP_INFO(this->get_logger(), "Received turn request: '%s'", right ? "right" : "left");
+}
+
 
 void Controller::update_cmd_vel(double linear, double angular)
 {
@@ -166,7 +178,18 @@ void Controller::update_callback()
 		if (_turn_factor > 0 && (rand() % _turn_factor) == 0)
 		{
 			_prev_robot_pose = _robot_pose;
-			turtlebot3_state_num = (rand() % 2) == 0 ? TB3_RIGHT_TURN : TB3_LEFT_TURN;
+			bool right = (rand() % 2) == 0;
+			turtlebot3_state_num = right ? TB3_RIGHT_TURN : TB3_LEFT_TURN;
+			RCLCPP_INFO(this->get_logger(), "Random turn: '%s'", right ? "right" : "left");
+			break;
+		}
+		if (_turn_request != "")
+		{
+			_prev_robot_pose = _robot_pose;
+			bool right = _turn_request[0] == 'r' || _turn_request[0] == 'R';
+			turtlebot3_state_num = right ? TB3_RIGHT_TURN : TB3_LEFT_TURN;
+			RCLCPP_INFO(this->get_logger(), "Executing turn request: '%s'", right ? "right" : "left");
+			_turn_request = "";
 			break;
 		}
 		update_cmd_vel(LINEAR_VELOCITY, 0.0);
@@ -174,6 +197,12 @@ void Controller::update_callback()
 		break;
 
 	case TB3_RIGHT_TURN:
+		if (_turn_request != "")
+		{
+			bool right = _turn_request[0] == 'r' || _turn_request[0] == 'R';
+			RCLCPP_INFO(this->get_logger(), "Ignoring turn request: '%s'", right ? "right" : "left");
+			_turn_request = "";
+		}
 		if (fabs(_prev_robot_pose - _robot_pose) >= escape_range)
 			turtlebot3_state_num = GET_TB3_DIRECTION;
 		else
@@ -181,6 +210,12 @@ void Controller::update_callback()
 		break;
 
 	case TB3_LEFT_TURN:
+		if (_turn_request != "")
+		{
+			bool right = _turn_request[0] == 'r' || _turn_request[0] == 'R';
+			RCLCPP_INFO(this->get_logger(), "Ignoring turn request: '%s'", right ? "right" : "left");
+			_turn_request = "";
+		}
 		if (fabs(_prev_robot_pose - _robot_pose) >= escape_range)
 			turtlebot3_state_num = GET_TB3_DIRECTION;
 		else
