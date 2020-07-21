@@ -2166,7 +2166,7 @@ ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 215919
 *Model* 28 has lower *likelihood* but higher label accuracy than *model* 19 in test dataset 8.
 
 Now let us create new *substrate variables* `location_next` and `position_next`. These are *variables* that look forward from the current *event* until a `location` or `position` transition. A *history* in the new *substrate* 3 is obtained with the  `recordListsHistoryRepa_3` function in [dev.h](https://github.com/caiks/TBOT01/blob/master/dev.h),
-```cpp
+```
 cd ~/TBOT01_ws
 ./main analyse data008 substrate003
 ...
@@ -2246,7 +2246,7 @@ ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 213915
 ```
 We can see that the *likelihood* and label accuracy are very similar to *model* 29. However the *underlying* has 361 *variables* which means that it includes `motor`. When we examine the log we can see that `motor` is the *entropy variable* in 143 of the 4096 *fuds* and that the trailing *sized slice entropy* is 57.0735 rather than 58.8561 without `motor` (compare to 18.1327 for `location` *conditioned model* 28). That is, `motor` is having some effect in *conditioning* the *model* even if it does not show itself in the accuracy.
 
-In order to increase the effect let us use an `fmax` of 16384 in *model* 31,
+In order to increase the effect let us use an `fmax` of 16,384 in *model* 31,
 ```
 ./main condition model031 16 location_next >model031_location_next.log
 
@@ -2264,7 +2264,7 @@ ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 218519
 ...
 100.0*match_count/z: 56.0576
 ```
-Now there is a definite increase in both the *likelihood*, at 218,519, and the next label accuracy, at 56%. In total, 524 of the 16384 *fuds depend* on `motor`,
+Now there is a definite increase in both the *likelihood*, at 218,519, and the next label accuracy, at 56%. In total, 524 of the 16,384 *fuds depend* on `motor`,
 
 Model|Type|Underlying|Fmax|Dataset|Substrate|Likelihood|Location %|Next Location %
 ---|---|---|---|---|---|---|---|---
@@ -2274,8 +2274,127 @@ Model|Type|Underlying|Fmax|Dataset|Substrate|Likelihood|Location %|Next Location
 28|conditioned|model 26|4096|9|2|215,919|87|
 29|conditioned|model 26|4096|9|3|213,890|82|54
 30|conditioned|model 26|4096|9|3|213,915|82|54
-31|conditioned|model 26|16384|9|3|218,519||56
+31|conditioned|model 26|16384|9|3|218,519|86|56
 
-Given that the `motor` *value* has at least a weak functional relation to the next `location`, let us now write a new controller than accepts requests to turn made by the observer or by a user. These requests will only be accepted when the turtlebot is moving straight ahead.
+The `motor` *value* has at least a weak functional relation to the next `location`, so let us see what effect there is if we restrict the `location` *values* to rooms only. Here is `substrate004` which adds `room_next`,
+
+```
+/main analyse data008 substrate004
+...
+({(room_next,door12)},0 % 1)
+({(room_next,door13)},0 % 1)
+({(room_next,door14)},0 % 1)
+({(room_next,door45)},0 % 1)
+({(room_next,door56)},0 % 1)
+({(room_next,room1)},19135 % 1)
+({(room_next,room2)},2013 % 1)
+({(room_next,room3)},5331 % 1)
+({(room_next,room4)},14994 % 1)
+({(room_next,room5)},31626 % 1)
+({(room_next,room6)},5415 % 1)
+({(room_next,unknown)},98 % 1)
+```
+Now we run *models* 32, 33 and 34 which parallel *models* 29, 30 and 31 but are *conditioned* on `room_next` rather than `location_next`,
+```
+./main condition model032 16 room_next >model032_room_next.log
+...
+fud: 4096
+fud slice size: 78
+sized entropy label : 48.3379
+...
+
+./main entropy model032_room_next 1 data009 substrate004
+...
+fudRepasSize(*dr->fud): 19603
+frder(*dr->fud)->size(): 4097
+frund(*dr->fud)->size(): 360
+treesSize(*dr->slices): 8192
+treesLeafElements(*dr->slices)->size(): 4097
+...
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 212715
+
+./main observe data008 model032_room_next data009 location 0 0 substrate004
+...
+100.0*match_count/z: 80.9647
+
+./main observe data008 model032_room_next data009 location_next 0 0 substrate004
+...
+100.0*match_count/z: 51.454
+
+./main observe data008 model032_room_next data009 room_next 0 0 substrate004
+...
+100.0*match_count/z: 63.3211
+
+./main condition model033 16 room_next >model033_room_next.log
+...
+fud: 4096
+fud slice size: 340
+sized entropy label : 46.8731
+...
+
+./main entropy model033_room_next 1 data009 substrate004
+...
+fudRepasSize(*dr->fud): 19309
+frder(*dr->fud)->size(): 4216
+frund(*dr->fud)->size(): 361
+treesSize(*dr->slices): 8311
+treesLeafElements(*dr->slices)->size(): 4216
+...
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 212496
+
+./main observe data008 model033_room_next data009 location 0 0 substrate004
+...
+100.0*match_count/z: 80.9533
+
+./main observe data008 model033_room_next data009 location_next 0 0 substrate004
+...
+100.0*match_count/z: 51.5354
+
+./main observe data008 model033_room_next data009 room_next 0 0 substrate004
+...
+100.0*match_count/z: 63.1672
+
+./main condition model034 16 room_next >model034_room_next.log
+
+./main entropy model034_room_next 1 data009 substrate004
+...
+fudRepasSize(*dr->fud): 50137
+frder(*dr->fud)->size(): 16878
+frund(*dr->fud)->size(): 361
+treesSize(*dr->slices): 33261
+treesLeafElements(*dr->slices)->size(): 16878
+...
+ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 215763
+
+./main observe data008 model034_room_next data009 location 0 0 substrate004
+...
+100.0*match_count/z: 83.9261
+
+./main observe data008 model034_room_next data009 location_next 0 0 substrate004
+...
+100.0*match_count/z: 52.6523
+
+./main observe data008 model034_room_next data009 room_next 0 0 substrate004
+...
+100.0*match_count/z: 64.1289
+```
+We can see that the *likelihood* and label accuracy of *model* 33 are very similar to *model* 32, but we can see that `motor` is the *entropy variable* in 119 of the 4096 *fuds* and that the trailing *sized slice entropy* is 46.8731 rather than 48.3379. 
+
+In *model* 34 there is an increase in both the *likelihood* and the next label accuracy. In total, 493 of the 16,384 *fuds depend* on `motor`,
+
+Model|Type|Underlying|Fmax|Dataset|Substrate|Likelihood|Location %|Next Location %|Next Room %
+---|---|---|---|---|---|---|---|---|---
+18|induced|model 11|4096|4|2|229,325|59||
+27|induced|model 26|4096|9|2|231,911|64||
+19|conditioned|model 11|4096|4|2|220,714|76||
+28|conditioned|model 26|4096|9|2|215,919|87||
+29|conditioned|model 26|4096|9|3|213,890|82|54|
+30|conditioned|model 26|4096|9|3|213,915|82|54|
+31|conditioned|model 26|16384|9|3|218,519|86|56|
+32|conditioned|model 26|4096|9|4|212,715|81|51|63
+33|conditioned|model 26|4096|9|4|212,496|81|52|63
+34|conditioned|model 26|16384|9|4|215,763|84|53|64
+
+Given that the `motor` *value* has at least a weak functional relation to the next `location` and `room`, let us now write a new controller than accepts requests to turn made by the observer or by a user. These requests will only be accepted when the turtlebot is moving straight ahead.
 
 
