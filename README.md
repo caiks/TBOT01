@@ -2168,7 +2168,7 @@ ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 215919
 Now let us create new *substrate variables* `location_next` and `position_next`. These are *variables* that look forward from the current *event* until a `location` or `position` transition. A *history* in the new *substrate* 3 is obtained with the  `recordListsHistoryRepa_3` function in [dev.h](https://github.com/caiks/TBOT01/blob/master/dev.h),
 ```cpp
 cd ~/TBOT01_ws
-./main analyse_substrate003 data008
+./main analyse data008 substrate003
 ...
 ({(location_next,door12)},7951 % 1)
 ({(location_next,door13)},8184 % 1)

@@ -1635,6 +1635,7 @@ int main(int argc, char **argv)
 		};
 		
 		string dataset = string(argc >= 3 ? argv[2] : "data002");
+		string substrate = string(argc >= 4 ? argv[3] : "substrate002");
 		
 		std::unique_ptr<Alignment::System> uu;
 		std::unique_ptr<Alignment::SystemRepa> ur;
@@ -1676,7 +1677,13 @@ int main(int argc, char **argv)
 				std::ifstream in(f, std::ios::binary);
 				auto qq = persistentsRecordList(in);
 				in.close();
-				auto xx = recordListsHistoryRepa_2(8, *qq);
+				SystemHistoryRepaTuple xx;
+				if (substrate == "substrate004")
+					xx = recordListsHistoryRepa_4(8, *qq);
+				else if (substrate == "substrate003")
+					xx = recordListsHistoryRepa_3(8, *qq);
+				else
+					xx = recordListsHistoryRepa_2(8, *qq);
 				uu = std::move(std::get<0>(xx));
 				ur = std::move(std::get<1>(xx));
 				ll.push_back(std::move(std::get<2>(xx)));
@@ -1696,50 +1703,19 @@ int main(int argc, char **argv)
 		rpln(cout, sorted(*aall(*araa(*uu, *ur, *hrred(*hr, *ur, VarList{ Variable("location") })))));
 		cout << endl;
 		rpln(cout, sorted(*aall(*araa(*uu, *ur, *hrred(*hr, *ur, VarList{ Variable("position") })))));
-
-		/*
-		hr->dimension: 363
-		hr->size: 6054
-
-		({(<scan,1>,0)},39 % 1)
-		({(<scan,1>,1)},892 % 1)
-		({(<scan,1>,2)},885 % 1)
-		({(<scan,1>,3)},825 % 1)
-		({(<scan,1>,4)},701 % 1)
-		({(<scan,1>,5)},685 % 1)
-		({(<scan,1>,6)},632 % 1)
-		({(<scan,1>,7)},1395 % 1)
-
-		({(<scan,180>,0)},33 % 1)
-		({(<scan,180>,1)},497 % 1)
-		({(<scan,180>,2)},777 % 1)
-		({(<scan,180>,3)},838 % 1)
-		({(<scan,180>,4)},737 % 1)
-		({(<scan,180>,5)},767 % 1)
-		({(<scan,180>,6)},757 % 1)
-		({(<scan,180>,7)},1648 % 1)
-
-		({(motor,0)},698 % 1)
-		({(motor,1)},5256 % 1)
-		({(motor,2)},100 % 1)
-
-		({(location,door12)},43 % 1)
-		({(location,door13)},13 % 1)
-		({(location,door14)},57 % 1)
-		({(location,door45)},42 % 1)
-		({(location,door56)},29 % 1)
-		({(location,room1)},1222 % 1)
-		({(location,room2)},572 % 1)
-		({(location,room3)},201 % 1)
-		({(location,room4)},2763 % 1)
-		({(location,room5)},350 % 1)
-		({(location,room6)},762 % 1)
-
-		({(position,centre)},1873 % 1)
-		({(position,corner)},911 % 1)
-		({(position,side)},3270 % 1)
-		*/
-
+		cout << endl;
+		if (substrate == "substrate003" || substrate == "substrate004")
+		{
+			rpln(cout, sorted(*aall(*araa(*uu, *ur, *hrred(*hr, *ur, VarList{ Variable("location_next") })))));
+			cout << endl;
+			rpln(cout, sorted(*aall(*araa(*uu, *ur, *hrred(*hr, *ur, VarList{ Variable("position_next") })))));			
+			cout << endl;
+		}
+		if (substrate == "substrate004")
+		{
+			rpln(cout, sorted(*aall(*araa(*uu, *ur, *hrred(*hr, *ur, VarList{ Variable("room_next") })))));
+			cout << endl;		
+		}	
 	}
 
 	if (argc >= 3 && string(argv[1]) == "condition" && string(argv[2]) == "model006_1")
@@ -2439,7 +2415,9 @@ int main(int argc, char **argv)
 				auto qq = persistentsRecordList(in);
 				in.close();
 				SystemHistoryRepaTuple xx;
-				if (substrate == "substrate003")
+				if (substrate == "substrate004")
+					xx = recordListsHistoryRepa_4(8, *qq);
+				else if (substrate == "substrate003")
 					xx = recordListsHistoryRepa_3(8, *qq);
 				else
 					xx = recordListsHistoryRepa_2(8, *qq);
@@ -3691,7 +3669,9 @@ int main(int argc, char **argv)
 				auto qq = persistentsRecordList(in);
 				in.close();
 				SystemHistoryRepaTuple xx;
-				if (substrate == "substrate003")
+				if (substrate == "substrate004")
+					xx = recordListsHistoryRepa_4(8, *qq);
+				else if (substrate == "substrate003")
 					xx = recordListsHistoryRepa_3(8, *qq);
 				else
 					xx = recordListsHistoryRepa_2(8, *qq);
@@ -3760,10 +3740,12 @@ int main(int argc, char **argv)
 			auto qq = persistentsRecordList(in);
 			in.close();
 			SystemHistoryRepaTuple xx;
-			if (substrate == "substrate003")
+			if (substrate == "substrate004")
+				xx = recordListsHistoryRepa_4(8, *qq);
+			else if (substrate == "substrate003")
 				xx = recordListsHistoryRepa_3(8, *qq);
 			else
-				xx = recordListsHistoryRepa_2(8, *qq);			
+				xx = recordListsHistoryRepa_2(8, *qq);		
 			hr = std::move(std::get<2>(xx));		
 		}
 		if (event_end > 0)
@@ -3824,8 +3806,8 @@ int main(int argc, char **argv)
 				cout << "|" << *ur1->listVarSizePair[vv[i]].first;
 			else
 				cout << ",no var";
-			cout << "|" << (label == "location" || "location_next" ? locations[cl] : positions[cl]);
-			cout << "|" << (label == "location" || "location_next" ? locations[l] : positions[l]);
+			cout << "|" << (label == "location" || "location_next" || "room_next" ? locations[cl] : positions[cl]);
+			cout << "|" << (label == "location" || "location_next" || "room_next" ? locations[l] : positions[l]);
 			cout << "|" << (l == cl ? "match" : "fail") << endl;
 		}
 		EVAL(z);
@@ -6290,55 +6272,6 @@ int main(int argc, char **argv)
 		EVAL(100.0*match_count/z);
 	} */
 	
-	if (argc >= 2 && string(argv[1]) == "analyse_substrate003")
-	{
-		auto aall = histogramsList;
-		auto araa = systemsHistogramRepasHistogram_u;
-		auto hrred = [](const HistoryRepa& hr, const SystemRepa& ur, const VarList& kk)
-		{
-			auto& vvi = ur.mapVarSize();
-			std::size_t m = kk.size();
-			SizeList kk1;
-			for (std::size_t i = 0; i < m; i++)
-				kk1.push_back(vvi[kk[i]]);
-			return setVarsHistoryRepasReduce_u(1.0, m, kk1.data(), hr);
-		};
-		
-		string dataset = string(argc >= 3 ? argv[2] : "data008");
-		
-		std::unique_ptr<Alignment::System> uu;
-		std::unique_ptr<Alignment::SystemRepa> ur;
-		std::unique_ptr<Alignment::HistoryRepa> hr;
-
-		{
-			std::ifstream in(dataset+".bin", std::ios::binary);
-			auto qq = persistentsRecordList(in);
-			in.close();
-			auto xx = recordListsHistoryRepa_3(8, *qq);
-			uu = std::move(std::get<0>(xx));
-			ur = std::move(std::get<1>(xx));
-			hr = std::move(std::get<2>(xx));
-		}
-
-		EVAL(hr->dimension);
-		EVAL(hr->size);
-
-		rpln(cout, sorted(*aall(*araa(*uu, *ur, *hrred(*hr, *ur, VarList{ Variable(Variable("scan"),Variable(1)) })))));
-		cout << endl;
-		rpln(cout, sorted(*aall(*araa(*uu, *ur, *hrred(*hr, *ur, VarList{ Variable(Variable("scan"),Variable(180)) })))));
-		cout << endl;
-		rpln(cout, sorted(*aall(*araa(*uu, *ur, *hrred(*hr, *ur, VarList{ Variable("motor") })))));
-		cout << endl;
-		rpln(cout, sorted(*aall(*araa(*uu, *ur, *hrred(*hr, *ur, VarList{ Variable("location") })))));
-		cout << endl;
-		rpln(cout, sorted(*aall(*araa(*uu, *ur, *hrred(*hr, *ur, VarList{ Variable("position") })))));
-		cout << endl;
-		rpln(cout, sorted(*aall(*araa(*uu, *ur, *hrred(*hr, *ur, VarList{ Variable("location_next") })))));
-		cout << endl;
-		rpln(cout, sorted(*aall(*araa(*uu, *ur, *hrred(*hr, *ur, VarList{ Variable("position_next") })))));		
-
-	}
-
 	if (argc >= 3 && string(argv[1]) == "condition" && (string(argv[2]) == "model029" || string(argv[2]) == "model030" || string(argv[2]) == "model031"))
 	{
 		auto uvars = systemsSetVar;
@@ -6437,6 +6370,112 @@ int main(int argc, char **argv)
 		if (model == "model030" || model == "model031")
 			sl->push_back(vvi[Variable("motor")]);		
 		size_t fmax = model == "model031" ? 4096*4 : 4096;
+		auto dr2 = applicationer(fmax, tint, *sl, vvi[Variable(label)], *hr1, 1, *ur);
+		auto dr3 = drjoin(dr, *dr2);
+		std::ofstream out(model + "_" + label + ".dr", std::ios::binary);
+		systemRepasPersistent(*ur, out); cout << endl;
+		applicationRepasPersistent(*dr3, out); cout << endl;
+		out.close();
+	}
+	
+		if (argc >= 3 && string(argv[1]) == "condition" && (string(argv[2]) == "model032" || string(argv[2]) == "model033" || string(argv[2]) == "model034"))
+	{
+		auto uvars = systemsSetVar;
+		auto frmul = historyRepasFudRepasMultiply_up;
+		auto drcopy = applicationRepasApplicationRepa_u;
+		auto drjoin = applicationRepaPairsJoin_u;
+		auto applicationer = parametersSystemsHistoryRepasApplicationerCondMultinomialFmaxIORepa_up;
+
+		string model = string(argv[2]);
+		size_t tint = argc >= 4 ? atoi(argv[3]) : 1;
+		string label = argc >= 5 ? string(argv[4]) : "room_next";
+
+		std::unique_ptr<Alignment::System> uu;
+		std::unique_ptr<Alignment::SystemRepa> ur;
+		std::unique_ptr<Alignment::HistoryRepa> hr;
+
+		{
+			std::vector<std::string> files{
+				"data009.bin"
+			};
+			HistoryRepaPtrList ll;
+			for (auto& f : files)
+			{
+				std::ifstream in(f, std::ios::binary);
+				auto qq = persistentsRecordList(in);
+				in.close();
+				auto xx = recordListsHistoryRepa_4(8, *qq);
+				uu = std::move(std::get<0>(xx));
+				ur = std::move(std::get<1>(xx));
+				ll.push_back(std::move(std::get<2>(xx)));
+			}
+			hr = vectorHistoryRepasConcat_u(ll);
+		}
+
+		EVAL(hr->dimension);
+		EVAL(hr->size);
+
+		ApplicationRepa dr;
+		{
+			StrVarPtrMap m;
+			std::ifstream in("model026.dr", std::ios::binary);
+			auto ur1 = persistentsSystemRepa(in, m);
+			auto dr1 = persistentsApplicationRepa(in);
+			in.close();
+			auto& llu1 = ur1->listVarSizePair;
+			VarSizeUMap ur0 = ur->mapVarSize();
+			auto n = fudRepasSize(*dr1->fud);
+			size_t a = 360;
+			size_t b = 60;
+			auto& llu = ur->listVarSizePair;
+			llu.reserve(n*a / b + a);
+			dr.slices = std::make_shared<SizeTree>();
+			dr.slices->_list.reserve(dr1->slices->_list.size() * a / b);
+			dr.fud = std::make_shared<FudRepa>();
+			dr.fud->layers.reserve(dr1->fud->layers.size());
+			dr.substrate.reserve(dr1->substrate.size() * a / b);
+			for (int i = 0; i < a * 2 / b; i++)
+			{
+				auto dr2 = drcopy(*dr1);
+				SizeSizeUMap nn;
+				nn.reserve(n + b);
+				for (auto x1 : dr1->substrate)
+				{
+					auto& p = llu1[x1];
+					auto v1 = p.first->_var0;
+					auto v2 = std::make_shared<Variable>(((int)(p.first->_var1->_int + i*b/2 - 1)) % a + 1);
+					auto v = std::make_shared<Variable>(v1, v2);
+					nn[x1] = ur0[*v];
+				}
+				auto vk = std::make_shared<Variable>((int)i + 1);
+				for (auto& ll : dr1->fud->layers)
+					for (auto& tr : ll)
+					{
+						auto x1 = tr->derived;
+						auto& p = llu1[x1];
+						auto v = std::make_shared<Variable>(p.first, vk);
+						llu.push_back(VarSizePair(v, p.second));
+						nn[x1] = llu.size() - 1;
+					}
+				dr2->reframe_u(nn);
+				dr.slices->_list.insert(dr.slices->_list.end(), dr2->slices->_list.begin(), dr2->slices->_list.end());
+				for (std::size_t l = 0; l < dr2->fud->layers.size(); l++)
+				{
+					if (l < dr.fud->layers.size())
+						dr.fud->layers[l].insert(dr.fud->layers[l].end(), dr2->fud->layers[l].begin(), dr2->fud->layers[l].end());
+					else
+						dr.fud->layers.push_back(dr2->fud->layers[l]);
+				}
+				dr.substrate.insert(dr.substrate.end(), dr2->substrate.begin(), dr2->substrate.end());
+			}
+		}
+
+		auto& vvi = ur->mapVarSize();
+		auto hr1 = frmul(tint, *hr, *dr.fud);
+		auto sl = treesElements(*dr.slices);
+		if (model == "model033" || model == "model034")
+			sl->push_back(vvi[Variable("motor")]);		
+		size_t fmax = model == "model034" ? 4096*4 : 4096;
 		auto dr2 = applicationer(fmax, tint, *sl, vvi[Variable(label)], *hr1, 1, *ur);
 		auto dr3 = drjoin(dr, *dr2);
 		std::ofstream out(model + "_" + label + ".dr", std::ios::binary);
