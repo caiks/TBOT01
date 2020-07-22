@@ -114,6 +114,7 @@ void Controller::turn_request_callback(const std_msgs::msg::String::SharedPtr ms
 {
 	_turn_request = msg->data;
 	bool right = _turn_request[0] == 'r' || _turn_request[0] == 'R';
+	_bias_right = right;
 	RCLCPP_INFO(this->get_logger(), "Received turn request: '%s'", right ? "right" : "left");
 }
 
@@ -138,8 +139,11 @@ void Controller::update_callback()
 	double check_forward_dist = 0.7;
 	double check_side_dist = 0.6;
 
-	if (_bias_factor > 0 && (rand() % _bias_factor) == 0)
+	if (_turn_request == "" && _bias_factor > 0 && (rand() % _bias_factor) == 0)
+	{
 		_bias_right = !_bias_right;
+		RCLCPP_INFO(this->get_logger(), "Random bias: '%s'", _bias_right ? "right" : "left");
+	}
 	
 	switch (turtlebot3_state_num)
 	{
