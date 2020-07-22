@@ -6484,5 +6484,155 @@ int main(int argc, char **argv)
 		out.close();
 	}
 	
+	if (argc >= 3 && string(argv[1]) == "slice_labels")
+	{
+		auto uvars = systemsSetVar;
+		auto single = histogramSingleton_u;
+		auto trim = histogramsTrim;
+		auto aall = histogramsList;
+		auto araa = systemsHistogramRepasHistogram_u;
+		auto hrsel = eventsHistoryRepasHistoryRepaSelection_u;
+		auto hrhrred = setVarsHistoryRepasHistoryRepaReduced_u;
+		auto hrred = setVarsHistoryRepasReduce_u;
+		auto frmul = historyRepasFudRepasMultiply_u;
+		auto frvars = fudRepasSetVar;
+		auto frder = fudRepasDerived;
+		auto frund = fudRepasUnderlying;
+		auto frdep = fudRepasSetVarsDepends;
+
+		string model = string(argv[2]);
+		string dataset = string(argc >= 4 ? argv[3] : "data002");
+		string substrate = string(argc >= 5 ? argv[4] : "substrate002");		
+		EVAL(model);
+		EVAL(dataset);
+		EVAL(substrate);
+		
+		std::unique_ptr<Alignment::System> uu;
+		std::unique_ptr<Alignment::SystemRepa> ur;
+		std::unique_ptr<Alignment::HistoryRepa> hr;
+		{
+			std::vector<std::string> files{
+				"data002_room1.bin",
+				"data002_room2.bin",
+				"data002_room2_2.bin",
+				"data002_room3.bin",
+				"data002_room4.bin",
+				"data002_room5.bin",
+				"data002_room5_2.bin"
+			};
+			if (dataset == "data003")
+			{
+				files.clear();
+				files.push_back("data003.bin");
+			}
+			else if (dataset == "data004")
+			{
+				files.clear();
+				files.push_back("data003.bin");
+				files.push_back("data004_01.bin");
+				files.push_back("data004_02.bin");
+				files.push_back("data004_03.bin");
+				files.push_back("data004_04.bin");
+				files.push_back("data004_05.bin");
+			}
+			else if (dataset != "data002")
+			{
+				files.clear();
+				files.push_back(dataset+".bin");
+			}			
+			HistoryRepaPtrList ll;
+			for (auto& f : files)
+			{
+				std::ifstream in(f, std::ios::binary);
+				auto qq = persistentsRecordList(in);
+				in.close();
+				SystemHistoryRepaTuple xx;
+				if (substrate == "substrate004")
+					xx = recordListsHistoryRepa_4(8, *qq);
+				else if (substrate == "substrate003")
+					xx = recordListsHistoryRepa_3(8, *qq);
+				else
+					xx = recordListsHistoryRepa_2(8, *qq);
+				uu = std::move(std::get<0>(xx));
+				ur = std::move(std::get<1>(xx));
+				ll.push_back(std::move(std::get<2>(xx)));
+			}
+			hr = vectorHistoryRepasConcat_u(ll);
+		}
+			
+		auto& llu = ur->listVarSizePair;
+		std::unique_ptr<Alignment::ApplicationRepa> dr;	
+		{
+			std::unique_ptr<Alignment::SystemRepa> ur1;
+			StrVarPtrMap m;
+			std::ifstream in(model + ".dr", std::ios::binary);
+			ur1 = persistentsSystemRepa(in, m);
+			dr = persistentsApplicationRepa(in);
+			in.close();
+			auto& llu1 = ur1->listVarSizePair;			
+			SizeSizeUMap nn;
+			for (auto& ll : dr->fud->layers)
+				for (auto& tr : ll)
+				{
+					auto x = tr->derived;
+					auto& p = llu1[x];
+					llu.push_back(VarSizePair(p.first, p.second));
+					nn[x] = llu.size() - 1;
+				}
+			dr->reframe_u(nn);
+		}	
+
+		VarSet vvl;
+		vvl.insert(Variable("motor"));
+		vvl.insert(Variable("location"));
+		vvl.insert(Variable("position"));
+		if (substrate == "substrate003" || substrate == "substrate004")
+		{
+			vvl.insert(Variable("location_next"));
+			vvl.insert(Variable("position_next"));			
+		}
+		if (substrate == "substrate004")
+		{
+			vvl.insert(Variable("room_next"));
+		}
+
+		auto& vvi = ur->mapVarSize();
+		SizeList vvl1;
+		for (auto& v : vvl)
+			vvl1.push_back(vvi[v]);
+		
+		std::map<std::size_t, std::shared_ptr<Alignment::HistogramRepa>> sar;
+		{
+			auto hr1 = frmul(*hr, *dr->fud);
+			auto hr2 = hrhrred(vvl1.size(), vvl1.data(), *hr);
+			if (hr1->evient)
+				hr1->transpose();
+			auto z = hr1->size;
+			auto& mvv = hr1->mapVarInt();
+			auto sh = hr1->shape;
+			auto rr = hr1->arr;
+			auto nn = treesLeafNodes(*dr->slices);
+			for (auto& s : *nn)
+			{
+				SizeList ev;
+				auto pk = mvv[s.first];
+				for (std::size_t j = 0; j < z; j++)
+				{
+					std::size_t u = rr[pk*z + j];
+					if (u)
+					{
+						ev.push_back(j);
+					}
+				}				
+				sar[s.first] = std::move(hrred(1.0, vvl1.size(), vvl1.data(), *hrsel(ev.size(), ev.data(), *hr2)));
+			}
+		}
+		for (auto& p : sar)
+		{
+			cout << endl << *llu[p.first].first << endl;
+			rpln(cout, sorted(*aall(*trim(*araa(*uu, *ur, *p.second)))));
+		}
+	}
+	
 	return 0;
 }
