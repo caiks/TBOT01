@@ -6634,5 +6634,229 @@ int main(int argc, char **argv)
 		}
 	}
 	
+	if (argc >= 3 && string(argv[1]) == "entropy_room_next")
+	{
+		typedef std::vector<State> SList;	
+		
+		auto uvars = systemsSetVar;
+		auto state = [](const Variable& v, const Value& u)
+		{
+			return State(VarValPairList{VarValPair(v, u)});
+		};
+		auto single = histogramSingleton_u;		
+		auto mul = pairHistogramsMultiply;
+		auto size = [](const Histogram& aa)
+		{
+			return (double)histogramsSize(aa).getNumerator();
+		};		
+		auto trim = histogramsTrim;
+		auto aall = histogramsList;
+		auto smax = [](const Histogram& aa)
+		{
+			std::vector<std::pair<Rational,State>> ll;
+			auto ll0 = *histogramsList(aa);
+			for (auto p : ll0)
+				ll.push_back(std::pair<Rational,State>(p.second,p.first));
+			auto ll1 = sorted(ll);
+			return ll1.back().second;
+		};		
+		auto ared = [](const Histogram& aa, const VarUSet& vv)
+		{
+			return setVarsHistogramsReduce(vv, aa);
+		};		
+		auto add = pairHistogramsAdd_u;
+		auto ent = histogramsEntropy;
+		auto araa = systemsHistogramRepasHistogram_u;
+		auto hrsel = eventsHistoryRepasHistoryRepaSelection_u;
+		auto hrhrred = setVarsHistoryRepasHistoryRepaReduced_u;
+		auto hrred = setVarsHistoryRepasReduce_u;
+		auto frmul = historyRepasFudRepasMultiply_u;
+		auto frvars = fudRepasSetVar;
+		auto frder = fudRepasDerived;
+		auto frund = fudRepasUnderlying;
+		auto frdep = fudRepasSetVarsDepends;
+
+		string model = string(argv[2]);
+		string dataset = string(argc >= 4 ? argv[3] : "data002");
+		string substrate = string(argc >= 5 ? argv[4] : "substrate004");	
+		
+		EVAL(model);
+		EVAL(dataset);
+		EVAL(substrate);
+		
+		std::unique_ptr<Alignment::System> uu;
+		std::unique_ptr<Alignment::SystemRepa> ur;
+		std::unique_ptr<Alignment::HistoryRepa> hr;
+		{
+			std::vector<std::string> files{
+				"data002_room1.bin",
+				"data002_room2.bin",
+				"data002_room2_2.bin",
+				"data002_room3.bin",
+				"data002_room4.bin",
+				"data002_room5.bin",
+				"data002_room5_2.bin"
+			};
+			if (dataset == "data003")
+			{
+				files.clear();
+				files.push_back("data003.bin");
+			}
+			else if (dataset == "data004")
+			{
+				files.clear();
+				files.push_back("data003.bin");
+				files.push_back("data004_01.bin");
+				files.push_back("data004_02.bin");
+				files.push_back("data004_03.bin");
+				files.push_back("data004_04.bin");
+				files.push_back("data004_05.bin");
+			}
+			else if (dataset != "data002")
+			{
+				files.clear();
+				files.push_back(dataset+".bin");
+			}			
+			HistoryRepaPtrList ll;
+			for (auto& f : files)
+			{
+				std::ifstream in(f, std::ios::binary);
+				auto qq = persistentsRecordList(in);
+				in.close();
+				SystemHistoryRepaTuple xx;
+				xx = recordListsHistoryRepa_4(8, *qq);
+				uu = std::move(std::get<0>(xx));
+				ur = std::move(std::get<1>(xx));
+				ll.push_back(std::move(std::get<2>(xx)));
+			}
+			hr = vectorHistoryRepasConcat_u(ll);
+		}
+//		EVAL(hr->size);
+		
+		auto& llu = ur->listVarSizePair;
+		std::unique_ptr<Alignment::ApplicationRepa> dr;	
+		{
+			std::unique_ptr<Alignment::SystemRepa> ur1;
+			StrVarPtrMap m;
+			std::ifstream in(model + ".dr", std::ios::binary);
+			ur1 = persistentsSystemRepa(in, m);
+			dr = persistentsApplicationRepa(in);
+			in.close();
+			auto& llu1 = ur1->listVarSizePair;			
+			SizeSizeUMap nn;
+			for (auto& ll : dr->fud->layers)
+				for (auto& tr : ll)
+				{
+					auto x = tr->derived;
+					auto& p = llu1[x];
+					llu.push_back(VarSizePair(p.first, p.second));
+					nn[x] = llu.size() - 1;
+				}
+			dr->reframe_u(nn);
+		}	
+
+		Variable motor("motor");
+		Variable location("location");
+		Variable room_next("room_next");
+			
+		std::map<State, SList> mss;
+		mss[state(location, Value("door12"))] = SList{
+			state(room_next, Value("room1")),
+			state(room_next, Value("room2"))};
+		mss[state(location, Value("door13"))] = SList{
+			state(room_next, Value("room1")),
+			state(room_next, Value("room3"))};
+		mss[state(location, Value("door14"))] = SList{
+			state(room_next, Value("room1")),
+			state(room_next, Value("room4"))};
+		mss[state(location, Value("door45"))] = SList{
+			state(room_next, Value("room4")),
+			state(room_next, Value("room5"))};
+		mss[state(location, Value("door56"))] = SList{
+			state(room_next, Value("room5")),
+			state(room_next, Value("room6"))};	
+		mss[state(location, Value("room1"))] = SList{
+			state(room_next, Value("room2")),
+			state(room_next, Value("room3")),
+			state(room_next, Value("room4"))};	
+		mss[state(location, Value("room2"))] = SList{
+			state(room_next, Value("room1"))};			
+		mss[state(location, Value("room3"))] = SList{
+			state(room_next, Value("room1"))};			
+		mss[state(location, Value("room4"))] = SList{
+			state(room_next, Value("room1")),
+			state(room_next, Value("room5"))};	
+		mss[state(location, Value("room5"))] = SList{
+			state(room_next, Value("room4")),
+			state(room_next, Value("room6"))};	
+		mss[state(location, Value("room6"))] = SList{
+			state(room_next, Value("room5"))};	
+			
+		VarSet vvl;
+		vvl.insert(motor);
+		vvl.insert(location);
+		vvl.insert(room_next);
+
+		auto& vvi = ur->mapVarSize();
+		SizeList vvl1;
+		for (auto& v : vvl)
+			vvl1.push_back(vvi[v]);
+		
+		double entropy_total;
+		{
+			auto hr1 = frmul(*hr, *dr->fud);
+//			EVAL(hr1->size);			
+			auto hr2 = hrhrred(vvl1.size(), vvl1.data(), *hr);
+//			EVAL(hr1->size);
+			if (hr1->evient)
+				hr1->transpose();
+			auto z = hr1->size;
+			auto& mvv = hr1->mapVarInt();
+			auto sh = hr1->shape;
+			auto rr = hr1->arr;
+			auto nn = treesLeafNodes(*dr->slices);
+			for (auto& s : *nn)
+			{
+				SizeList ev;
+				auto pk = mvv[s.first];
+				for (std::size_t j = 0; j < z; j++)
+				{
+					std::size_t u = rr[pk*z + j];
+					if (u)
+					{
+						ev.push_back(j);
+					}
+				}		
+				if (ev.size() > 0)
+				{
+//					EVAL(*llu[s.first].first);
+					auto aa = *trim(*araa(*uu, *ur, *hrred(1.0, vvl1.size(), vvl1.data(), *hrsel(ev.size(), ev.data(), *hr2))));
+//					EVAL(size(aa));
+//					EVAL(aa);
+					auto ss = smax(*ared(aa,VarUSet{location}));			
+//					EVAL(ss);
+					auto aa1 = *ared(*mul(aa,*single(ss,1)),VarUSet{motor,room_next});							
+//					EVAL(aa1);	
+					Histogram xx;
+					double e = 0.0;
+					for (auto s : mss[ss])
+					{
+						auto yy = *mul(aa1,*single(s,1));
+//						EVAL(yy);
+//						EVAL(size(yy) * ent(yy));
+						e += - size(yy) * ent(yy);
+						xx = *add(xx,yy);
+					}
+//					EVAL(xx);
+//					EVAL(size(xx) * ent(xx));					
+					e += size(xx) * ent(xx);
+//					EVAL(e);
+					entropy_total += e;
+				}	
+			}
+		}
+		EVAL(entropy_total);
+	}
+	
 	return 0;
 }
