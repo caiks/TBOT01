@@ -36,6 +36,10 @@ add_executable(observer observer.cpp dev.cpp)
 ament_target_dependencies(observer ${dependencies} Threads)
 install(TARGETS observer DESTINATION lib/${PROJECT_NAME})
 
+add_executable(actor actor.cpp dev.cpp)
+ament_target_dependencies(actor ${dependencies} Threads)
+install(TARGETS actor DESTINATION lib/${PROJECT_NAME})
+
 add_executable(main main.cpp dev.cpp)
 ament_target_dependencies(main ${dependencies} Threads)
 install(TARGETS main DESTINATION lib/${PROJECT_NAME})
