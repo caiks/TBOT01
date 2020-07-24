@@ -6858,5 +6858,142 @@ int main(int argc, char **argv)
 		EVAL(entropy_total);
 	}
 	
+	if (argc >= 3 && string(argv[1]) == "room_expected")
+	{
+		typedef std::vector<State> SList;	
+		
+		auto uvars = systemsSetVar;
+		auto state = [](const Variable& v, const Value& u)
+		{
+			return State(VarValPairList{VarValPair(v, u)});
+		};
+		auto single = histogramSingleton_u;		
+		auto mul = pairHistogramsMultiply;
+		auto size = [](const Histogram& aa)
+		{
+			return (double)histogramsSize(aa).getNumerator();
+		};		
+		auto trim = histogramsTrim;
+		auto aall = histogramsList;
+		auto smax = [](const Histogram& aa)
+		{
+			std::vector<std::pair<Rational,State>> ll;
+			auto ll0 = *histogramsList(aa);
+			for (auto p : ll0)
+				ll.push_back(std::pair<Rational,State>(p.second,p.first));
+			auto ll1 = sorted(ll);
+			return ll1.back().second;
+		};		
+		auto ared = [](const Histogram& aa, const VarUSet& vv)
+		{
+			return setVarsHistogramsReduce(vv, aa);
+		};		
+		auto add = pairHistogramsAdd_u;
+		auto ent = histogramsEntropy;
+		auto araa = systemsHistogramRepasHistogram_u;
+		auto hrsel = eventsHistoryRepasHistoryRepaSelection_u;
+		auto hrhrred = setVarsHistoryRepasHistoryRepaReduced_u;
+		auto hrred = setVarsHistoryRepasReduce_u;
+		auto frmul = historyRepasFudRepasMultiply_u;
+		auto frvars = fudRepasSetVar;
+		auto frder = fudRepasDerived;
+		auto frund = fudRepasUnderlying;
+		auto frdep = fudRepasSetVarsDepends;
+
+		string dataset = string(argc >= 3 ? argv[2] : "data002");
+		string room_initial = string(argc >= 4 ? argv[3] : "room1");	
+		size_t room_seed = argc >= 5 ? atoi(argv[4]) : 17;
+		
+		EVAL(dataset);
+		EVAL(room_initial);
+		EVAL(room_seed);
+		
+		std::unique_ptr<Alignment::System> uu;
+		std::unique_ptr<Alignment::SystemRepa> ur;
+		std::unique_ptr<Alignment::HistoryRepa> hr;
+		{
+			std::vector<std::string> files{
+				"data002_room1.bin",
+				"data002_room2.bin",
+				"data002_room2_2.bin",
+				"data002_room3.bin",
+				"data002_room4.bin",
+				"data002_room5.bin",
+				"data002_room5_2.bin"
+			};
+			if (dataset == "data003")
+			{
+				files.clear();
+				files.push_back("data003.bin");
+			}
+			else if (dataset == "data004")
+			{
+				files.clear();
+				files.push_back("data003.bin");
+				files.push_back("data004_01.bin");
+				files.push_back("data004_02.bin");
+				files.push_back("data004_03.bin");
+				files.push_back("data004_04.bin");
+				files.push_back("data004_05.bin");
+			}
+			else if (dataset != "data002")
+			{
+				files.clear();
+				files.push_back(dataset+".bin");
+			}			
+			HistoryRepaPtrList ll;
+			for (auto& f : files)
+			{
+				std::ifstream in(f, std::ios::binary);
+				auto qq = persistentsRecordList(in);
+				in.close();
+				SystemHistoryRepaTuple xx;
+				xx = recordListsHistoryRepa_4(8, *qq);
+				uu = std::move(std::get<0>(xx));
+				ur = std::move(std::get<1>(xx));
+				ll.push_back(std::move(std::get<2>(xx)));
+			}
+			hr = vectorHistoryRepasConcat_u(ll);
+		}
+//		EVAL(hr->size);
+
+		vector<string> locations{ "door12", "door13", "door14", "door45", "door56", "room1", "room2", "room3", "room4", "room5", "room6", "unknown" };
+		size_t ug = 0;
+		while (ug < locations.size()-1)
+			if (locations[ug] == room_initial)
+				break;
+			else
+				ug++;
+			
+		auto& vvi = ur->mapVarSize();
+		auto z = hr->size;
+		auto rr = hr->arr;
+		auto& mvv = hr->mapVarInt();
+		auto p = mvv[vvi[Variable("location")]];		
+		srand(room_seed);
+		vector<size_t> ll {0};
+		for (size_t j = 0; j < z; j++)
+		{
+			auto u = rr[p*z + j];
+			if ((size_t)u == ug)
+			{
+				while ((size_t)u == ug)
+					ug = (rand() % 6) + 5; 
+				// EVAL(j);
+				// EVAL(locations[(size_t)u]);					
+				// EVAL(locations[ug]);
+				ll.push_back(0);
+			}
+			ll.back()++;
+		}
+		ll.pop_back();
+//		EVAL(ll);
+		double average = 0.0;
+		for (auto a : ll)
+			average += a;
+		average /= ll.size();
+		EVAL(average);
+	}
+	
 	return 0;
 }
