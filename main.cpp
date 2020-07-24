@@ -6993,6 +6993,10 @@ int main(int argc, char **argv)
 			average += a;
 		average /= ll.size();
 		EVAL(average);
+		double variance = 0.0;
+		for (auto a : ll)
+			variance += ((double)a - average)*((double)a - average);
+		EVAL(sqrt(variance));
 	}
 	
 	return 0;
