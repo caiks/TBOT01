@@ -1,23 +1,23 @@
-#include "observer.h"
+#include "actor.h"
+#include <sstream>
 
 using namespace Alignment;
 using namespace TBOT01;
 using namespace std;
 using namespace std::chrono_literals;
 
+#define EVAL(x) std::ostringstream str; str << #x << ": " << (x)
+
 typedef std::chrono::duration<double> sec;
 typedef std::chrono::high_resolution_clock clk;
 
-#define ECHO(x) cout << #x << endl; x
-#define EVAL(x) cout << #x << ": " << (x) << endl
-#define EVALL(x) cout << #x << ": " << endl << (x) << endl
-#define TRUTH(x) cout << #x << ": " << ((x) ? "true" : "false") << endl
-
-Actor::Actor(const std::string& model, const std::string& room_initial, std::chrono::milliseconds observe_interval, const std::string& dataset)
+Actor::Actor(const std::string& model, const std::string& room_initial, std::chrono::milliseconds act_interval, const std::string& dataset)
 : Node("TBOT01_actor_node")
 {
 	auto hrsel = eventsHistoryRepasHistoryRepaSelection_u;
 	auto hrred = setVarsHistoryRepasReduce_u;
+	auto hrhrred = setVarsHistoryRepasHistoryRepaReduced_u;
+	auto frmul = historyRepasFudRepasMultiply_u;
 		
 	_pose_updated = false;
 	_scan_updated = false;
@@ -54,22 +54,22 @@ Actor::Actor(const std::string& model, const std::string& room_initial, std::chr
 		{
 			files.clear();
 			files.push_back(dataset+".bin");
-		}			
+		}	
 		HistoryRepaPtrList ll;
 		for (auto& f : files)
 		{
 			std::ifstream in(f, std::ios::binary);
 			auto qq = persistentsRecordList(in);
-			in.close();
+			in.close();			
 			SystemHistoryRepaTuple xx;
-			xx = recordListsHistoryRepa_4(8, *qq);
+			xx = recordListsHistoryRepa_4(8, *qq);			
 			_uu = std::move(std::get<0>(xx));
 			_ur = std::move(std::get<1>(xx));
 			ll.push_back(std::move(std::get<2>(xx)));
 		}
 		hr = vectorHistoryRepasConcat_u(ll);
 	}
-
+	
 	auto& llu = _ur->listVarSizePair;
 	{
 		std::unique_ptr<Alignment::SystemRepa> ur1;
@@ -90,7 +90,6 @@ Actor::Actor(const std::string& model, const std::string& room_initial, std::chr
 			}
 		_dr->reframe_u(nn);
 	}	
-
 	VarSet vvl;
 	vvl.insert(Variable("motor"));
 	vvl.insert(Variable("location"));
@@ -123,7 +122,7 @@ Actor::Actor(const std::string& model, const std::string& room_initial, std::chr
 					ev.push_back(j);
 				}
 			}
-			if (ev.size() > 0)
+			if (ev.size() > 0)	
 				_shr[s.first] = std::move(hrsel(ev.size(), ev.data(), *hr2));
 		}
 	}
@@ -133,14 +132,14 @@ Actor::Actor(const std::string& model, const std::string& room_initial, std::chr
 	_odom_sub = this->create_subscription<nav_msgs::msg::Odometry>(
 		"odom", rclcpp::QoS(rclcpp::KeepLast(10)), std::bind(&Actor::odom_callback, this, std::placeholders::_1));
 
-	_observe_timer = this->create_wall_timer(observe_interval, std::bind(&Actor::observe_callback, this));
+	_act_timer = this->create_wall_timer(act_interval, std::bind(&Actor::act_callback, this));
 
 	RCLCPP_INFO(this->get_logger(), "TBOT01 actor node has been initialised");
 }
 
 Actor::~Actor()
 {
-	RCLCPP_INFO(this->get_logger(), "TBOT01 observer node has been terminated");
+	RCLCPP_INFO(this->get_logger(), "TBOT01 actor node has been terminated");
 }
 
 void Actor::odom_callback(const nav_msgs::msg::Odometry::SharedPtr msg)
@@ -167,9 +166,9 @@ void Actor::scan_callback(const sensor_msgs::msg::LaserScan::SharedPtr msg)
 	_scan_updated = true;
 }
 
-void Actor::observe_callback()
+void Actor::act_callback()
 {
-	typedef std::tuple<string, string, string> String3;			
+	typedef std::tuple<std::string, std::string, std::string> String3;			
 	typedef std::vector<String3> String3List;			
 
 	auto state = [](const Variable& v, const Value& u)
@@ -198,7 +197,10 @@ void Actor::observe_callback()
 		return setVarsHistogramsReduce(vv, aa);
 	};		
 	auto add = pairHistogramsAdd_u;
-	auto araa = systemsHistogramRepasHistogram_u;
+	auto hraa = [](const System& uu, const SystemRepa& ur, const HistoryRepa& hr)
+	{
+		return historiesHistogram(*systemsHistoryRepasHistory_u(uu,ur,hr));
+	};
 	auto hrsel = eventsHistoryRepasHistoryRepaSelection_u;
 	auto hrhrred = setVarsHistoryRepasHistoryRepaReduced_u;
 	auto hrred = setVarsHistoryRepasReduce_u;
@@ -291,6 +293,7 @@ void Actor::observe_callback()
 		vvl.insert(room_next);
 
 		auto& vvi = _ur->mapVarSize();
+			auto& llu = _ur->listVarSizePair;
 		SizeList vvl1;
 		for (auto& v : vvl)
 			vvl1.push_back(vvi[v]);
@@ -319,34 +322,21 @@ void Actor::observe_callback()
 			}	
 			if (!found)
 			{
-				RCLCPP_INFO(this->get_logger(), "observe_callback: error: no slice");
+				RCLCPP_INFO(this->get_logger(), "act_callback: error: no slice");
 				return;
 			}
 		}
 		if (_shr.find(s) != _shr.end())
 		{
-			auto aa = *trim(*araa(*_uu, *_ur, *_shr[s]));
-
-		}
-		
-		std::vector<std::string> locations{ "door12", "door13", "door14", "door45", "door56",
-			"room1", "room2", "room3", "room4", "room5", "room6", "unknown" };
-		std::vector<std::string> positions{ "centre", "corner", "side", "unknown" };
-		bool is_match = l == cl;
-		if (is_match)
-			_matches++;
-		_observations++;
-
-		std::string report;
-		report += _label == "location" ? locations[cl] : positions[cl];
-		report += "\t";
-		report += _label == "location" ? locations[l] : positions[l];
-		report += "\t";
-		report += l == cl ? "match" : "fail";
-		report += "\t";
-		report += std::to_string((double)_matches / (double)_observations * 100.0);
-
-		RCLCPP_INFO(this->get_logger(), report);
+			{EVAL(*llu[s].first); RCLCPP_INFO(this->get_logger(), str.str());}
+			auto aa = *trim(*hraa(*_uu, *_ur, *_shr[s]));
+			{EVAL(size(aa)); RCLCPP_INFO(this->get_logger(), str.str());}
+			{EVAL(aa); RCLCPP_INFO(this->get_logger(), str.str());}
+			auto ss = smax(*ared(aa,VarUSet{location}));		
+			{EVAL(ss); RCLCPP_INFO(this->get_logger(), str.str());}
+			Value location_value = ss.map_u().begin()->second;
+			{EVAL(location_value); RCLCPP_INFO(this->get_logger(), str.str());}
+		}	
 	}
 }
 
@@ -354,11 +344,11 @@ int main(int argc, char** argv)
 {
 	std::string model = string(argc >= 2 ? argv[1] : "model006_location");
 	std::string room_initial = string(argc >= 3 ? argv[2] : "room1");
-	std::chrono::milliseconds observe_interval(argc >= 4 ? std::atol(argv[3]) : 5*60);
+	std::chrono::milliseconds act_interval(argc >= 4 ? std::atol(argv[3]) : 5*60);
 	string dataset = string(argc >= 5 ? argv[4] : "data002");
 
 	rclcpp::init(argc, argv);
-	rclcpp::spin(std::make_shared<Actor>(model, room_initial, observe_interval, dataset));
+	rclcpp::spin(std::make_shared<Actor>(model, room_initial, act_interval, dataset));
 	rclcpp::shutdown();
 
 	return 0;

@@ -291,6 +291,11 @@ git clone https://github.com/caiks/AlignmentRepaC.git
 git clone https://github.com/caiks/TBOT01.git
 git clone https://github.com/caiks/TBOT01_ws.git
 
+cd ~/turtlebot3_ws/src/TBOT01_ws
+cat data008a* >data008.bin
+cat data009a* >data009.bin
+
+cd ~/turtlebot3_ws/src
 mkdir AlignmentC_build AlignmentRepaC_build
 cd ~/turtlebot3_ws/src/AlignmentRepaC_build
 cmake -DCMAKE_BUILD_TYPE=RELEASE ../AlignmentRepaC
