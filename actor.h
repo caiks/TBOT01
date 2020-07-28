@@ -3,6 +3,7 @@
 
 #include <geometry_msgs/msg/twist.hpp>
 #include <nav_msgs/msg/odometry.hpp>
+#include <std_msgs/msg/string.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/laser_scan.hpp>
 
@@ -18,6 +19,8 @@ public:
 	~Actor();
 
 private:
+	rclcpp::Publisher<std_msgs::msg::String>::SharedPtr _turn_request_pub;
+
 	rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr _scan_sub;
 	rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr _odom_sub;
 
@@ -26,6 +29,8 @@ private:
 	TBOT01::Record _record;
 	bool _pose_updated;
 	bool _scan_updated;
+	
+	int _act_factor;
 	
 	std::string _room;
 

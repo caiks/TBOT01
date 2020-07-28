@@ -22,6 +22,9 @@ Actor::Actor(const std::string& model, const std::string& room_initial, std::chr
 	_pose_updated = false;
 	_scan_updated = false;
 	
+	auto twofiftyms = 10ms;
+	_act_factor = act_interval.count() / twofiftyms.count();
+	
 	_room = room_initial;
 	
 	_room_locaction_goal = String3List{
@@ -198,6 +201,8 @@ Actor::Actor(const std::string& model, const std::string& room_initial, std::chr
 		}
 	}
 
+	_turn_request_pub = this->create_publisher<std_msgs::msg::String>("turn_request", rclcpp::QoS(rclcpp::KeepLast(10)));
+	
 	_scan_sub = this->create_subscription<sensor_msgs::msg::LaserScan>(
 		"scan", rclcpp::SensorDataQoS(), std::bind(&Actor::scan_callback, this, std::placeholders::_1));
 	_odom_sub = this->create_subscription<nav_msgs::msg::Odometry>(
@@ -247,7 +252,7 @@ void Actor::act_callback()
 	auto mul = pairHistogramsMultiply;
 	auto size = [](const Histogram& aa)
 	{
-		return (double)histogramsSize(aa).getNumerator();
+		return (size_t)histogramsSize(aa).getNumerator();
 	};		
 	auto trim = histogramsTrim;
 	auto aall = histogramsList;
@@ -330,7 +335,7 @@ void Actor::act_callback()
 	
 		EVAL(*llu[s].first);
 		auto aa = *trim(*hraa(*_uu, *_ur, *_slice_history[s]));
-		EVAL(size(aa))
+		// EVAL(size(aa))
 		// EVAL(aa);
 		auto ss = smax(*ared(aa,VarUSet{location}));		
 		// EVAL(ss);
@@ -346,7 +351,37 @@ void Actor::act_callback()
 			RCLCPP_INFO(this->get_logger(), "act_callback: error: no next room");
 			return;
 		}
-		EVAL(next_room_value);			
+		EVAL(next_room_value);	
+		auto aa1 = *mul(aa,*single(ss,1));
+		// EVAL(*ared(aa1,VarUSet{motor,room_next}));
+		auto aa2 = *ared(*mul(aa1,*single(state(room_next,next_room_value),1)),VarUSet{motor});			
+		// EVAL(aa2);	
+		auto next_size = size(aa2);
+		EVAL(next_size);
+		auto next_size_left = size(*mul(aa2,*single(state(motor,Value(0)),1)));		
+		EVAL(next_size_left);
+		auto next_size_right = size(*mul(aa2,*single(state(motor,Value(2)),1)));		
+		EVAL(next_size_right);
+		bool turn_left = false;
+		bool turn_right = false;
+		for (int i = 0; next_size_left && !turn_left && i < _act_factor; i++)
+			turn_left = (rand() % next_size) < next_size_left;
+		for (int i = 0; next_size_right && !turn_right && i < _act_factor; i++)
+			turn_right = (rand() % next_size) < next_size_right;
+		if (turn_left && !turn_right)
+		{
+			std_msgs::msg::String msg;
+			msg.data = "left";
+			_turn_request_pub->publish(msg);
+			RCLCPP_INFO(this->get_logger(), "Published turn request: left");
+		}
+		else if (!turn_left && turn_right)
+		{
+			std_msgs::msg::String msg;
+			msg.data = "right";
+			_turn_request_pub->publish(msg);
+			RCLCPP_INFO(this->get_logger(), "Published turn request: right");
+		}
 	}	
 
 }
