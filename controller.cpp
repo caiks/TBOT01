@@ -14,10 +14,7 @@ using namespace std::chrono_literals;
 typedef std::chrono::duration<double> sec;
 typedef std::chrono::high_resolution_clock clk;
 
-#define ECHO(x) cout << #x << endl; x
-#define EVAL(x) cout << #x << ": " << (x) << endl
-#define EVALL(x) cout << #x << ": " << endl << (x) << endl
-#define TRUTH(x) cout << #x << ": " << ((x) ? "true" : "false") << endl
+#define EVAL(x) { std::ostringstream str; str << #x << ": " << (x); RCLCPP_INFO(this->get_logger(), str.str());}
 
 Controller::Controller(const std::string& filename, std::chrono::milliseconds record_interval, std::chrono::milliseconds bias_interval, std::chrono::milliseconds turn_interval)
 : Node("TBOT01_controller_node")

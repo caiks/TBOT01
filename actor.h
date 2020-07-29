@@ -1,5 +1,5 @@
-﻿#ifndef OBSERVER_H
-#define OBSERVER_H
+﻿#ifndef ACTOR_H
+#define ACTOR_H
 
 #include <geometry_msgs/msg/twist.hpp>
 #include <nav_msgs/msg/odometry.hpp>
@@ -20,6 +20,7 @@ private:
 
 	rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr _scan_sub;
 	rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr _odom_sub;
+	rclcpp::Subscription<std_msgs::msg::String>::SharedPtr _goal_sub;
 
 	rclcpp::TimerBase::SharedPtr _act_timer;
 
@@ -40,5 +41,6 @@ private:
 	void act_callback();
 	void scan_callback(const sensor_msgs::msg::LaserScan::SharedPtr msg);
 	void odom_callback(const nav_msgs::msg::Odometry::SharedPtr msg);
+	void goal_callback(const std_msgs::msg::String::SharedPtr msg);
 };
-#endif // OBSERVER_H
+#endif // ACTOR_H

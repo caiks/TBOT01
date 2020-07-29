@@ -217,6 +217,8 @@ Actor::Actor(const std::string& model, const std::string& room_initial, std::chr
 		"scan", rclcpp::SensorDataQoS(), std::bind(&Actor::scan_callback, this, std::placeholders::_1));
 	_odom_sub = this->create_subscription<nav_msgs::msg::Odometry>(
 		"odom", rclcpp::QoS(rclcpp::KeepLast(10)), std::bind(&Actor::odom_callback, this, std::placeholders::_1));
+	_goal_sub = this->create_subscription<std_msgs::msg::String>(
+		"goal", 10, std::bind(&Actor::goal_callback, this, std::placeholders::_1));
 
 	_act_timer = this->create_wall_timer(act_interval, std::bind(&Actor::act_callback, this));
 
@@ -330,12 +332,13 @@ void Actor::act_callback()
 		for (auto& v : vvl)
 			vvl1.push_back(vvi[v]);
 	
-		EVAL(*llu[s].first);
+		// EVAL(*llu[s].first);
 		auto aa = *trim(*hraa(*_uu, *_ur, *_slice_history[s]));
-		EVAL(size(aa))
-		EVAL(aa);
+		// EVAL(size(aa))
+		// EVAL(aa);
+		EVAL(_room);
 		auto aa1 = *mul(aa,_room_location_goal[_room]);		
-		EVAL(aa1);	
+		// EVAL(aa1);	
 		auto next_size = size(aa1);
 		EVAL(next_size);
 		auto next_size_left = size(*mul(aa1,*single(state(motor,Value(0)),1)));		
@@ -363,7 +366,14 @@ void Actor::act_callback()
 			RCLCPP_INFO(this->get_logger(), "Published turn request: right");
 		}
 	}	
+}
 
+void Actor::goal_callback(const std_msgs::msg::String::SharedPtr msg)
+{
+	_room = msg->data;
+	std::ostringstream str; 
+	str << "Received goal: " << msg->data;
+	RCLCPP_INFO(this->get_logger(), str.str());
 }
 
 int main(int argc, char** argv)
