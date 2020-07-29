@@ -41,6 +41,7 @@ git clone https://github.com/caiks/TBOT01_ws.git
 cd ~/TBOT01_ws
 cat data008a* >data008.bin
 cat data009a* >data009.bin
+cat data010a* >data010.bin
 
 ```
 Then build -
@@ -294,6 +295,7 @@ git clone https://github.com/caiks/TBOT01_ws.git
 cd ~/turtlebot3_ws/src/TBOT01_ws
 cat data008a* >data008.bin
 cat data009a* >data009.bin
+cat data010a* >data010.bin
 
 cd ~/turtlebot3_ws/src
 mkdir AlignmentC_build AlignmentRepaC_build
