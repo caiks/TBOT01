@@ -9,9 +9,6 @@
 
 #include "dev.h"
 
-typedef std::tuple<std::string, std::string, std::string> String3;	
-typedef std::vector<String3> String3List;	
-
 class Actor : public rclcpp::Node
 {
 public:
@@ -38,7 +35,7 @@ private:
 	std::shared_ptr<Alignment::SystemRepa> _ur;
 	std::shared_ptr<Alignment::ApplicationRepa> _dr;
 	std::map<std::size_t, std::shared_ptr<Alignment::HistoryRepa>> _slice_history;
-	String3List _room_locaction_goal;
+	std::map<std::string, Alignment::Histogram> _room_location_goal;
 
 	void act_callback();
 	void scan_callback(const sensor_msgs::msg::LaserScan::SharedPtr msg);

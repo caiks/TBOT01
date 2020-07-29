@@ -14,8 +14,11 @@ typedef std::chrono::high_resolution_clock clk;
 Actor::Actor(const std::string& model, const std::string& room_initial, std::chrono::milliseconds act_interval, const std::string& dataset)
 : Node("TBOT01_actor_node")
 {
+	typedef std::tuple<std::string, std::string, std::string> String3;	
+	typedef std::vector<String3> String3List;	
+	auto add = pairHistogramsAdd_u;
+	auto single = histogramSingleton_u;		
 	auto hrsel = eventsHistoryRepasHistoryRepaSelection_u;
-	auto hrred = setVarsHistoryRepasReduce_u;
 	auto hrhrred = setVarsHistoryRepasHistoryRepaReduced_u;
 	auto frmul = historyRepasFudRepasMultiply_u;
 		
@@ -27,75 +30,82 @@ Actor::Actor(const std::string& model, const std::string& room_initial, std::chr
 	
 	_room = room_initial;
 	
-	_room_locaction_goal = String3List{
-		String3("room1","door12","room1"),
-		String3("room1","door13","room1"),
-		String3("room1","door14","room1"),
-		String3("room1","door45","room4"),
-		String3("room1","door56","room5"),
-		String3("room1","room1","room1"),
-		String3("room1","room2","room1"),
-		String3("room1","room3","room1"),
-		String3("room1","room4","room1"),
-		String3("room1","room5","room4"),
-		String3("room1","room6","room5"),
-		String3("room2","door12","room2"),
-		String3("room2","door13","room1"),
-		String3("room2","door14","room1"),
-		String3("room2","door45","room4"),
-		String3("room2","door56","room5"),
-		String3("room2","room1","room2"),
-		String3("room2","room2","room2"),
-		String3("room2","room3","room1"),
-		String3("room2","room4","room1"),
-		String3("room2","room5","room4"),
-		String3("room2","room6","room5"),		
-		String3("room3","door12","room1"),
-		String3("room3","door13","room3"),
-		String3("room3","door14","room1"),
-		String3("room3","door45","room4"),
-		String3("room3","door56","room5"),
-		String3("room3","room1","room3"),
-		String3("room3","room2","room1"),
-		String3("room3","room3","room3"),
-		String3("room3","room4","room1"),
-		String3("room3","room5","room4"),
-		String3("room3","room6","room5"),	
-		String3("room4","door12","room1"),
-		String3("room4","door13","room2"),
-		String3("room4","door14","room4"),
-		String3("room4","door45","room4"),
-		String3("room4","door56","room5"),
-		String3("room4","room1","room4"),
-		String3("room4","room2","room1"),
-		String3("room4","room3","room1"),
-		String3("room4","room4","room4"),
-		String3("room4","room5","room4"),
-		String3("room4","room6","room5"),	
-		String3("room5","door12","room1"),
-		String3("room5","door13","room1"),
-		String3("room5","door14","room4"),
-		String3("room5","door45","room5"),
-		String3("room5","door56","room5"),
-		String3("room5","room1","room4"),
-		String3("room5","room2","room1"),
-		String3("room5","room3","room1"),
-		String3("room5","room4","room5"),
-		String3("room5","room5","room5"),
-		String3("room5","room6","room5"),	
-		String3("room6","door12","room1"),
-		String3("room6","door13","room1"),
-		String3("room6","door14","room4"),
-		String3("room6","door45","room5"),
-		String3("room6","door56","room6"),
-		String3("room6","room1","room4"),
-		String3("room6","room2","room1"),
-		String3("room6","room3","room1"),
-		String3("room6","room4","room5"),
-		String3("room6","room5","room6"),
-		String3("room6","room6","room6")
-	};
+	{
+		Variable location("location");
+		Variable room_next("room_next");
 		
+		String3List ll{
+			String3("room1","door12","room1"),
+			String3("room1","door13","room1"),
+			String3("room1","door14","room1"),
+			String3("room1","door45","room4"),
+			String3("room1","door56","room5"),
+			String3("room1","room1","room1"),
+			String3("room1","room2","room1"),
+			String3("room1","room3","room1"),
+			String3("room1","room4","room1"),
+			String3("room1","room5","room4"),
+			String3("room1","room6","room5"),
+			String3("room2","door12","room2"),
+			String3("room2","door13","room1"),
+			String3("room2","door14","room1"),
+			String3("room2","door45","room4"),
+			String3("room2","door56","room5"),
+			String3("room2","room1","room2"),
+			String3("room2","room2","room2"),
+			String3("room2","room3","room1"),
+			String3("room2","room4","room1"),
+			String3("room2","room5","room4"),
+			String3("room2","room6","room5"),		
+			String3("room3","door12","room1"),
+			String3("room3","door13","room3"),
+			String3("room3","door14","room1"),
+			String3("room3","door45","room4"),
+			String3("room3","door56","room5"),
+			String3("room3","room1","room3"),
+			String3("room3","room2","room1"),
+			String3("room3","room3","room3"),
+			String3("room3","room4","room1"),
+			String3("room3","room5","room4"),
+			String3("room3","room6","room5"),	
+			String3("room4","door12","room1"),
+			String3("room4","door13","room2"),
+			String3("room4","door14","room4"),
+			String3("room4","door45","room4"),
+			String3("room4","door56","room5"),
+			String3("room4","room1","room4"),
+			String3("room4","room2","room1"),
+			String3("room4","room3","room1"),
+			String3("room4","room4","room4"),
+			String3("room4","room5","room4"),
+			String3("room4","room6","room5"),	
+			String3("room5","door12","room1"),
+			String3("room5","door13","room1"),
+			String3("room5","door14","room4"),
+			String3("room5","door45","room5"),
+			String3("room5","door56","room5"),
+			String3("room5","room1","room4"),
+			String3("room5","room2","room1"),
+			String3("room5","room3","room1"),
+			String3("room5","room4","room5"),
+			String3("room5","room5","room5"),
+			String3("room5","room6","room5"),	
+			String3("room6","door12","room1"),
+			String3("room6","door13","room1"),
+			String3("room6","door14","room4"),
+			String3("room6","door45","room5"),
+			String3("room6","door56","room6"),
+			String3("room6","room1","room4"),
+			String3("room6","room2","room1"),
+			String3("room6","room3","room1"),
+			String3("room6","room4","room5"),
+			String3("room6","room5","room6"),
+			String3("room6","room6","room6")
+		};
+		for (auto t : ll)
+			_room_location_goal[std::get<0>(t)] = *add(_room_location_goal[std::get<0>(t)], *single(State(VarValPairList{VarValPair(location, std::get<1>(t)),VarValPair(room_next, std::get<2>(t))}),1));
+	}
+	
 	{	
 		std::unique_ptr<Alignment::HistoryRepa> hr;
 		{
@@ -255,28 +265,15 @@ void Actor::act_callback()
 		return (size_t)histogramsSize(aa).getNumerator();
 	};		
 	auto trim = histogramsTrim;
-	auto aall = histogramsList;
-	auto smax = [](const Histogram& aa)
-	{
-		std::vector<std::pair<Rational,State>> ll;
-		auto ll0 = *histogramsList(aa);
-		for (auto p : ll0)
-			ll.push_back(std::pair<Rational,State>(p.second,p.first));
-		auto ll1 = sorted(ll);
-		return ll1.back().second;
-	};		
 	auto ared = [](const Histogram& aa, const VarUSet& vv)
 	{
 		return setVarsHistogramsReduce(vv, aa);
 	};		
-	auto add = pairHistogramsAdd_u;
 	auto hraa = [](const System& uu, const SystemRepa& ur, const HistoryRepa& hr)
 	{
 		return historiesHistogram(*systemsHistoryRepasHistory_u(uu,ur,hr));
 	};
-	auto hrsel = eventsHistoryRepasHistoryRepaSelection_u;
 	auto hrhrred = setVarsHistoryRepasHistoryRepaReduced_u;
-	auto hrred = setVarsHistoryRepasReduce_u;
 	auto frmul = historyRepasFudRepasMultiply_u;
 		
 	if (!_pose_updated || !_scan_updated)
@@ -335,32 +332,15 @@ void Actor::act_callback()
 	
 		EVAL(*llu[s].first);
 		auto aa = *trim(*hraa(*_uu, *_ur, *_slice_history[s]));
-		// EVAL(size(aa))
-		// EVAL(aa);
-		auto ss = smax(*ared(aa,VarUSet{location}));		
-		// EVAL(ss);
-		Value location_value = ss.map_u().begin()->second;
-		EVAL(_room);
-		EVAL(location_value);
-		Value next_room_value("");
-		for (auto t : _room_locaction_goal)
-			if (std::get<0>(t) == _room && Value(std::get<1>(t)) == location_value)
-				next_room_value = Value(std::get<2>(t));
-		if (next_room_value == Value(""))
-		{
-			RCLCPP_INFO(this->get_logger(), "act_callback: error: no next room");
-			return;
-		}
-		EVAL(next_room_value);	
-		auto aa1 = *mul(aa,*single(ss,1));
-		// EVAL(*ared(aa1,VarUSet{motor,room_next}));
-		auto aa2 = *ared(*mul(aa1,*single(state(room_next,next_room_value),1)),VarUSet{motor});			
-		// EVAL(aa2);	
-		auto next_size = size(aa2);
+		EVAL(size(aa))
+		EVAL(aa);
+		auto aa1 = *mul(aa,_room_location_goal[_room]);		
+		EVAL(aa1);	
+		auto next_size = size(aa1);
 		EVAL(next_size);
-		auto next_size_left = size(*mul(aa2,*single(state(motor,Value(0)),1)));		
+		auto next_size_left = size(*mul(aa1,*single(state(motor,Value(0)),1)));		
 		EVAL(next_size_left);
-		auto next_size_right = size(*mul(aa2,*single(state(motor,Value(2)),1)));		
+		auto next_size_right = size(*mul(aa1,*single(state(motor,Value(2)),1)));		
 		EVAL(next_size_right);
 		bool turn_left = false;
 		bool turn_right = false;
