@@ -6971,7 +6971,7 @@ int main(int argc, char **argv)
 		auto& mvv = hr->mapVarInt();
 		auto p = mvv[vvi[Variable("location")]];		
 		srand(room_seed);
-		vector<size_t> ll {0};
+		vector<size_t> counts {0};
 		for (size_t j = 0; j < z; j++)
 		{
 			auto u = rr[p*z + j];
@@ -6982,19 +6982,20 @@ int main(int argc, char **argv)
 				// EVAL(j);
 				// EVAL(locations[(size_t)u]);					
 				// EVAL(locations[ug]);
-				ll.push_back(0);
+				counts.push_back(0);
 			}
-			ll.back()++;
+			counts.back()++;
 		}
-		ll.pop_back();
-//		EVAL(ll);
+		counts.pop_back();
+		EVAL(z);
+		EVAL(counts);
 		double average = 0.0;
-		for (auto a : ll)
+		for (auto a : counts)
 			average += a;
-		average /= ll.size();
+		average /= counts.size();
 		EVAL(average);
 		double variance = 0.0;
-		for (auto a : ll)
+		for (auto a : counts)
 			variance += ((double)a - average)*((double)a - average);
 		EVAL(sqrt(variance));
 	}
