@@ -11,7 +11,7 @@ using namespace std::chrono_literals;
 typedef std::chrono::duration<double> sec;
 typedef std::chrono::high_resolution_clock clk;
 
-Actor::Actor(const std::string& model, const std::string& room_initial, std::chrono::milliseconds act_interval, const std::string& dataset)
+Actor::Actor(const std::string& model, const std::string& room_initial, std::chrono::milliseconds act_interval, const std::string& dataset, std::size_t chunks)
 : Node("TBOT01_actor_node")
 {
 	typedef std::tuple<std::string, std::string, std::string> String3;	
@@ -153,6 +153,8 @@ Actor::Actor(const std::string& model, const std::string& room_initial, std::chr
 			hr = vectorHistoryRepasConcat_u(ll);
 		}
 		
+		EVAL(hr->size);
+		
 		auto& llu = _ur->listVarSizePair;
 		{
 			std::unique_ptr<Alignment::SystemRepa> ur1;
@@ -173,6 +175,10 @@ Actor::Actor(const std::string& model, const std::string& room_initial, std::chr
 				}
 			_dr->reframe_u(nn);
 		}	
+		
+		EVAL(treesSize(*_dr->slices));
+		EVAL(treesLeafElements(*_dr->slices)->size());		
+		
 		VarSet vvl;
 		vvl.insert(Variable("motor"));
 		vvl.insert(Variable("location"));
@@ -183,9 +189,12 @@ Actor::Actor(const std::string& model, const std::string& room_initial, std::chr
 		for (auto& v : vvl)
 			vvl1.push_back(vvi[v]);
 			
+		if (!chunks)
 		{
 			auto hr1 = frmul(*hr, *_dr->fud);
+			EVAL(hr1->size);	
 			auto hr2 = hrhrred(vvl1.size(), vvl1.data(), *hr);
+			EVAL(hr2->size);	
 			if (hr1->evient)
 				hr1->transpose();
 			auto z = hr1->size;
@@ -209,6 +218,60 @@ Actor::Actor(const std::string& model, const std::string& room_initial, std::chr
 					_slice_history[s.first] = std::move(hrsel(ev.size(), ev.data(), *hr2));
 			}
 		}
+		else		
+		{
+			auto z0 = hr->size;
+			SizeList sl;
+			sl.reserve(z0);
+			auto nn = treesLeafNodes(*_dr->slices);
+			for (std::size_t k = 0; k <= chunks; k++)
+			{
+				EVAL(k);					
+				SizeList ev;
+				ev.reserve(2*z0/chunks);
+				for (std::size_t j = k * (z0/chunks); j < (k+1) * (z0/chunks) && j < z0; j++)
+					ev.push_back(j);
+				if (ev.size())
+				{
+					auto hr1 = frmul(*hrsel(ev.size(), ev.data(), *hr), *_dr->fud);
+					EVAL(hr1->size);	
+					if (hr1->evient)
+						hr1->transpose();
+					auto z = hr1->size;
+					auto& mvv = hr1->mapVarInt();
+					auto sh = hr1->shape;
+					auto rr = hr1->arr;
+					for (std::size_t j = 0; j < z; j++)
+					{
+						for (auto& s : *nn)
+						{
+							auto pk = mvv[s.first];
+							std::size_t u = rr[pk*z + j];
+							if (u)
+							{
+								sl.push_back(s.first);
+								break;
+							}
+						}
+					}								
+				}
+			}
+			auto hr2 = hrhrred(vvl1.size(), vvl1.data(), *hr);
+			EVAL(hr2->size);	
+			EVAL(sl.size());	
+			for (auto& s : *nn)
+			{
+				SizeList ev;
+				for (std::size_t j = 0; j < z0; j++)	
+				{
+					if (s.first == sl[j])
+						ev.push_back(j);
+				}
+				if (ev.size() > 0)	
+					_slice_history[s.first] = std::move(hrsel(ev.size(), ev.data(), *hr2));
+			}
+		}	
+		EVAL(_slice_history.size());
 	}
 
 	_turn_request_pub = this->create_publisher<std_msgs::msg::String>("turn_request", rclcpp::QoS(rclcpp::KeepLast(10)));
@@ -382,9 +445,10 @@ int main(int argc, char** argv)
 	std::string room_initial = string(argc >= 3 ? argv[2] : "room1");
 	std::chrono::milliseconds act_interval(argc >= 4 ? std::atol(argv[3]) : 5*60);
 	string dataset = string(argc >= 5 ? argv[4] : "data002");
+	std::size_t chunks(argc >= 6 ? std::atol(argv[5]) : 0);
 
 	rclcpp::init(argc, argv);
-	rclcpp::spin(std::make_shared<Actor>(model, room_initial, act_interval, dataset));
+	rclcpp::spin(std::make_shared<Actor>(model, room_initial, act_interval, dataset, chunks));
 	rclcpp::shutdown();
 
 	return 0;
