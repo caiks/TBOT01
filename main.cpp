@@ -6989,6 +6989,7 @@ int main(int argc, char **argv)
 		counts.pop_back();
 		EVAL(z);
 		EVAL(counts);
+		EVAL(counts.size());
 		double average = 0.0;
 		for (auto a : counts)
 			average += a;
@@ -6997,6 +6998,7 @@ int main(int argc, char **argv)
 		double variance = 0.0;
 		for (auto a : counts)
 			variance += ((double)a - average)*((double)a - average);
+		variance /= counts.size();
 		EVAL(sqrt(variance));
 	}
 	
