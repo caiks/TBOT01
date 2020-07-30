@@ -42,6 +42,7 @@ cd ~/TBOT01_ws
 cat data008a* >data008.bin
 cat data009a* >data009.bin
 cat data010a* >data010.bin
+cat data011a* >data011.bin
 
 ```
 Then build -
@@ -296,6 +297,7 @@ cd ~/turtlebot3_ws/src/TBOT01_ws
 cat data008a* >data008.bin
 cat data009a* >data009.bin
 cat data010a* >data010.bin
+cat data011a* >data011.bin
 
 cd ~/turtlebot3_ws/src
 mkdir AlignmentC_build AlignmentRepaC_build
