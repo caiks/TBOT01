@@ -4,7 +4,7 @@
 
 The *model* is trained using the *inducers* and *conditioners* implemented in the [AlignmentRepaC repository](https://github.com/caiks/AlignmentRepaC). The AlignmentRepaC repository is a fast C++ implementation of some of the *practicable inducers* described in the paper *The Theory and Practice of Induction by Alignment* at https://greenlake.co.uk/. The *models* are *induced* in the main executable, which can run without the need to install TurtleBot3.
 
-The *history* (training data) is collected by running various random/demo controllers in the [turtlebot3 house](http://emanual.robotis.com/docs/en/platform/turtlebot3/simulation/#3-turtlebot3-house) simulated in the [Gazebo](http://gazebosim.org/) virtual environment.
+The *history* (training data) is collected by running various controllers in the [turtlebot3 house](http://emanual.robotis.com/docs/en/platform/turtlebot3/simulation/#3-turtlebot3-house) simulated in the [Gazebo](http://gazebosim.org/) virtual environment.
 
 ## Sections
 
@@ -61,56 +61,260 @@ cd ../TBOT01_ws
 ln -s ../TBOT01_build/main main
 
 ./main stats data001
-
 ./main stats data002_room1
+./main stats data002_room4
+./main stats data003
+./main stats data008
+./main stats data009
 
 ./main bitmap data001
-
 ./main bitmap data001 3
-
 ./main bitmap data002_room1
+./main bitmap data003
+./main bitmap data003 10
+./main bitmap data003 10 0 59
+./main bitmap data005 10 0 59
+./main bitmap data008 10 0 59
+./main bitmap data009 10 0 59
 
 ./main bitmap_average data001
-
 ./main bitmap_average data002_room1 20
-
 ./main bitmap_average data002_room4 20
 
 ./main analyse data002
+./main analyse data003
+./main analyse data006_01
+./main analyse data006_02
+./main analyse data006_03
+./main analyse data006_04
+./main analyse data006_05
+./main analyse data007
+./main analyse data008
+./main analyse data008 substrate003
+./main analyse data008 substrate004
+./main analyse data009
+./main analyse data009 substrate004
 
 ./main induce model001 4 >model001.log
-
-./main bitmap_model model001 
-
 ./main induce model002 4 >model002.log
-
-./main bitmap_model model002 
-
 ./main induce model003 4 >model003.log
-
-./main bitmap_model model003 
-
 ./main induce model004 4 >model004.log
-
-./main bitmap_model model004 
-
 ./main induce model005 4 >model005.log
-
-./main bitmap_model model005 
-
-./main condition model006 4 motor >model006_motor.log
+./main induce model008 4 >model008.log
+./main induce model009 4 >model009.log
+./main induce model010 4 >model010.log
+./main induce model011 4 >model011.log
+./main induce model012 4 >model012.log
+./main induce model015 4 >model015.log
+./main induce model017 8 >model017.log
+./main induce model018 8 >model018.log
+./main induce model021 16 1 1 >model021_1_1.log
+./main induce model021 16 2 4 >model021_2_4.log
+./main induce model021 32 3 4 >model021_3_4.log
+./main induce model021 8 1 1 >model021_1_1.log
+./main induce model021 8 2 4 >model021_2_4.log
+./main induce model023 16 1 1 >model023_1_1.log
+./main induce model023 16 2 4 >model023_2_4.log
+./main induce model023 8 1 1 >model023_1_1.log
+./main induce model024 8 7 2  >model024.log
+./main induce model026 8 >model026.log
+./main induce model027 32 >model027.log
+./main induce model027 8 >model027.log
 
 ./main condition model006 4 location >model006_location.log
-
+./main condition model006 4 motor >model006_motor.log
 ./main condition model006 4 position >model006_position.log
-
-./main condition model007 4 motor >model007_motor.log
-
 ./main condition model007 4 location >model007_location.log
-
+./main condition model007 4 motor >model007_motor.log
 ./main condition model007 4 position >model007_position.log
+./main condition model013 4 location >model013_location.log
+./main condition model013 4 motor >model013_motor.log
+./main condition model013 4 position >model013_position.log
+./main condition model014 4 location >model014_location.log
+./main condition model014 4 motor >model014_motor.log
+./main condition model014 4 position >model014_position.log
+./main condition model016 1 motor >model016_motor.log
+./main condition model016 4 location >model016_location.log
+./main condition model016 4 motor >model016_motor.log
+./main condition model016 4 position >model016_position.log
+./main condition model016 8 location >model016_location.log
+./main condition model016 8 position >model016_position.log
+./main condition model019 8 location >model019_location.log
+./main condition model019 8 position >model019_position.log
+./main condition model020 8 location 1 1 >model020_location_1_1.log
+./main condition model020 8 location 2 4 >model020_location_2_4.log
+./main condition model020 8 location 3 4 >model020_location_3_4.log
+./main condition model020 8 location 7 4 >model020_location_7_4.log
+./main condition model022 16 location 1 1 >model022_location_1_1.log
+./main condition model022 16 location 2 4 >model022_location_2_4.log
+./main condition model022 8 location 1 1 >model022_location_1_1.log
+./main condition model025 8 location 7 2 >model025_location_7_2.log
+./main condition model028 8 location >model028_location.log
+./main condition model029 8 location_next >model029_location_next.log
+./main condition model030 8 location_next >model030_location_next.log
+./main condition model031 16 location_next >model031_location_next.log
+./main condition model032 16 room_next >model032_room_next.log
+./main condition model033 16 room_next >model033_room_next.log
+./main condition model034 16 room_next >model034_room_next.log
 
-./main induce model008 4 >model008.log
+./main bitmap_model model001 
+./main bitmap_model model002 
+./main bitmap_model model003 
+./main bitmap_model model004 
+./main bitmap_model model005 
+./main bitmap_model model009 5 data003
+./main bitmap_model model012 data003
+
+./main entropy model001 10
+./main entropy model001 10 data003
+./main entropy model001 100
+./main entropy model004 10
+./main entropy model005 10
+./main entropy model006_location 10
+./main entropy model006_motor 10
+./main entropy model006_position 10
+./main entropy model007_location 10
+./main entropy model007_motor 10
+./main entropy model007_position 10
+./main entropy model008 10
+./main entropy model009 1 data004
+./main entropy model009 10 data003
+./main entropy model010 1 data004
+./main entropy model010 10 data003
+./main entropy model012 1 data004
+./main entropy model012 10 data003
+./main entropy model013_location 1 data004
+./main entropy model013_location 10 data003
+./main entropy model013_motor 10 data003
+./main entropy model013_position 10 data003
+./main entropy model014_location 1 data004
+./main entropy model014_location 10 data003
+./main entropy model014_location 10 data004
+./main entropy model014_motor 10 data003
+./main entropy model014_motor 10 data004
+./main entropy model014_position 10 data003
+./main entropy model014_position 10 data004
+./main entropy model016_location 1 data004
+./main entropy model016_location 10 data004
+./main entropy model016_motor 10 data004
+./main entropy model016_position 10 data004
+./main entropy model017 1 data004
+./main entropy model017 10 data004
+./main entropy model018 1 data004
+./main entropy model018 1 data009
+./main entropy model019_location 1 data004
+./main entropy model019_location 1 data009
+./main entropy model020_location_1_1 1 data004 1 1
+./main entropy model027 1 data009
+./main entropy model028_location 1 data009
+./main entropy model029_location_next 1 data009 substrate003
+./main entropy model030_location_next 1 data009 substrate003
+./main entropy model031_location_next 1 data009 substrate003
+./main entropy model032_room_next 1 data009 substrate004
+./main entropy model033_room_next 1 data009 substrate004
+./main entropy model034_room_next 1 data009 substrate004
+
+./main entropy_region model011 1 data004
+./main entropy_region model011 1 data004 1
+./main entropy_region model011 1 data009
+./main entropy_region model015 1 data004
+./main entropy_region model015 1 data004 1
+./main entropy_region model026 1 data009
+
+./main entropy_region_sequence model024 1 7 2
+
+./main entropy_sequence model020_location_1_1 1 data004 1 1
+./main entropy_sequence model020_location_2_4 1 data004 2 4
+./main entropy_sequence model020_location_3_4 1 data004 3 4
+./main entropy_sequence model020_location_7_4 1 data004 7 4
+./main entropy_sequence model021_1_1 1 data004 1 1
+./main entropy_sequence model021_2_4 1 data004 2 4
+./main entropy_sequence model021_3_4 1 data004 3 4
+./main entropy_sequence model022_location_1_1 1 data004 1 1
+./main entropy_sequence model022_location_2_4 1 data004 2 4
+./main entropy_sequence model023_1_1 1 data004 1 1
+./main entropy_sequence model023_2_4 1 data004 2 4
+./main entropy_sequence model025_location_7_2 1 data004 7 2
+
+./main entropy_room_next model027 data009
+./main entropy_room_next model028_location data009
+./main entropy_room_next model029_location_next data009
+./main entropy_room_next model030_location_next data009
+./main entropy_room_next model031_location_next data009
+./main entropy_room_next model032_room_next data009
+./main entropy_room_next model033_room_next data009
+./main entropy_room_next model034_room_next data009
+
+./main observe data003 model016_location data004 location
+./main observe data003 model016_location data004 location 0 59
+./main observe data003 model016_position data004 position
+./main observe data003 model017 data004 location
+./main observe data003 model017 data004 location 0 59
+./main observe data003 model017 data004 position
+./main observe data004_04 model016_location data004 location
+./main observe data004_04 model017 data004 location
+./main observe data005 model016_location data004 location
+./main observe data005 model016_location data004 location 0 59
+./main observe data005 model016_position data004 position
+./main observe data005 model017 data004 location
+./main observe data005 model017 data004 position
+./main observe data005 model018 data004 location
+./main observe data005 model018 data004 position
+./main observe data005 model019_location data004 location
+./main observe data005 model019_position data004 position
+./main observe data008 model018 data009 location
+./main observe data008 model019_location data009 location
+./main observe data008 model027 data009 location
+./main observe data008 model028_location data009 location
+./main observe data008 model029_location_next data009 location 0 0 substrate003
+./main observe data008 model029_location_next data009 location_next 0 0 substrate003
+./main observe data008 model030_location_next data009 location 0 0 substrate003
+./main observe data008 model030_location_next data009 location_next 0 0 substrate003
+./main observe data008 model031_location_next data009 location 0 0 substrate003
+./main observe data008 model031_location_next data009 location_next 0 0 substrate003
+./main observe data008 model032_room_next data009 location 0 0 substrate004
+./main observe data008 model032_room_next data009 location_next 0 0 substrate004
+./main observe data008 model032_room_next data009 room_next 0 0 substrate004
+./main observe data008 model033_room_next data009 location 0 0 substrate004
+./main observe data008 model033_room_next data009 location_next 0 0 substrate004
+./main observe data008 model033_room_next data009 room_next 0 0 substrate004
+./main observe data008 model034_room_next data009 location 0 0 substrate004
+./main observe data008 model034_room_next data009 location_next 0 0 substrate004
+./main observe data008 model034_room_next data009 room_next 0 0 substrate004
+
+./main observe_bitmap data003 model009 data003 10 0 59
+./main observe_bitmap data003 model010 data003 10 0 59
+./main observe_bitmap data003 model012 data003 10 0 59
+./main observe_bitmap data003 model013_location data003 10 0 59
+./main observe_bitmap data003 model014_location data003 10 0 59
+./main observe_bitmap data003 model016_location data004 10 0 59
+./main observe_bitmap data003 model017 data004 10 0 59
+./main observe_bitmap data005 model016_location data004 10 0 59
+./main observe_bitmap data005 model017 data004 10 0 59
+./main observe_bitmap data005 model018 data004 10 0 59
+./main observe_bitmap data005 model019_location data004 10 0 59
+
+./main observe_sequence data005 model020_location_1_1 data004 location 1 1
+./main observe_sequence data005 model020_location_2_4 data004 location 2 4
+./main observe_sequence data005 model020_location_3_4 data004 location 3 4
+./main observe_sequence data005 model020_location_7_4 data004 location 7 4
+./main observe_sequence data005 model021_1_1 data004 location 1 1
+./main observe_sequence data005 model021_2_4 data004 location 2 4
+./main observe_sequence data005 model021_3_4 data004 location 3 4
+./main observe_sequence data005 model022_location_1_1 data004 location 1 1
+./main observe_sequence data005 model022_location_2_4 data004 location 2 4
+./main observe_sequence data005 model023_1_1 data004 location 1 1
+./main observe_sequence data005 model023_2_4 data004 location 2 4
+./main observe_sequence data005 model025_location_7_2 data004 location 7 2
+
+./main room_expected data003 room1
+./main room_expected data004 room1
+./main room_expected data008 room1
+./main room_expected data008 room5
+./main room_expected data009 room1
+./main room_expected data009 room5
+./main room_expected data010 room5
+./main room_expected data011 room5
 
 ```
 <a name = "controller"></a>
@@ -154,6 +358,9 @@ sudo apt install -y ubuntu-drivers-common && sudo ubuntu-drivers autoinstall
 
 sudo reboot
 
+```
+
+```
 ssh -X -i $k $h
 
 nvidia-smi -q | head
@@ -834,9 +1041,6 @@ The turtlebot is allowed to run around for a while.
 This is the output for `location`,
 ```
 room4    room4   match   100.000000
-room4    room4   match   100.000000
-room4    room4   match   100.000000
-room4    room4   match   100.000000
 room4    unknown fail    80.000000
 room4    room4   match   83.333333
 room4    room4   match   85.714286
@@ -870,7 +1074,6 @@ We can see that `model006` turtlebot is quite good at guessing that it is in roo
 
 This is the output for `position`,
 ```
-centre   centre  match   100.000000
 centre   centre  match   100.000000
 side     side    match   100.000000
 side     corner  fail    75.000000
@@ -1051,7 +1254,6 @@ The turtlebot moves out of room 3 into room 1 after a few seconds.
 
 This is the `position` output,
 ```
-side     unknown fail    0.000000
 side     unknown fail    0.000000
 corner   corner  match   33.333333
 side     corner  fail    25.000000
@@ -1458,7 +1660,6 @@ ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 235340
 ./main entropy model014_location 10 data004
 ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 239912
 
-
 ./main entropy model016_position 10 data004
 ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 197310
 
@@ -1862,7 +2063,6 @@ Model|Type|Underlying|Fmax|Dataset|Likelihood|Location %|Position %
 17|induced|model 15|4096|4|108,041|60|72
 19|conditioned|model 11|4096|4|106,063|85|89
 16|conditioned|model 15|4096|4|97,093|86|90
-
 
 First, the *induced models*,
 
@@ -2406,4 +2606,9 @@ Model|Type|Underlying|Fmax|Dataset|Substrate|Likelihood|Location %|Next Location
 
 Given that the `motor` *value* has at least a weak functional relation to the next `location` and `room`, let us now write a new controller than accepts requests to turn made by the observer or by a user. These requests will only be accepted when the turtlebot is moving straight ahead.
 
+TODO
+
+The `TBOT01` [actor](https://github.com/caiks/TBOT01/blob/master/actor.h) node 
+
+The `TBOT01` [commander](https://github.com/caiks/TBOT01/blob/master/commander.h) node 
 
