@@ -592,8 +592,6 @@ For our investigations we copied the `turtlebot3_drive` controller to the `TBOT0
 
 Restart the simulation and in a separate shell run the controller,
 ```
-cd ~/turtlebot3_ws/src/TBOT01_ws
-
 ros2 run TBOT01 controller data.bin 250
 
 ```
@@ -1027,13 +1025,19 @@ Now let us use the *models* we have created to make guesses about the `location`
 
 Let us consider *models* `model006_location` and `model006_position` which are *conditioned* on the label given the `scan` *substrate*. The following are run in separate shells,
 ```
+gazebo -u ~/turtlebot3_ws/src/TBOT01_ws/env002.model -s libgazebo_ros_init.so
+
+```
+```
 ros2 run TBOT01 controller data.bin 250
 
+```
+```
 ros2 run TBOT01 observer model006_location location 2500
 
+```
+```
 ros2 run TBOT01 observer model006_position position 2500
-
-gazebo -u ~/turtlebot3_ws/src/TBOT01_ws/env002.model -s libgazebo_ros_init.so
 
 ```
 The turtlebot is allowed to run around for a while.
@@ -1322,8 +1326,6 @@ gazebo -u --verbose ~/turtlebot3_ws/src/TBOT01_ws/env002.model -s libgazebo_ros_
 ```
 and the controller re-run, alternating the bias every 1000 ms,
 ```
-cd ~/turtlebot3_ws/src/TBOT01_ws
-
 ros2 run TBOT01 controller data003.bin 250 1000
 
 ```
@@ -1342,7 +1344,6 @@ The turtlebot ran for around 55 minutes.
 Let us compare the analysis of the `data002` and `data003` data files,
 ```
 ./main analyse data003
-
 hr->dimension: 363
 hr->size: 13381
 ({(<scan,1>,0)},89 % 1)
@@ -1484,21 +1485,19 @@ Now let us test the `location` and `position` accuracy of the *induced* and *con
 
 First we shall run *model* 13, which is *conditioned* on the *substrate*. The simulation was restarted in room 4,
 ```
-export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:~/turtlebot3_ws/src/TBOT01_ws/gazebo_models
-
-cd ~/turtlebot3_ws/src/TBOT01_ws
-
 gazebo -u --verbose ~/turtlebot3_ws/src/TBOT01_ws/env002.model -s libgazebo_ros_init.so
 
 ```
 and the controller re-run, alternating the bias every 1000 ms,
 ```
-cd ~/turtlebot3_ws/src/TBOT01_ws
-
 ros2 run TBOT01 controller data004_01.bin 250 1000
 
+```
+```
 ros2 run TBOT01 observer model013_location location 2500
 
+```
+```
 ros2 run TBOT01 observer model013_position position 2500
 
 ```
@@ -1552,14 +1551,15 @@ The *model* 13 `position` accuracy is around 72%.
 
 Repeating for *model* 14,
 ```
-cd ~/turtlebot3_ws/src/TBOT01_ws
-
 ros2 run TBOT01 controller data004_02.bin 250 1000
 
+```
+```
 ros2 run TBOT01 observer model014_location location 2500 data003
 ...
 room1    room4   fail    63.630184
-
+```
+```
 ros2 run TBOT01 observer model014_position position 2500 data003
 ...
 centre   centre  match   79.918312
@@ -1569,45 +1569,47 @@ The *model* 14 `location` accuracy is a little higher at around 64% and the `pos
 We can compare the *conditioned models*, 13 and 14, above to the three *induced models* 9, 10 and 12,
 
 ```
-cd ~/turtlebot3_ws/src/TBOT01_ws
-
 ros2 run TBOT01 controller data004_03.bin 250 1000
 
+```
+```
 ros2 run TBOT01 observer model009 location 2500 data003
 ...
 room4    room1   fail    39.401294
-
+```
+```
 ros2 run TBOT01 observer model009 position 2500 data003
 ...
 centre   centre  match   59.902991
-
 ```
 The *model* 9 `location` accuracy is a considerably lower than either of the *conditioned models* at around 39% and the `position` accuracy is also lower at around 60%.
 
 ```
-cd ~/turtlebot3_ws/src/TBOT01_ws
-
 ros2 run TBOT01 controller data004_04.bin 250 1000
 
+```
+```
 ros2 run TBOT01 observer model010 location 2500 data003
 ...
 room2    room1   fail    41.637990
 
+```
+```
 ros2 run TBOT01 observer model010 position 2500 data003
 ...
 corner   corner  match   56.129477
-
 ```
 The *model* 10 is the same as *model* 9 but with a greater `fmax`. Its `location` accuracy is a slightly higher at around 42% and the `position` accuracy is  lower at around 56%.
 ```
-cd ~/turtlebot3_ws/src/TBOT01_ws
-
 ros2 run TBOT01 controller data004_05.bin 250 1000
 
+```
+```
 ros2 run TBOT01 observer model012 location 2500 data003
 ...
 room4    room5   fail    42.396313
-
+```
+```
 ros2 run TBOT01 observer model012 position 2500 data003
 ...
 side     centre  fail    62.720984
@@ -1629,7 +1631,6 @@ Let us see if we can improve on *model* 14 with the additional data in `data004`
 *Model 15* has the same configuration as *model 11* except its *history* consists of the union of the `data003` and `data004` records, and `fmax` is increased from 127 to 384,
 
 ```
-cd ~/TBOT01_ws
 ./main induce model015 4 >model015.log
 
 ```
@@ -1644,7 +1645,6 @@ ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 933468
 *Model 16* is *induced* from a lower *level* that consists of the *slice variables* of 12 *model 15* regions every 30 degrees. It has the same parameters as *model* 14 except its *history* consists of the union of the `data003` and `data004` records, and `fmax` is increased from 1024 to 4096,
 
 ```
-cd ~/TBOT01_ws
 ./main condition model016 8 location >model016_location.log
 
 ./main condition model016 8 position >model016_position.log
@@ -1668,30 +1668,26 @@ ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 184506
 ```
 Now, however, the label accuracy has improved considerably,
 ```
-export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:~/turtlebot3_ws/src/TBOT01_ws/gazebo_models
-
-cd ~/turtlebot3_ws/src/TBOT01_ws
-
 gazebo -u --verbose ~/turtlebot3_ws/src/TBOT01_ws/env002.model -s libgazebo_ros_init.so
 
 ```
 
 ```
-cd ~/turtlebot3_ws/src/TBOT01_ws
-
 ros2 run TBOT01 controller data.bin 250 1000
 
+```
+```
 ros2 run TBOT01 observer model016_location location 2500 data004
 ...
 room6    room6   match   85.122898
-
+```
+```
 ros2 run TBOT01 observer model016_position position 2500 data004
 ...
 side     side    match   88.745149
 ```
 Now let us *induce* a *model* to a similar depth for comparison. *Model* 17 has the same parameters as *model* 12, but the *underlying model* is *model* 15 and the `fmax` is increased to 4096,
 ```
-cd ~/TBOT01_ws
 ./main induce model017 8 >model017.log
 
 ./main entropy model017 1 data004
@@ -1719,23 +1715,20 @@ ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 97093.9
 ```
 Now we find the label accuracy for *model* 17,
 ```
-export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:~/turtlebot3_ws/src/TBOT01_ws/gazebo_models
-
-cd ~/turtlebot3_ws/src/TBOT01_ws
-
 gazebo -u --verbose ~/turtlebot3_ws/src/TBOT01_ws/env002.model -s libgazebo_ros_init.so
 
 ```
 
 ```
-cd ~/turtlebot3_ws/src/TBOT01_ws
-
 ros2 run TBOT01 controller data.bin 250 1000
 
+```
+```
 ros2 run TBOT01 observer model017 location 2500 data004
 ...
 door56   room5   fail    58.469388
-
+```
+```
 ros2 run TBOT01 observer model017 position 2500 data004
 ...
 side     side    match   68.536461
@@ -1758,9 +1751,8 @@ We can see that *induced model* 17 is considerably more accurate than *induced m
 
 *Model* 16 was *conditioned* on 81261 *events* and has 28315 *transforms*. No doubt larger *models* *conditioned* on more *history* would incrementally increase the label accuracy, but for now let us consider increasing the *substrate* instead with timewise *frames*.
 
-To do that we must first select which of the past records will comprise the short term memory, i.e. the *frames*. Let us image the first 60 *events* in `data003`,
+To do that we must first select which of the past records will comprise the short term memory, i.e. the timewise *frames*. Let us image the first 60 *events* in `data003`,
 ```
-cd ~/TBOT01_ws
 ./main bitmap data003 10 0 59
 
 ```
@@ -1774,7 +1766,7 @@ In these 12 seconds, the turtlebot starts in the room 4, facing to the right, tu
 ---|---
 ![env002_1s](images/env002_1s.jpg?raw=true)|![env002_12s](images/env002_12s.jpg?raw=true)
 
-We can *apply* a *model* to the 60 *events*  and average the corresponding *slice* to see the *history* as turtlebot 'sees' it. For example, if we *apply* *model* 9 with the *model* *history* `data003`,
+We can *apply* a *model* to the 60 *events* and average the *slice* corresponding to each *event* to see the *history* as turtlebot 'sees' it. For example, if we *apply* *model* 9 with the *model* *history* `data003`,
 ```
 ./main observe_bitmap data003 model009 data003 10 0 59
 
@@ -2000,7 +1992,6 @@ Note that the number of matches here is higher than for the table above. This is
 
 The addition of timewise *frames* requires scaling the *models*, so before we do that let us consider the *underlying level models* *models* 11 and 15. We saw above that the *likelihoods* are not much different, but *model* 11 has only 2487 *transforms* while *model* 15 has 6685. The *derived induced models* 12 and 17 have 5600 and 72652 *transforms* respectively. Of course, this may be purely due to `fmax` increasing from 127 to 4096, but let us check this in a new *induced model* 18 that has *model* 11 for its *underlying*, but is otherwise the same as *model 17*.
 ```
-cd ~/TBOT01_ws
 ./main induce model018 8 >model018.log
 
 ./main entropy model018 1 data004
@@ -2016,7 +2007,6 @@ ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 106063
 Let us also also observe the accuracy using a common test dataset `data005` that has not been used for *modelling*,
 
 ```
-cd ~/TBOT01_ws
 ./main observe data005 model018 data004 location
 ...
 100.0*match_count/z: 56.7202
@@ -2183,17 +2173,11 @@ In addition, we have added a random turn interval to the controller. If the turt
 
 We ran the simulation with the new environment,
 ```
-export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:~/turtlebot3_ws/src/TBOT01_ws/gazebo_models
-
-cd ~/turtlebot3_ws/src/TBOT01_ws
-
 gazebo -u --verbose ~/turtlebot3_ws/src/TBOT01_ws/env009.model -s libgazebo_ros_init.so
 
 ```
 and ran the new controller with a random turn interval of 5000 ms -
 ```
-cd ~/turtlebot3_ws/src/TBOT01_ws
-
 ros2 run TBOT01 controller data008.bin 250 5000 5000 
 
 ```
@@ -2201,8 +2185,6 @@ Note that the bias interval has been increased to 5000 ms to reduce dither in th
 
 The turtlebot ran for 5.5 hours to create a test dataset `data008`,
 ```
-cd ~/TBOT01_ws
-
 ./main analyse data008
 hr->dimension: 363
 hr->size: 78612
@@ -2276,15 +2258,11 @@ In `data009` 3% more time is spent in a turn but 2% less time is spent in a corn
 
 We ran the turtlebot again to create a training dataset, `data009`, this time for 12 hours -
 ```
-cd ~/turtlebot3_ws/src/TBOT01_ws
-
 ros2 run TBOT01 controller data009.bin 250 5000 5000 
 
 ```
 Now the turtlebot spends 48% of its time in rooms 4, 5 and 6 -
 ```
-cd ~/TBOT01_ws
-
 ./main analyse data009
 hr->dimension: 363
 hr->size: 172301
@@ -2376,7 +2354,6 @@ ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 215919
 
 Now let us create new *substrate variables* `location_next` and `position_next`. These are *variables* that look forward from the current *event* until a `location` or `position` transition. A *history* in the new *substrate* 3 is obtained with the  `recordListsHistoryRepa_3` function in [dev.h](https://github.com/caiks/TBOT01/blob/master/dev.h),
 ```
-cd ~/TBOT01_ws
 ./main analyse data008 substrate003
 ...
 ({(location_next,door12)},7951 % 1)
@@ -2607,6 +2584,8 @@ Model|Type|Underlying|Fmax|Dataset|Substrate|Likelihood|Location %|Next Location
 Given that the `motor` *value* has at least a weak functional relation to the next `location` and `room`, let us now write a new controller than accepts requests to turn made by the observer or by a user. These requests will only be accepted when the turtlebot is moving straight ahead.
 
 TODO
+
+The *substrate* consists of 360 `scan` *variables* with bucketed *values* and a `motor` *variable* with *values* 0,1 and 2 corresponding to left, ahead and right. It also has two *variables* derived from the `odom`, a `location` *variable* with *values* `door12`, `door13`, `door14`, `door45`, `door56`, `room1`, `room2`, `room3`, `room4`, `room5` and `room6`, and a `position` *variable* with *values* `centre`, `corner` and `side`.
 
 The `TBOT01` [actor](https://github.com/caiks/TBOT01/blob/master/actor.h) node 
 
