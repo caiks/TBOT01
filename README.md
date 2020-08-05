@@ -321,6 +321,12 @@ ln -s ../TBOT01_build/main main
 
 ## Download, build and run controller executable
 
+[AWS EC2 instance](#AWS)
+
+[Windows 10 WSL2 instance](#Windows)
+
+[Installation](#Installation)
+
 To run the controller it is necessary to install [ROS2](https://index.ros.org/doc/ros2/), [Gazebo](http://gazebosim.org/tutorials?cat=install) and [TurtleBot3](http://emanual.robotis.com/docs/en/platform/turtlebot3/ros2_simulation/#simulation) on a machine with a GPU.
 
 <a name = "AWS"></a>
@@ -549,7 +555,23 @@ ln -s ~/TBOT01_build/main main
 
 ## Discussion
 
+[Sensors, motors, environment and the collision avoidance controller](#Sensors)
+
+[Models of the scan substrate](#Models)
+
+[Models conditioned on location and position](#Models_conditioned)
+
+[Location and position observer](#Observer)
+
+[Modelling with an unbiased controller](#Unbiased)
+
+[Timewise frames](#Timewise)
+
+[Motor actions](#Motor)
+
 Now let us investigate various turtlebot3 controllers. 
+
+<a name = "Sensors"></a>
 
 ### Sensors, motors, environment and the collision avoidance controller
 
@@ -912,6 +934,8 @@ We can see from the `motor` *values* that the turtlebot generally moves straight
 
 From the `location` and `position` *values*  we can also see that with this controller the turtlebot tends to end up in the larger rooms, 1 and 4, and mainly skirts around the side of the rooms. 
 
+<a name = "Models"></a>
+
 ### Models of the scan substrate
 
 Although the *history* is not very evenly spatially distributed, let us *induce* a *model* of the 360 sensor `scan` *variables*,
@@ -979,6 +1003,8 @@ This is the bitmap,
 
 The *decomposition* is narrower and deeper than that of *model 1*. Near the root there is no *slice* for near-object-ahead. These *alignments* are pushed downwards into the children *slices*.
 
+<a name = "Models_conditioned"></a>
+
 ### Models conditioned on location and position
 
 Now let us *condition* *models* on the labels `motor`, `location` and `position`, given the `scan` *substrate*,
@@ -1018,6 +1044,8 @@ ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 14054.9
 ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 13948.5
 ```
 All of these also run to zero *label entropy* but require more *fuds* to do so. For example, to predict `location` *model 6* requires 421 *fuds* but *model 7* requires 626. From the point of view of these labels, the original *substrate* is more *causal* than the random region *level*. However, the *likelihoods* of the *models conditioned* on *underlying* regional *induced models* are all higher than those of the *models conditioned* directly on the *substrate*.
+
+<a name = "Observer"></a>
 
 ### Location and position observer
 
@@ -1314,6 +1342,8 @@ side     centre  fail    46.153846
 ...
 ```
 The `position` results are similar to those of room 3.
+
+<a name = "Unbiased"></a>
 
 ### Modelling with an unbiased controller
 
@@ -1747,6 +1777,8 @@ Model|Type|Underlying|Fmax|Dataset|Likelihood|Location %|Position %
 
 We can see that *induced model* 17 is considerably more accurate than *induced model* 12, but it is still less accurate than any of the *conditioned models*. The *induced models* are all more *likely* than any of the *conditioned models*, however. The larger *induced models* with 2 *levels* have the greatest *likelihoods*, but the increase in *likelihood* is small which suggests that most of the interesting *alignments* have already been captured.
 
+<a name = "Timewise"></a>
+
 ### Timewise frames
 
 *Model* 16 was *conditioned* on 81261 *events* and has 28315 *transforms*. No doubt larger *models* *conditioned* on more *history* would incrementally increase the label accuracy, but for now let us consider increasing the *substrate* instead with timewise *frames*.
@@ -2102,7 +2134,7 @@ Model|Type|Underlying|Fmax|Dataset|Sequence length|Likelihood|Location %|Positio
 20|conditioned|model 11|4096|4|7|103,874|80|-
 22|conditioned|model 18|4096|4|2|107,855|64|-
 
-We can see that the addition of the *values* as they were in the *events* a few seconds ago, makes little difference to the *likelihood* and in all cases reduces the `location` accuracy. Clearly the *alignments* within the *frames* are much greater than those between the *frames*, suggesting that for the `data004` *history size*, at least, the static information is more important than the dynamic. Also the dynamic information perhaps causes some over-fitting in the *conditioned models* leading to lower *likelihoods* and label accuracies.
+We can see that the addition of the *values* as they were in the *events* a few seconds ago makes little difference to the *likelihood* and in all cases reduces the `location` accuracy. Clearly the *alignments* within the *frames* are much greater than those between the *frames*, suggesting that for the `data004` *history size*, at least, the static information is more important than the dynamic. Also the dynamic information perhaps causes some over-fitting in the *conditioned models* leading to lower *likelihoods* and label accuracies.
 
 Before we move on to consider *models* that control the `motor` *variable*, let us increase the random region *substrate* with timewise *frames* as the *underlying* in a two *level model*. *Model* 24 is a timewise version of *model* 15, with *frames* every half second for three seconds,
 ```
@@ -2163,11 +2195,15 @@ Model|Type|Underlying|Fmax|Dataset|Sequence length|Sequence step|Likelihood|Loca
 22|conditioned|model 18|4096|4|2|4|107,855|64|-
 25|conditioned|model 24|4096|4|7|2|103,393|74|-
 
-*Model* 25 is a three *level model* with the top *level conditioned* on a spacewise *substrate* of two *level model 24 induced* on a timewise *substrate* of one *level model 11 induced* on a random region *substrate*. Compare it to *model* 22 which is a three *level model* with the top *level conditioned* on a timewise *substrate* of two *level model 18 induced* on a spacewise *substrate* of one *level model 11 induced* on a random region *substrate*. *Model* 25 has a lower *likelihood* but a higher accuracy than *model* 22. So *model* 25 is intermediate between *model* 22 and *model* 20, which is the two *level conditioned* on a spacetimewise *substrate* of one *level model 11 induced* on a random region *substrate*. This confirms that the static information is more important than the dynamic.
+*Model* 25 is a three *level model* with the top *level conditioned* on a spacewise *substrate* of two *level model 24 induced* on a timewise *substrate* of one *level model 11 induced* on a random region *substrate*. Compare it to *model* 22 which is a three *level model* with the top *level conditioned* on a timewise *substrate* of two *level model 18 induced* on a spacewise *substrate* of one *level model 11 induced* on a random region *substrate*. *Model* 25 has a lower *likelihood* but a higher accuracy than *model* 22. So *model* 25 is intermediate between *model* 22 and *model* 20, which is the two *level conditioned* on a spacetimewise *substrate* of one *level model 11 induced* on a random region *substrate*. This confirms that the static information is more important than the dynamic. We will ignore timewise *models* for the remainder of this discussion.
+
+<a name = "Motor"></a>
 
 ### Motor actions
 
-Given that we wish now to move on to motor actions, we are interested in the sequence of *events* in order to determine future labels for each *event*. It was found, however, that the existing collision avoidance algorithm was not enough to prevent occasional crashes in the previous datasets, making it difficult to obtain long sequences. The crashes were due to collisions with the open shelves and bookcases. The solution was to simply turn the shelves and bookcases around so that they were closed and thus detectable by the turtlebot's lidar. The new environment is `env009`.
+Now that TurtleBot is able to make guesses about its location, let us consider what actions TurtleBot should take in order to navigate autonomously around the TurtleBot house.
+
+In order to see the consequences of past actions, we must look at the sequence of *events*. In this way we can determine future labels for each *event*, for example, `location_next` and `room_next`. It was found, however, that the existing collision avoidance algorithm was not enough to prevent occasional crashes in the previous datasets, making it difficult to obtain long sequences. The crashes were due to collisions with the open shelves and bookcases. The solution was to simply turn the shelves and bookcases around so that they were closed and thus detectable by the turtlebot's lidar. The new environment is `env009`.
 
 In addition, we have added a random turn interval to the controller. If the turtlebot is going straight it will randomly turn left or right on a timescale on the order of the turn interval.
 
@@ -2176,7 +2212,7 @@ We ran the simulation with the new environment,
 gazebo -u --verbose ~/turtlebot3_ws/src/TBOT01_ws/env009.model -s libgazebo_ros_init.so
 
 ```
-and ran the new controller with a random turn interval of 5000 ms -
+and ran the new controller with a random turn interval of 5000 ms,
 ```
 ros2 run TBOT01 controller data008.bin 250 5000 5000 
 
@@ -2254,7 +2290,7 @@ hr->size: 13381
 ({(position,corner)},3028 % 1)
 ({(position,side)},6875 % 1)
 ```
-In `data009` 3% more time is spent in a turn but 2% less time is spent in a corner.
+In `data008` 3% more time is spent in a turn but 2% less time is spent in a corner.
 
 We ran the turtlebot again to create a training dataset, `data009`, this time for 12 hours -
 ```
@@ -2401,7 +2437,7 @@ ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 213890
 ...
 100.0*match_count/z: 54.0732
 ```
-The *likelihood* of 213,890 is a little less than *model* 29. The label accuracy is a lot lower at 54% instead of 87%, but of course the label is considerably more ambiguous being the next `location` rather than the current `location`.
+The *likelihood* of 213,890 is a little less than *model* 28. The label accuracy is a lot lower at 54% instead of 87%, but of course the label is considerably more ambiguous being the next `location` rather than the current `location`.
 
 Now let us add `motor` to the *substrate* accessible to the *conditioner*, to see if it can disambiguate the next label.
 ```
@@ -2450,7 +2486,7 @@ ent(*add(*aa,*bb)) * (z+v) - ent(*aa) * z - ent(*bb) * v: 218519
 ...
 100.0*match_count/z: 56.0576
 ```
-Now there is a definite increase in both the *likelihood*, at 218,519, and the next label accuracy, at 56%. In total, 524 of the 16,384 *fuds depend* on `motor`,
+Now there is a small increase in both the *likelihood*, at 218,519, and the next label accuracy, at 56%. In total, 524 of the 16,384 *fuds depend* on `motor`,
 
 Model|Type|Underlying|Fmax|Dataset|Substrate|Likelihood|Location %|Next Location %
 ---|---|---|---|---|---|---|---|---
