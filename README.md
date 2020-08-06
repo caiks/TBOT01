@@ -2617,13 +2617,11 @@ Model|Type|Underlying|Fmax|Dataset|Substrate|Likelihood|Location %|Next Location
 33|conditioned|model 26|4096|9|4|212,496|81|52|63
 34|conditioned|model 26|16384|9|4|215,763|84|53|64
 
-Given that the `motor` *value* has at least a weak functional relation to the next `location` and `room`, let us now write a new controller than accepts requests to turn made by the observer or by a user. These requests will only be accepted when the turtlebot is moving straight ahead.
+Given that the `motor` *value* has at least a weak functional relation to the `location_next` and `room_next`, let us now write a new controller that accepts requests to turn made by the observer or by a user. These requests will only be accepted when the turtlebot is moving straight ahead.
 
-TODO
+The `TBOT01` [actor](https://github.com/caiks/TBOT01/blob/master/actor.h) node is derived from the observer node. It is given a *model*, a goal room and an act interval. At each potential action it *applies* the *model* to the current *event* to determine its *slice*. The *slice* of the given *history*, e.g. `data009`, is *reduced* to a *histogram* of the label *variables* `location`, `motor` and `room_next`. This *histogram* is *multiplied* by a *unit histogram* that defines the desired `room_next` given the goal room and the *slice's* probable `location`. For example, if the goal is room 6 and the `location` is room 1 then the `room_next` is room 4, rather than rooms 2 or 3. The turtlebot guesses  `location` and then prefers `motor` actions that tended in the past to lead to the desired goal. The requested action is chosen at random according to the probability distribution implied by the *normalised reduction* to `motor`.
 
-The *substrate* consists of 360 `scan` *variables* with bucketed *values* and a `motor` *variable* with *values* 0,1 and 2 corresponding to left, ahead and right. It also has two *variables* derived from the `odom`, a `location` *variable* with *values* `door12`, `door13`, `door14`, `door45`, `door56`, `room1`, `room2`, `room3`, `room4`, `room5` and `room6`, and a `position` *variable* with *values* `centre`, `corner` and `side`.
 
-The `TBOT01` [actor](https://github.com/caiks/TBOT01/blob/master/actor.h) node 
 
 The `TBOT01` [commander](https://github.com/caiks/TBOT01/blob/master/commander.h) node 
 
