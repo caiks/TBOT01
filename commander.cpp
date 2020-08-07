@@ -97,6 +97,7 @@ void Commander::command_callback()
 			double variance = 0.0;
 			for (auto a : _counts)
 				variance += ((double)a - average)*((double)a - average);
+			variance /= _counts.size();
 			EVAL(sqrt(variance));			
 			_counts.push_back(0);
 			while ((size_t)u == _room)

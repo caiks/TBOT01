@@ -11,7 +11,7 @@ using namespace std::chrono_literals;
 typedef std::chrono::duration<double> sec;
 typedef std::chrono::high_resolution_clock clk;
 
-Actor::Actor(const std::string& model, const std::string& room_initial, std::chrono::milliseconds act_interval, const std::string& dataset, std::size_t chunks)
+Actor::Actor(const std::string& model, const std::string& room_initial, std::chrono::milliseconds act_interval, const std::string& dataset, std::size_t chunks, std::size_t act_factor_mult)
 : Node("TBOT01_actor_node")
 {
 	typedef std::tuple<std::string, std::string, std::string> String3;	
@@ -25,8 +25,9 @@ Actor::Actor(const std::string& model, const std::string& room_initial, std::chr
 	_pose_updated = false;
 	_scan_updated = false;
 	
-	auto twofiftyms = 10ms;
-	_act_factor = act_interval.count() / twofiftyms.count();
+	auto twofiftyms = 250ms;
+	_act_factor = act_interval.count() * act_factor_mult / twofiftyms.count();
+	EVAL(_act_factor);
 	
 	_room = room_initial;
 	
@@ -399,8 +400,11 @@ void Actor::act_callback()
 		auto aa = *trim(*hraa(*_uu, *_ur, *_slice_history[s]));
 		// EVAL(size(aa))
 		// EVAL(aa);
-		EVAL(_room);
-		auto aa1 = *mul(aa,_room_location_goal[_room]);		
+		// EVAL(*ared(aa, VarUSet{location}));
+		// EVAL(_room);
+		// EVAL(_room_location_goal[_room]);			
+		auto aa1 = *mul(aa,_room_location_goal[_room]);	
+		// EVAL(*ared(aa1, VarUSet{motor}));		
 		// EVAL(aa1);	
 		auto next_size = size(aa1);
 		EVAL(next_size);
@@ -446,9 +450,10 @@ int main(int argc, char** argv)
 	std::chrono::milliseconds act_interval(argc >= 4 ? std::atol(argv[3]) : 5*60);
 	string dataset = string(argc >= 5 ? argv[4] : "data002");
 	std::size_t chunks(argc >= 6 ? std::atol(argv[5]) : 0);
+	std::size_t act_factor_mult(argc >= 7 ? std::atol(argv[6]) : 1);
 
 	rclcpp::init(argc, argv);
-	rclcpp::spin(std::make_shared<Actor>(model, room_initial, act_interval, dataset, chunks));
+	rclcpp::spin(std::make_shared<Actor>(model, room_initial, act_interval, dataset, chunks, act_factor_mult));
 	rclcpp::shutdown();
 
 	return 0;
