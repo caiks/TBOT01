@@ -11,7 +11,7 @@ using namespace std::chrono_literals;
 typedef std::chrono::duration<double> sec;
 typedef std::chrono::high_resolution_clock clk;
 
-Actor::Actor(const std::string& model, const std::string& room_initial, std::chrono::milliseconds act_interval, const std::string& dataset, std::size_t chunks, std::size_t act_factor_mult)
+Actor::Actor(const std::string& model, const std::string& room_initial, std::chrono::milliseconds act_interval, const std::string& dataset, std::size_t chunks, double majority_fraction)
 : Node("TBOT01_actor_node")
 {
 	typedef std::tuple<std::string, std::string, std::string> String3;	
@@ -25,9 +25,7 @@ Actor::Actor(const std::string& model, const std::string& room_initial, std::chr
 	_pose_updated = false;
 	_scan_updated = false;
 	
-	auto twofiftyms = 250ms;
-	_act_factor = act_interval.count() * act_factor_mult / twofiftyms.count();
-	EVAL(_act_factor);
+	_majority_fraction = majority_fraction;
 	
 	_room = room_initial;
 	
@@ -324,11 +322,20 @@ void Actor::act_callback()
 	{
 		return State(VarValPairList{VarValPair(v, u)});
 	};
+	auto smax = [](const Histogram& aa)
+	{
+		std::vector<std::pair<Rational,State>> ll;
+		auto ll0 = *histogramsList(aa);
+		for (auto p : ll0)
+			ll.push_back(std::pair<Rational,State>(p.second,p.first));
+		auto ll1 = sorted(ll);
+		return ll1.back().second;
+	};	
 	auto single = histogramSingleton_u;		
 	auto mul = pairHistogramsMultiply;
 	auto size = [](const Histogram& aa)
 	{
-		return (size_t)histogramsSize(aa).getNumerator();
+		return (double)histogramsSize(aa).getNumerator();
 	};		
 	auto trim = histogramsTrim;
 	auto ared = [](const Histogram& aa, const VarUSet& vv)
@@ -408,29 +415,32 @@ void Actor::act_callback()
 		// EVAL(aa1);	
 		auto next_size = size(aa1);
 		EVAL(next_size);
-		auto next_size_left = size(*mul(aa1,*single(state(motor,Value(0)),1)));		
-		EVAL(next_size_left);
-		auto next_size_right = size(*mul(aa1,*single(state(motor,Value(2)),1)));		
-		EVAL(next_size_right);
-		bool turn_left = false;
-		bool turn_right = false;
-		for (int i = 0; next_size_left && !turn_left && i < _act_factor; i++)
-			turn_left = (rand() % next_size) < next_size_left;
-		for (int i = 0; next_size_right && !turn_right && i < _act_factor; i++)
-			turn_right = (rand() % next_size) < next_size_right;
-		if (turn_left && !turn_right)
+		if (next_size > 0)
 		{
-			std_msgs::msg::String msg;
-			msg.data = "left";
-			_turn_request_pub->publish(msg);
-			RCLCPP_INFO(this->get_logger(), "Published turn request: left");
-		}
-		else if (!turn_left && turn_right)
-		{
-			std_msgs::msg::String msg;
-			msg.data = "right";
-			_turn_request_pub->publish(msg);
-			RCLCPP_INFO(this->get_logger(), "Published turn request: right");
+			auto next_size_left = size(*mul(aa1,*single(state(motor,Value(0)),1)));		
+			EVAL(next_size_left);
+			auto next_size_right = size(*mul(aa1,*single(state(motor,Value(2)),1)));		
+			EVAL(next_size_right);	
+			auto aa2 = *single(smax(*ared(aa,VarUSet{location})),1);			
+			// EVAL(aa2);
+			bool single_exit = aa2 == *single(state(location,Value("room2")),1) 
+								|| aa2 == *single(state(location,Value("room3")),1)
+								|| aa2 == *single(state(location,Value("room6")),1);
+			EVAL(single_exit);
+			if (!single_exit && next_size_left > next_size_right && (next_size_left - next_size_right) / next_size >= _majority_fraction)
+			{
+				std_msgs::msg::String msg;
+				msg.data = "left";
+				_turn_request_pub->publish(msg);
+				RCLCPP_INFO(this->get_logger(), "Published turn request: left");
+			}
+			else if (!single_exit && next_size_right > next_size_left && (next_size_right - next_size_left) / next_size >= _majority_fraction)
+			{
+				std_msgs::msg::String msg;
+				msg.data = "right";
+				_turn_request_pub->publish(msg);
+				RCLCPP_INFO(this->get_logger(), "Published turn request: right");
+			}	
 		}
 	}	
 }
@@ -450,10 +460,10 @@ int main(int argc, char** argv)
 	std::chrono::milliseconds act_interval(argc >= 4 ? std::atol(argv[3]) : 5*60);
 	string dataset = string(argc >= 5 ? argv[4] : "data002");
 	std::size_t chunks(argc >= 6 ? std::atol(argv[5]) : 0);
-	std::size_t act_factor_mult(argc >= 7 ? std::atol(argv[6]) : 1);
+	double majority_fraction(argc >= 7 ? std::atof(argv[6]) : 0.0);
 
 	rclcpp::init(argc, argv);
-	rclcpp::spin(std::make_shared<Actor>(model, room_initial, act_interval, dataset, chunks, act_factor_mult));
+	rclcpp::spin(std::make_shared<Actor>(model, room_initial, act_interval, dataset, chunks, majority_fraction));
 	rclcpp::shutdown();
 
 	return 0;

@@ -12,7 +12,7 @@
 class Actor : public rclcpp::Node
 {
 public:
-	Actor(const std::string&, const std::string&, std::chrono::milliseconds, const std::string&, std::size_t, std::size_t);
+	Actor(const std::string&, const std::string&, std::chrono::milliseconds, const std::string&, std::size_t, double);
 	~Actor();
 
 private:
@@ -28,7 +28,7 @@ private:
 	bool _pose_updated;
 	bool _scan_updated;
 	
-	int _act_factor;
+	double _majority_fraction;
 	
 	std::string _room;
 
