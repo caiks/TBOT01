@@ -11,7 +11,7 @@ using namespace std::chrono_literals;
 typedef std::chrono::duration<double> sec;
 typedef std::chrono::high_resolution_clock clk;
 
-Actor::Actor(const std::string& model, const std::string& room_initial, std::chrono::milliseconds act_interval, const std::string& dataset, std::size_t chunks, double majority_fraction)
+Actor::Actor(const std::string& model, const std::string& room_initial, std::chrono::milliseconds act_interval, const std::string& dataset, std::size_t chunks, const std::string& mode, double majority_fraction)
 : Node("TBOT01_actor_node")
 {
 	typedef std::tuple<std::string, std::string, std::string> String3;	
@@ -26,8 +26,12 @@ Actor::Actor(const std::string& model, const std::string& room_initial, std::chr
 	_scan_updated = false;
 	
 	_majority_fraction = majority_fraction;
-	
+	_mode = mode;
 	_room = room_initial;
+	
+	EVAL(_room);
+	EVAL(_mode);
+	EVAL(_majority_fraction);
 	
 	{
 		Variable location("location");
@@ -333,6 +337,7 @@ void Actor::act_callback()
 	};	
 	auto single = histogramSingleton_u;		
 	auto mul = pairHistogramsMultiply;
+	auto sub = pairHistogramsSubtract_u;
 	auto size = [](const Histogram& aa)
 	{
 		return (double)histogramsSize(aa).getNumerator();
@@ -410,22 +415,25 @@ void Actor::act_callback()
 		// EVAL(*ared(aa, VarUSet{location}));
 		// EVAL(_room);
 		// EVAL(_room_location_goal[_room]);			
-		auto aa1 = *mul(aa,_room_location_goal[_room]);	
-		// EVAL(*ared(aa1, VarUSet{motor}));		
-		// EVAL(aa1);	
-		auto next_size = size(aa1);
+		auto next_size = size(aa);
 		EVAL(next_size);
 		if (next_size > 0)
 		{
-			auto next_size_left = size(*mul(aa1,*single(state(motor,Value(0)),1)));		
+			auto aa1 = *mul(aa,_room_location_goal[_room]);	
+			// EVAL(*ared(aa1, VarUSet{motor}));		
+			// EVAL(aa1);	
+			auto aa2 = *sub(aa,aa1);	
+			// EVAL(*ared(aa2, VarUSet{motor}));		
+			// EVAL(aa2);				
+			auto next_size_left = size(*mul(aa1,*single(state(motor,Value(0)),1))) - size(*mul(aa2,*single(state(motor,Value(0)),1)));		
 			EVAL(next_size_left);
-			auto next_size_right = size(*mul(aa1,*single(state(motor,Value(2)),1)));		
+			auto next_size_right = size(*mul(aa1,*single(state(motor,Value(2)),1))) - size(*mul(aa2,*single(state(motor,Value(2)),1)));		
 			EVAL(next_size_right);	
-			auto aa2 = *single(smax(*ared(aa,VarUSet{location})),1);			
-			// EVAL(aa2);
-			bool single_exit = aa2 == *single(state(location,Value("room2")),1) 
-								|| aa2 == *single(state(location,Value("room3")),1)
-								|| aa2 == *single(state(location,Value("room6")),1);
+			auto aa3 = *single(smax(*ared(aa,VarUSet{location})),1);			
+			// EVAL(aa3);
+			bool single_exit = aa3 == *single(state(location,Value("room2")),1) 
+								|| aa3 == *single(state(location,Value("room3")),1)
+								|| aa3 == *single(state(location,Value("room6")),1);
 			EVAL(single_exit);
 			if (!single_exit && next_size_left > next_size_right && (next_size_left - next_size_right) / next_size >= _majority_fraction)
 			{
@@ -460,10 +468,11 @@ int main(int argc, char** argv)
 	std::chrono::milliseconds act_interval(argc >= 4 ? std::atol(argv[3]) : 5*60);
 	string dataset = string(argc >= 5 ? argv[4] : "data002");
 	std::size_t chunks(argc >= 6 ? std::atol(argv[5]) : 0);
-	double majority_fraction(argc >= 7 ? std::atof(argv[6]) : 0.0);
+	string mode = string(argc >= 6 ? argv[6] : "mode002");
+	double majority_fraction(mode == "mode002" && argc >= 8 ? std::atof(argv[7]) : 0.0);
 
 	rclcpp::init(argc, argv);
-	rclcpp::spin(std::make_shared<Actor>(model, room_initial, act_interval, dataset, chunks, majority_fraction));
+	rclcpp::spin(std::make_shared<Actor>(model, room_initial, act_interval, dataset, chunks, mode, majority_fraction));
 	rclcpp::shutdown();
 
 	return 0;
