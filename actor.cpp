@@ -11,7 +11,7 @@ using namespace std::chrono_literals;
 typedef std::chrono::duration<double> sec;
 typedef std::chrono::high_resolution_clock clk;
 
-Actor::Actor(const std::string& model, const std::string& room_initial, std::chrono::milliseconds act_interval, const std::string& dataset, std::size_t chunks, const std::string& mode, double majority_fraction)
+Actor::Actor(const std::string& model, const std::string& room_initial, std::chrono::milliseconds act_interval, const std::string& dataset, std::size_t chunks, const std::string& mode, std::size_t act_factor, double majority_fraction)
 : Node("TBOT01_actor_node")
 {
 	typedef std::tuple<std::string, std::string, std::string> String3;	
@@ -25,12 +25,14 @@ Actor::Actor(const std::string& model, const std::string& room_initial, std::chr
 	_pose_updated = false;
 	_scan_updated = false;
 	
+	_act_factor = act_factor;
 	_majority_fraction = majority_fraction;
 	_mode = mode;
 	_room = room_initial;
 	
 	EVAL(_room);
 	EVAL(_mode);
+	EVAL(_act_factor);
 	EVAL(_majority_fraction);
 	
 	{
@@ -392,7 +394,7 @@ void Actor::act_callback()
 	
 	if (_slice_history.find(s) == _slice_history.end())
 	{
-		RCLCPP_INFO(this->get_logger(), "act_callback: error: no slice history");
+		RCLCPP_INFO(this->get_logger(), "no slice history");
 		return;
 	}
 		
@@ -417,7 +419,7 @@ void Actor::act_callback()
 		// EVAL(_room_location_goal[_room]);			
 		auto next_size = size(aa);
 		EVAL(next_size);
-		if (next_size > 0)
+		if (next_size > 0 && _mode == "mode002")
 		{
 			auto aa1 = *mul(aa,_room_location_goal[_room]);	
 			// EVAL(*ared(aa1, VarUSet{motor}));		
@@ -450,6 +452,40 @@ void Actor::act_callback()
 				RCLCPP_INFO(this->get_logger(), "Published turn request: right");
 			}	
 		}
+		else if (next_size > 0)
+		{
+			auto aa1 = *mul(aa,_room_location_goal[_room]);	
+			// EVAL(*ared(aa1, VarUSet{motor}));		
+			// EVAL(aa1);			
+			next_size = size(aa1);
+			EVAL((int)next_size);
+			auto next_size_left = size(*mul(aa1,*single(state(motor,Value(0)),1)));		
+			EVAL(next_size_left);
+			auto next_size_right = size(*mul(aa1,*single(state(motor,Value(2)),1)));		
+			EVAL(next_size_right);
+			bool turn_left = false;
+			bool turn_right = false;
+			for (int i = 0; next_size && !turn_right && !turn_left && i < _act_factor; i++)
+			{
+				auto j = rand() % (int)next_size;
+				turn_left = j < next_size_left;
+				turn_right = j >= next_size_left && j < next_size_left + next_size_right;
+			}
+			if (turn_left)
+			{
+				std_msgs::msg::String msg;
+				msg.data = "left";
+				_turn_request_pub->publish(msg);
+				RCLCPP_INFO(this->get_logger(), "Published turn request: left");
+			}
+			else if (turn_right)
+			{
+				std_msgs::msg::String msg;
+				msg.data = "right";
+				_turn_request_pub->publish(msg);
+				RCLCPP_INFO(this->get_logger(), "Published turn request: right");
+			}	
+		}
 	}	
 }
 
@@ -469,10 +505,12 @@ int main(int argc, char** argv)
 	string dataset = string(argc >= 5 ? argv[4] : "data002");
 	std::size_t chunks(argc >= 6 ? std::atol(argv[5]) : 0);
 	string mode = string(argc >= 6 ? argv[6] : "mode002");
+	auto twofiftyms = 250ms;
+	std::size_t act_factor(mode == "mode001" && argc >= 8 ? std::atol(argv[7]) : act_interval.count() / twofiftyms.count());
 	double majority_fraction(mode == "mode002" && argc >= 8 ? std::atof(argv[7]) : 0.0);
 
 	rclcpp::init(argc, argv);
-	rclcpp::spin(std::make_shared<Actor>(model, room_initial, act_interval, dataset, chunks, mode, majority_fraction));
+	rclcpp::spin(std::make_shared<Actor>(model, room_initial, act_interval, dataset, chunks, mode, act_factor, majority_fraction));
 	rclcpp::shutdown();
 
 	return 0;
