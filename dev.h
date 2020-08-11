@@ -83,6 +83,8 @@ namespace TBOT01
 	SystemHistoryRepaTuple recordListsHistoryRepa_2(int, const RecordList&);
 	SystemHistoryRepaTuple recordListsHistoryRepa_3(int, const RecordList&);
 	SystemHistoryRepaTuple recordListsHistoryRepa_4(int, const RecordList&);
+	SystemHistoryRepaTuple recordListsHistoryRepa_5(int, const RecordList&);
+	SystemHistoryRepaTuple recordListsHistoryRepa_6(int, const RecordList&);
 }
 
 std::ostream& operator<<(std::ostream& out, const TBOT01::Record&);

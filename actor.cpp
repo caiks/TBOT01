@@ -16,6 +16,7 @@ Actor::Actor(const std::string& model, const std::string& room_initial, std::chr
 {
 	typedef std::tuple<std::string, std::string, std::string> String3;	
 	typedef std::vector<String3> String3List;	
+	typedef std::vector<std::string> StringList;	
 	auto add = pairHistogramsAdd_u;
 	auto single = histogramSingleton_u;		
 	auto hrsel = eventsHistoryRepasHistoryRepaSelection_u;
@@ -107,6 +108,16 @@ Actor::Actor(const std::string& model, const std::string& room_initial, std::chr
 			String3("room6","room5","room6"),
 			String3("room6","room6","room6")
 		};
+		if (_mode == "mode004" || _mode == "mode005")
+		{
+			StringList rooms{string("room1"),string("room2"),string("room3"),string("room4"),string("room5"),string("room6")};
+			for (auto room : rooms)
+			{
+				ll.push_back(String3(room,"roomz2","room2"));
+				ll.push_back(String3(room,"roomz3","room3"));
+				ll.push_back(String3(room,"roomz6","room6"));
+			}
+		}
 		for (auto t : ll)
 			_room_location_goal[std::get<0>(t)] = *add(_room_location_goal[std::get<0>(t)], *single(State(VarValPairList{VarValPair(location, std::get<1>(t)),VarValPair(room_next, std::get<2>(t))}),1));
 	}
@@ -150,7 +161,10 @@ Actor::Actor(const std::string& model, const std::string& room_initial, std::chr
 				auto qq = persistentsRecordList(in);
 				in.close();			
 				SystemHistoryRepaTuple xx;
-				xx = recordListsHistoryRepa_4(8, *qq);			
+				if (_mode == "mode004" || _mode == "mode005")
+					xx = recordListsHistoryRepa_6(8, *qq);		
+				else		
+					xx = recordListsHistoryRepa_4(8, *qq);							
 				_uu = std::move(std::get<0>(xx));
 				_ur = std::move(std::get<1>(xx));
 				ll.push_back(std::move(std::get<2>(xx)));
@@ -419,7 +433,7 @@ void Actor::act_callback()
 		// EVAL(_room_location_goal[_room]);			
 		auto next_size = size(aa);
 		EVAL(next_size);
-		if (next_size > 0 && _mode == "mode003")
+		if (next_size > 0 && (_mode == "mode003" || _mode == "mode005"))
 		{
 			auto aa1 = *mul(aa,_room_location_goal[_room]);	
 			// EVAL(*ared(aa1, VarUSet{motor}));		
@@ -433,9 +447,10 @@ void Actor::act_callback()
 			EVAL(next_size_right);	
 			auto aa3 = *single(smax(*ared(aa,VarUSet{location})),1);			
 			// EVAL(aa3);
-			bool single_exit = aa3 == *single(state(location,Value("room2")),1) 
-								|| aa3 == *single(state(location,Value("room3")),1)
-								|| aa3 == *single(state(location,Value("room6")),1);
+			bool single_exit = _mode == "mode003" &&
+								(aa3 == *single(state(location,Value("room2")),1) 
+									|| aa3 == *single(state(location,Value("room3")),1)
+									|| aa3 == *single(state(location,Value("room6")),1));
 			EVAL(single_exit);
 			if (!single_exit && next_size_left > next_size_right && (next_size_left - next_size_right) / next_size >= _majority_fraction)
 			{
@@ -452,7 +467,7 @@ void Actor::act_callback()
 				RCLCPP_INFO(this->get_logger(), "Published turn request: right");
 			}	
 		}
-		else if (next_size > 0 && _mode == "mode002")
+		else if (next_size > 0 && (_mode == "mode002" || _mode == "mode004"))
 		{
 			auto aa1 = *mul(aa,_room_location_goal[_room]);	
 			// EVAL(*ared(aa1, VarUSet{motor}));		
@@ -466,9 +481,10 @@ void Actor::act_callback()
 			EVAL(next_size_right);	
 			auto aa3 = *single(smax(*ared(aa,VarUSet{location})),1);			
 			// EVAL(aa3);
-			bool single_exit = aa3 == *single(state(location,Value("room2")),1) 
-								|| aa3 == *single(state(location,Value("room3")),1)
-								|| aa3 == *single(state(location,Value("room6")),1);
+			bool single_exit = _mode == "mode002" &&
+								(aa3 == *single(state(location,Value("room2")),1) 
+									|| aa3 == *single(state(location,Value("room3")),1)
+									|| aa3 == *single(state(location,Value("room6")),1));
 			EVAL(single_exit);
 			bool turn_left = false;
 			bool turn_right = false;
@@ -547,8 +563,8 @@ int main(int argc, char** argv)
 	std::size_t chunks(argc >= 6 ? std::atol(argv[5]) : 0);
 	string mode = string(argc >= 6 ? argv[6] : "mode003");
 	auto twofiftyms = 250ms;
-	std::size_t act_factor(mode == "mode001" && argc >= 8 ? std::atol(argv[7]) : act_interval.count() / twofiftyms.count());
-	double majority_fraction(mode == "mode003" && argc >= 8 ? std::atof(argv[7]) : 0.0);
+	std::size_t act_factor((mode == "mode001" || mode == "mode002" || mode == "mode004") && argc >= 8 ? std::atol(argv[7]) : act_interval.count() / twofiftyms.count());
+	double majority_fraction((mode == "mode003" || mode == "mode005") && argc >= 8 ? std::atof(argv[7]) : 0.0);
 
 	rclcpp::init(argc, argv);
 	rclcpp::spin(std::make_shared<Actor>(model, room_initial, act_interval, dataset, chunks, mode, act_factor, majority_fraction));

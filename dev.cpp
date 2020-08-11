@@ -645,3 +645,159 @@ SystemHistoryRepaTuple TBOT01::recordListsHistoryRepa_4(int d, const RecordList&
 	return SystemHistoryRepaTuple(move(uu), move(ur), move(hr));
 }
 
+SystemHistoryRepaTuple TBOT01::recordListsHistoryRepa_5(int d, const RecordList& qq)
+{
+	auto lluu = listsSystem_u;
+
+	std::size_t n = 360 + 2;
+	std::size_t z = qq.size();
+	ValSet buckets;
+	for (int i = 0; i < d; i++)
+		buckets.insert(Value(i));
+	ValSet actions;
+	for (int i = 0; i < 3; i++)
+		actions.insert(Value(i));
+	ValSet locations{ Value("door12"), Value("door13"), Value("door14"), Value("door45"), Value("door56"),
+		Value("room1"), Value("room2"), Value("room3"), Value("room4"), Value("room5"), Value("room6"), 
+		Value("roomz2"), Value("roomz3"), Value("roomz6") };
+	vector<Coord> doors{ Coord(6.2,-0.175), Coord(2.3,4.5), Coord(2.3,0.375), Coord(-5.15,3.1), Coord(-6.325,0.925) };
+	vector<CoordP> rooms{
+		CoordP(Coord(2.3,-0.175),Coord(7.5,5.27)),
+		CoordP(Coord(4.9,-5.275+1.5),Coord(7.5,-0.175)),
+		CoordP(Coord(-0.05,0.925+1.5),Coord(2.3,5.27)),
+		CoordP(Coord(-5.15,-0.175),Coord(2.3,5.27)),
+		CoordP(Coord(-7.5,0.925),Coord(-5.15,5.27)),
+		CoordP(Coord(-7.5,-3.925+1.5),Coord(-5.15,0.925)),
+		CoordP(Coord(4.9,-5.275),Coord(7.5,-5.275+1.5)),
+		CoordP(Coord(-0.05,0.925),Coord(2.3,0.925+1.5)),
+		CoordP(Coord(-7.5,-3.925),Coord(-5.15,-3.925+1.5))
+		};
+	vector<VarValSetPair> ll;
+	auto vscan = std::make_shared<Variable>("scan");
+	for (std::size_t i = 0; i < n - 2; i++)
+		ll.push_back(VarValSetPair(Variable(vscan, std::make_shared<Variable>((int)i + 1)), buckets));
+	ll.push_back(VarValSetPair(Variable("motor"), actions));
+	ll.push_back(VarValSetPair(Variable("location"), locations));
+	auto uu = lluu(ll);
+	auto ur = std::make_unique<SystemRepa>();
+	auto& mm = ur->listVarSizePair;
+	mm.reserve(ll.size());
+	for (auto& vww : ll)
+		mm.push_back(VarSizePair(std::make_shared<Variable>(vww.first), vww.second.size()));
+	auto hr = make_unique<HistoryRepa>();
+	hr->dimension = n;
+	hr->vectorVar = new size_t[n];
+	auto vv = hr->vectorVar;
+	hr->shape = new size_t[n];
+	auto sh = hr->shape;
+	hr->size = z;
+	hr->evient = true;
+	hr->arr = new unsigned char[z*n];
+	auto rr = hr->arr;
+	for (size_t i = 0; i < n; i++)
+		vv[i] = i;
+	for (size_t i = 0; i < n - 2; i++)
+		sh[i] = d;
+	sh[n - 2] = actions.size();
+	sh[n - 1] = locations.size();
+	double f = (double)d / 4.0;
+	for (size_t j = 0; j < z; j++)
+	{
+		size_t jn = j*n;
+		auto& r = qq[j];
+		for (size_t i = 0; i < n - 2; i++)
+			rr[jn + i] = (unsigned char)(r.sensor_scan[i] * f);
+		rr[jn + n - 2] = (unsigned char)(r.action_angular == 1.5 ? 0 : (r.action_angular == -1.5 ? 2 : 1));
+		double x = r.sensor_pose[0];
+		double y = r.sensor_pose[1];
+		size_t k = 0;
+		while (k < doors.size())
+		{
+			if ((doors[k].first - x)*(doors[k].first - x) + (doors[k].second - y)*(doors[k].second - y) <= 0.25)
+				break;
+			k++;
+		}
+		while (k >= doors.size() && k < doors.size() + rooms.size())
+		{
+			auto room = rooms[k - doors.size()];
+			if (room.first.first <= x && x <= room.second.first && room.first.second <= y && y <= room.second.second)
+				break;
+			k++;
+		}
+		if (k >= doors.size() + rooms.size())
+			k = 9;
+		rr[jn + n - 1] = (unsigned char)k;
+	}
+	hr->transpose();
+	return SystemHistoryRepaTuple(move(uu), move(ur), move(hr));
+}
+
+SystemHistoryRepaTuple TBOT01::recordListsHistoryRepa_6(int d, const RecordList& qq)
+{
+	auto lluu = listsSystem_u;
+	auto hrjoin = vectorHistoryRepasJoin_u;
+	
+	auto xx = recordListsHistoryRepa_5(d, qq);
+	auto uu = std::move(std::get<0>(xx));
+	auto ur = std::move(std::get<1>(xx));
+	auto hr = std::move(std::get<2>(xx));
+
+	auto& vvu = ur->mapVarSize();	
+	auto& llu = ur->listVarSizePair;	
+	auto z = hr->size;
+	auto rr = hr->arr;
+	auto& mvv = hr->mapVarInt();
+	
+	vector<Variable> ll {Variable("location")};
+	SizeList pp;
+	for (auto v : ll)
+		pp.push_back(mvv[vvu[v]]);
+	
+	ValSet locations{ Value("door12"), Value("door13"), Value("door14"), Value("door45"), Value("door56"),
+		Value("room1"), Value("room2"), Value("room3"), Value("room4"), Value("room5"), Value("room6"), 
+		Value("roomz2"), Value("roomz3"), Value("roomz6"), Value("unknown") };
+	
+	vector<VarValSetPair> ll1;
+	ll1.push_back(VarValSetPair(Variable("room_next"), locations));
+	uu->update(*lluu(ll1));	
+	
+	std::size_t n1 = ll1.size();
+	auto hr1 = make_unique<HistoryRepa>();
+	hr1->dimension = n1;
+	hr1->vectorVar = new size_t[n1];
+	auto vv1 = hr1->vectorVar;
+	hr1->shape = new size_t[n1];
+	auto sh1 = hr1->shape;
+	hr1->size = z;
+	hr1->evient = false;
+	hr1->arr = new unsigned char[z*n1];
+	auto rr1 = hr1->arr;
+	for (size_t i = 0; i < n1; i++)
+	{
+		auto& vww = ll1[i];
+		llu.push_back(VarSizePair(std::make_shared<Variable>(vww.first), vww.second.size()));
+		vv1[i] = llu.size() - 1;	
+		sh1[i] = vww.second.size();
+	}
+	for (size_t i = 0; i < n1; i++)
+	{
+		size_t iz = i*z;
+		for (size_t j = 0; j < z; j++)
+		{
+			rr1[iz + j] = (unsigned char)(sh1[i]-1);
+			auto u = rr[pp[i]*z + j];
+			for (size_t k = j+1; k < z; k++)
+			{
+				auto w = rr[pp[i]*z + k];
+				if (w != u && (int)w >= 5)
+				{
+					rr1[iz + j] = w;		
+					break;					
+				}
+			}
+		}
+	}
+	hr = hrjoin(HistoryRepaPtrList {move(hr), move(hr1)});	
+	return SystemHistoryRepaTuple(move(uu), move(ur), move(hr));
+}
+
