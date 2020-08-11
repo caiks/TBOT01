@@ -379,7 +379,11 @@ void Actor::act_callback()
 	
 	std::size_t s = 0;
 	{
-		auto xx = recordListsHistoryRepa_4(8, RecordList{ _record });
+		SystemHistoryRepaTuple xx;
+		if (_mode == "mode004" || _mode == "mode005")
+			xx = recordListsHistoryRepa_6(8, RecordList{ _record });		
+		else		
+			xx = recordListsHistoryRepa_4(8, RecordList{ _record });	
 		auto hr = std::move(std::get<2>(xx));
 		SizeList ww;
 		auto nn = treesLeafNodes(*_dr->slices);
