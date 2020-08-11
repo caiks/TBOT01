@@ -419,7 +419,7 @@ void Actor::act_callback()
 		// EVAL(_room_location_goal[_room]);			
 		auto next_size = size(aa);
 		EVAL(next_size);
-		if (next_size > 0 && _mode == "mode002")
+		if (next_size > 0 && _mode == "mode003")
 		{
 			auto aa1 = *mul(aa,_room_location_goal[_room]);	
 			// EVAL(*ared(aa1, VarUSet{motor}));		
@@ -452,6 +452,47 @@ void Actor::act_callback()
 				RCLCPP_INFO(this->get_logger(), "Published turn request: right");
 			}	
 		}
+		else if (next_size > 0 && _mode == "mode002")
+		{
+			auto aa1 = *mul(aa,_room_location_goal[_room]);	
+			// EVAL(*ared(aa1, VarUSet{motor}));		
+			// EVAL(aa1);	
+			auto aa2 = *sub(aa,aa1);	
+			// EVAL(*ared(aa2, VarUSet{motor}));		
+			// EVAL(aa2);				
+			auto next_size_left = size(*mul(aa1,*single(state(motor,Value(0)),1))) + size(*mul(aa2,*single(state(motor,Value(2)),1)));		
+			EVAL(next_size_left);
+			auto next_size_right = size(*mul(aa1,*single(state(motor,Value(2)),1))) + size(*mul(aa2,*single(state(motor,Value(0)),1)));		
+			EVAL(next_size_right);	
+			auto aa3 = *single(smax(*ared(aa,VarUSet{location})),1);			
+			// EVAL(aa3);
+			bool single_exit = aa3 == *single(state(location,Value("room2")),1) 
+								|| aa3 == *single(state(location,Value("room3")),1)
+								|| aa3 == *single(state(location,Value("room6")),1);
+			EVAL(single_exit);
+			bool turn_left = false;
+			bool turn_right = false;
+			for (int i = 0; !single_exit && !turn_right && !turn_left && i < _act_factor; i++)
+			{
+				auto j = rand() % (int)next_size;
+				turn_left = j < next_size_left;
+				turn_right = j >= next_size_left && j < next_size_left + next_size_right;
+			}
+			if (turn_left)
+			{
+				std_msgs::msg::String msg;
+				msg.data = "left";
+				_turn_request_pub->publish(msg);
+				RCLCPP_INFO(this->get_logger(), "Published turn request: left");
+			}
+			else if (turn_right)
+			{
+				std_msgs::msg::String msg;
+				msg.data = "right";
+				_turn_request_pub->publish(msg);
+				RCLCPP_INFO(this->get_logger(), "Published turn request: right");
+			}			
+		}
 		else if (next_size > 0)
 		{
 			auto aa1 = *mul(aa,_room_location_goal[_room]);	
@@ -465,7 +506,7 @@ void Actor::act_callback()
 			EVAL(next_size_right);
 			bool turn_left = false;
 			bool turn_right = false;
-			for (int i = 0; next_size && !turn_right && !turn_left && i < _act_factor; i++)
+			for (int i = 0; next_size > 0 && !turn_right && !turn_left && i < _act_factor; i++)
 			{
 				auto j = rand() % (int)next_size;
 				turn_left = j < next_size_left;
@@ -504,10 +545,10 @@ int main(int argc, char** argv)
 	std::chrono::milliseconds act_interval(argc >= 4 ? std::atol(argv[3]) : 5*60);
 	string dataset = string(argc >= 5 ? argv[4] : "data002");
 	std::size_t chunks(argc >= 6 ? std::atol(argv[5]) : 0);
-	string mode = string(argc >= 6 ? argv[6] : "mode002");
+	string mode = string(argc >= 6 ? argv[6] : "mode003");
 	auto twofiftyms = 250ms;
 	std::size_t act_factor(mode == "mode001" && argc >= 8 ? std::atol(argv[7]) : act_interval.count() / twofiftyms.count());
-	double majority_fraction(mode == "mode002" && argc >= 8 ? std::atof(argv[7]) : 0.0);
+	double majority_fraction(mode == "mode003" && argc >= 8 ? std::atof(argv[7]) : 0.0);
 
 	rclcpp::init(argc, argv);
 	rclcpp::spin(std::make_shared<Actor>(model, room_initial, act_interval, dataset, chunks, mode, act_factor, majority_fraction));
