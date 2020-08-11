@@ -43,6 +43,7 @@ cat data008a* >data008.bin
 cat data009a* >data009.bin
 cat data010a* >data010.bin
 cat data011a* >data011.bin
+cat data013a* >data013.bin
 
 ```
 Then build -
@@ -94,6 +95,8 @@ ln -s ../TBOT01_build/main main
 ./main analyse data008 substrate004
 ./main analyse data009
 ./main analyse data009 substrate004
+./main analyse data009 substrate005
+./main analyse data009 substrate006
 
 ./main induce model001 4 >model001.log
 ./main induce model002 4 >model002.log
@@ -511,6 +514,7 @@ cat data008a* >data008.bin
 cat data009a* >data009.bin
 cat data010a* >data010.bin
 cat data011a* >data011.bin
+cat data013a* >data013.bin
 
 cd ~/turtlebot3_ws/src
 mkdir AlignmentC_build AlignmentRepaC_build

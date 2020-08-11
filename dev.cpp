@@ -658,18 +658,18 @@ SystemHistoryRepaTuple TBOT01::recordListsHistoryRepa_5(int d, const RecordList&
 	for (int i = 0; i < 3; i++)
 		actions.insert(Value(i));
 	ValSet locations{ Value("door12"), Value("door13"), Value("door14"), Value("door45"), Value("door56"),
-		Value("room1"), Value("room2"), Value("room3"), Value("room4"), Value("room5"), Value("room6"), 
-		Value("roomz2"), Value("roomz3"), Value("roomz6") };
+		Value("room1"), Value("room2"), Value("room2z"), Value("room3"), Value("room3z"), Value("room4"), Value("room5"), Value("room6"), 
+		Value("room6z") };
 	vector<Coord> doors{ Coord(6.2,-0.175), Coord(2.3,4.5), Coord(2.3,0.375), Coord(-5.15,3.1), Coord(-6.325,0.925) };
 	vector<CoordP> rooms{
 		CoordP(Coord(2.3,-0.175),Coord(7.5,5.27)),
 		CoordP(Coord(4.9,-5.275+1.5),Coord(7.5,-0.175)),
+		CoordP(Coord(4.9,-5.275),Coord(7.5,-5.275+1.5)),
 		CoordP(Coord(-0.05,0.925+1.5),Coord(2.3,5.27)),
+		CoordP(Coord(-0.05,0.925),Coord(2.3,0.925+1.5)),
 		CoordP(Coord(-5.15,-0.175),Coord(2.3,5.27)),
 		CoordP(Coord(-7.5,0.925),Coord(-5.15,5.27)),
 		CoordP(Coord(-7.5,-3.925+1.5),Coord(-5.15,0.925)),
-		CoordP(Coord(4.9,-5.275),Coord(7.5,-5.275+1.5)),
-		CoordP(Coord(-0.05,0.925),Coord(2.3,0.925+1.5)),
 		CoordP(Coord(-7.5,-3.925),Coord(-5.15,-3.925+1.5))
 		};
 	vector<VarValSetPair> ll;
@@ -754,8 +754,8 @@ SystemHistoryRepaTuple TBOT01::recordListsHistoryRepa_6(int d, const RecordList&
 		pp.push_back(mvv[vvu[v]]);
 	
 	ValSet locations{ Value("door12"), Value("door13"), Value("door14"), Value("door45"), Value("door56"),
-		Value("room1"), Value("room2"), Value("room3"), Value("room4"), Value("room5"), Value("room6"), 
-		Value("roomz2"), Value("roomz3"), Value("roomz6"), Value("unknown") };
+		Value("room1"), Value("room2"), Value("room2z"), Value("room3"), Value("room3z"), Value("room4"), 
+		Value("room5"), Value("room6"), Value("room6z"), Value("unknown") };
 	
 	vector<VarValSetPair> ll1;
 	ll1.push_back(VarValSetPair(Variable("room_next"), locations));

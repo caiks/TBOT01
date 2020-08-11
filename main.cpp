@@ -1678,7 +1678,11 @@ int main(int argc, char **argv)
 				auto qq = persistentsRecordList(in);
 				in.close();
 				SystemHistoryRepaTuple xx;
-				if (substrate == "substrate004")
+				if (substrate == "substrate006")
+					xx = recordListsHistoryRepa_6(8, *qq);
+				else if (substrate == "substrate005")
+					xx = recordListsHistoryRepa_5(8, *qq);
+				else if (substrate == "substrate004")
 					xx = recordListsHistoryRepa_4(8, *qq);
 				else if (substrate == "substrate003")
 					xx = recordListsHistoryRepa_3(8, *qq);
@@ -1702,8 +1706,11 @@ int main(int argc, char **argv)
 		cout << endl;
 		rpln(cout, sorted(*aall(*araa(*uu, *ur, *hrred(*hr, *ur, VarList{ Variable("location") })))));
 		cout << endl;
-		rpln(cout, sorted(*aall(*araa(*uu, *ur, *hrred(*hr, *ur, VarList{ Variable("position") })))));
-		cout << endl;
+		if (substrate != "substrate005" || substrate != "substrate006")
+		{
+			rpln(cout, sorted(*aall(*araa(*uu, *ur, *hrred(*hr, *ur, VarList{ Variable("position") })))));
+			cout << endl;			
+		}
 		if (substrate == "substrate003" || substrate == "substrate004")
 		{
 			rpln(cout, sorted(*aall(*araa(*uu, *ur, *hrred(*hr, *ur, VarList{ Variable("location_next") })))));
@@ -1711,7 +1718,7 @@ int main(int argc, char **argv)
 			rpln(cout, sorted(*aall(*araa(*uu, *ur, *hrred(*hr, *ur, VarList{ Variable("position_next") })))));			
 			cout << endl;
 		}
-		if (substrate == "substrate004")
+		if (substrate == "substrate004" || substrate == "substrate006")
 		{
 			rpln(cout, sorted(*aall(*araa(*uu, *ur, *hrred(*hr, *ur, VarList{ Variable("room_next") })))));
 			cout << endl;		
