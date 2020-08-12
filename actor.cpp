@@ -113,9 +113,9 @@ Actor::Actor(const std::string& model, const std::string& room_initial, std::chr
 			StringList rooms{string("room1"),string("room2"),string("room3"),string("room4"),string("room5"),string("room6")};
 			for (auto room : rooms)
 			{
-				ll.push_back(String3(room,"roomz2","room2"));
-				ll.push_back(String3(room,"roomz3","room3"));
-				ll.push_back(String3(room,"roomz6","room6"));
+				ll.push_back(String3(room,"room2z","room2"));
+				ll.push_back(String3(room,"room3z","room3"));
+				ll.push_back(String3(room,"room6z","room6"));
 			}
 		}
 		for (auto t : ll)

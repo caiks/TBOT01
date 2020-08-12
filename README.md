@@ -2621,11 +2621,84 @@ Model|Type|Underlying|Fmax|Dataset|Substrate|Likelihood|Location %|Next Location
 33|conditioned|model 26|4096|9|4|212,496|81|52|63
 34|conditioned|model 26|16384|9|4|215,763|84|53|64
 
-Given that the `motor` *value* has at least a weak functional relation to the `location_next` and `room_next`, let us now write a new controller that accepts requests to turn made by the observer or by a user. These requests will only be accepted when the turtlebot is moving straight ahead.
+Given that the `motor` *value* has at least a weak functional relation to the `location_next` and `room_next`, we modified the controller to accept requests made by an observer or by a user. These requests are only accepted when the turtlebot is moving straight ahead. If the turtlebot is avoiding an obstacle the turn request merely sets the bias. Let us now consider how to issue these turn requests.
 
-The `TBOT01` [actor](https://github.com/caiks/TBOT01/blob/master/actor.h) node is derived from the observer node. It is given a *model*, a goal room and an act interval. At each potential action it *applies* the *model* to the current *event* to determine its *slice*. The *slice* of the given *history*, e.g. `data009`, is *reduced* to a *histogram* of the label *variables* `location`, `motor` and `room_next`. This *histogram* is *multiplied* by a *unit histogram* that defines the desired `room_next` given the goal room and the *slice's* probable `location`. For example, if the goal is room 6 and the `location` is room 1 then the `room_next` is room 4, rather than rooms 2 or 3. The turtlebot guesses  `location` and then prefers `motor` actions that tended in the past to lead to the desired goal. The requested action is chosen at random according to the probability distribution implied by the *normalised reduction* to `motor`.
+The `TBOT01` [actor](https://github.com/caiks/TBOT01/blob/master/actor.h) node is derived from the observer node. It is given a *model*, a goal room and a mode of action decision. At each potential action it *applies* the *model* to the current *event* to determine its *slice*. The *slice* of the given *history*, e.g. `data009`, is *reduced* to a *histogram* of the label *variables* `location`, `motor` and `room_next`. 
 
+In the simplest mode, `mode001`, this label *histogram* is *multiplied* by a *unit histogram* that defines the desired `room_next` given the goal room and the *slice's* probable `location`. For example, if the goal is room 6 and the `location` is room 1 then the `room_next` is room 4, rather than rooms 2 or 3. The turtlebot guesses  `location` and then repeats the past `motor` actions that tended in the past to lead to the desired goal. The requested action is chosen at random according to the *probability histogram* implied by the *normalised reduction* to `motor`.
 
+In order to test whether `TBOT01` actor is navigating around the turtlebot house better than chance it's goal will be set from a fixed sequence of randomly selected rooms. As soon as turtlebot has reached the current goal room, the next goal room is set from the next in the sequence. The turtlebot runs until we a degree of statistical significance for the average journey time as measured by the z-score. First we obtain the distribution for the random turn turtlebot by calculating the journey times in `data009`,
+```
+./main room_expected data009 room5
+dataset: data009
+room_initial: room5
+room_seed: 17
+z: 172301
+counts: [141,10209,4340,1196,8987,1176,5103,712,2532,1887,379,1218,204,69,2584,1079,2296,15562,6697,443,1376,3717,7213,66,2610,852,675,984,1013,3090,2015,73,1242,3410,4143,3905,3806,2174,2906,496,8126,3280,4505,163,10837,3848,3272,1527,11867,619,115,218,7594,3393,180]
+counts.size(): 55
+average: 3129.53
+sqrt(variance): 3368.92
+```
+The turtlebot's first goal is room 5. It travels to 55 rooms during the 12 hours of wandering around with random turns every 5 seconds or so. The average journey time is 3129.53 steps at 4 fps, i.e. 782 seconds.
 
-The `TBOT01` [commander](https://github.com/caiks/TBOT01/blob/master/commander.h) node 
+To set the goal rooms in the same sequence we use the `TBOT01` [commander](https://github.com/caiks/TBOT01/blob/master/commander.h) node. This publishes the goals to which the actor subscribes. The first test is with the actor in `mode001` with *conditioned model* 28,
+
+```
+gazebo -u --verbose ~/turtlebot3_ws/src/TBOT01_ws/env009.model -s libgazebo_ros_init.so
+
+```
+
+```
+ros2 run TBOT01 controller data012.bin 250 5000
+
+```
+```
+ros2 run TBOT01 actor model028_location room5 1000 data009 0 mode001
+
+```
+
+```
+ros2 run TBOT01 commander room5 250
+...
+Published goal: room2
+_counts.size(): 22
+average: 2436.41
+sqrt(variance): 3630.55
+```
+After 3 hours and 50 minutes, the z-score is
+```py
+>>> import math
+>>> (2436.41-3129.53)/math.sqrt(3368.92*3368.92/55 + 3630.55*3630.55/22)
+-0.7722871675844271
+```
+which is not significant. The turtlebot was allowed to continue,
+```
+Published goal: room4
+_counts.size(): 75
+average: 2503.25
+sqrt(variance): 2960.02
+```
+After 13 hours and 5 minutes, the z-score is
+```py
+>>> import math
+>>> (2503.25-3129.53)/math.sqrt(3368.92*3368.92/55 + 2960.02*2960.02/75)
+-1.1016573161045609
+```
+which is still not significant, but better than one standard deviation. This shows the journeys taken -
+```
+./main room_expected data012 room5
+dataset: data012
+room_initial: room5
+room_seed: 17
+z: 196722
+counts: [83,1838,1237,4332,1570,1041,1050,1294,16844,497,224,5599,7208,441,128,67,2955,2757,2083,222,1207,924,3175,1174,6362,4783,1288,2476,729,8118,2487,51,5613,2952,427,2292,771,1506,4346,458,11283,1096,5298,187,2115,1386,1067,2993,797,587,2700,109,1009,3067,3097,198,4091,172,91,6245,1773,982,1629,1547,4494,3399,863,1970,433,1059,12756,3682,459,1087,1413]
+counts.size(): 75
+average: 2503.24
+sqrt(variance): 2960.09
+```
+The mode 1 turtlebot shows some improvement over chance. It works because we select the random behaviour of the random turn turtlebot which lead in the past to the next room given the goal. Observing the behaviour of the mode 1 turtlebot we can see that it works reasonably well when it is near the desired exit from the room. In these cases there is enough *history* so that the correct action, left, right or straight ahead, is probable. When the turtlebot is far from the correct exit, the probabilities are not much different from chance and there the mode 1 turtlebot behaves like the random turn turtlebot.
+
+In mode 2 we *subtract* the `room_next` label *histogram* from the *slice's* label *histogram* to obtain the 'incorrect' *probability histogram* of the `motor` action. We then add the *count* of left turns of the  
+
+model028_location not conditioned on substrate006
 
