@@ -577,6 +577,8 @@ ln -s ~/TBOT01_build/main main
 
 [Motor actions](#Motor)
 
+[Actor node](#Actor)
+
 Now let us investigate various turtlebot3 controllers. 
 
 <a name = "Sensors"></a>
@@ -2625,11 +2627,15 @@ Model|Type|Underlying|Fmax|Dataset|Substrate|Likelihood|Location %|Next Location
 33|conditioned|model 26|4096|9|4|212,496|81|52|63
 34|conditioned|model 26|16384|9|4|215,763|84|53|64
 
-Given that the `motor` *value* has at least a weak functional relation to the `location_next` and `room_next`, we modified the controller to accept requests made by an observer or by a user. These requests are only accepted when the turtlebot is moving straight ahead. If the turtlebot is avoiding an obstacle the turn request merely sets the bias. Let us now consider how to issue these turn requests.
+<a name = "Actor"></a>
+
+### Actor node
+
+Given that the `motor` *value* has at least a weak functional relation to the `location_next` and `room_next`, we modified the controller to accept turn requests made by an observer or by a user. These requests are only accepted when the turtlebot is moving straight ahead. If the turtlebot is avoiding an obstacle the turn request merely sets the bias. Let us now consider how to issue these turn requests.
 
 The `TBOT01` [actor](https://github.com/caiks/TBOT01/blob/master/actor.h) node is derived from the observer node. It is given a *model*, a goal room and a mode of deciding actions. At each potential action it *applies* the *model* to the current *event* to determine its *slice*. The *slice* of the given *history*, e.g. `data009`, is *reduced* to a *histogram* of the label *variables* `location`, `motor` and `room_next`. 
 
-In the simplest mode, `mode001`, this label *histogram* is *multiplied* by a *unit histogram* that defines the desired `room_next` given the goal room and the *slice's* probable `location`. For example, if the goal is room 6 and the `location` is room 1 then the `room_next` is room 4, rather than rooms 2 or 3. The turtlebot guesses  `location` and then repeats the `motor` actions that tended in the past to lead to the desired goal. The requested action is chosen at random according to the *probability histogram* implied by the *normalised reduction* to `motor`.
+In the simplest mode, `mode001`, this label *histogram* is *multiplied* by a *unit histogram* that defines the desired `room_next` given the goal room and the *slice's* probable `location`. For example, if the goal is room 6 and the `location` is room 1 then the `room_next` is room 4, rather than rooms 2 or 3. The turtlebot guesses `location` and then repeats the `motor` actions that tended in the past to lead to the desired goal. That is, the requested action is chosen at random according to the *probability histogram* implied by the *normalised reduction* to `motor`.
 
 In order to test whether `TBOT01` actor is navigating around the turtlebot house better than chance, it's goal will be set from a fixed sequence of randomly selected rooms. As soon as turtlebot has reached the current goal room, the next goal is set from the next room in the sequence. The turtlebot runs until we obtain a degree of statistical significance for the average journey time as measured by the z-score. First we obtain the distribution for the random-turn turtlebot by calculating the journey times in `data009`,
 ```
@@ -2643,7 +2649,7 @@ counts.size(): 55
 average: 3129.53
 sqrt(variance): 3368.92
 ```
-The turtlebot's first goal is room 5. It travels to 55 rooms during the 12 hours of wandering around with random turns every 5 seconds or so. The average journey time is 3129.53 steps at 4 fps, around 13 minutes.
+The turtlebot was started in room 4 with a first goal of room 5. It travels to 55 rooms during the 12 hours of wandering around with random turns every 5 seconds or so. The average journey time is 3129.53 *events* at 4 fps, around 13 minutes.
 
 To set the turtlebot's goal rooms in the same sequence we use the `TBOT01` [commander](https://github.com/caiks/TBOT01/blob/master/commander.h) node. This publishes the goals to which the actor node subscribes. The first test is with the actor in `mode001` using *conditioned model* 28,
 
@@ -2698,10 +2704,11 @@ counts.size(): 75
 average: 2503.24
 sqrt(variance): 2960.09
 ```
-It is probable that the mode 1 turtlebot shows some improvement over chance. It works because it selects the behaviour of the random-turn turtlebot which led in the past to the next room given the goal. Observing the behaviour of the mode 1 turtlebot we can see that it works reasonably well when it is near the desired exit from the room. In these cases there is enough *history* so that the correct action, left, right or straight ahead, is more probable than the incorrect actions. When the turtlebot is far from the correct exit, however, the probabilities are not much different from chance and then the mode 1 turtlebot behaves no better than the random-turn turtlebot. In mode 2 we try to address this issue.
+It is probable that the mode 1 turtlebot shows some improvement over chance. It works because it selects the behaviour of the random-turn turtlebot which led in the past to the correct next room given the goal. Observing the behaviour of the mode 1 turtlebot it appears that it works reasonably well when it is near the desired exit from the room. In these cases there is enough *history* so that the correct action, left, right or straight ahead, is more probable than the incorrect actions. When the turtlebot is far from the correct exit, however, the probabilities are not much different from chance and then the mode 1 turtlebot behaves no better than the random-turn turtlebot. In mode 2 we try to address this issue.
 
-In mode 2 the turtlebot *subtracts* the 'correct' `room_next` label *histogram* from the *slice's* label *histogram* to obtain the remaining 'incorrect' *probability histogram* of the `motor` action. It then adds the *count* of right turns of the remainder *histogram* to the *count* of left turns of the `room_next` *histogram* and vice-versa. It thus is attracted to the correct exit and repelled from incorrect exits. When we re-run we see a large improvement,
+Another issue concerns rooms with only one exit, i.e. rooms 2, 3 and 6. In these cases all actions lead to the correct next room, so the turtlebot always behaves like the random-turn turtlebot. The random turns slightly increase the time spent in the room compared to the simple collision avoidance turtlebot, so lengthening journey times. This can be seen by in the analysis of `data009` and `data003` above.
 
+In mode 2 the turtlebot *subtracts* the correct `room_next` label *histogram* from the *slice's* label *histogram* to obtain the remaining incorrect *histogram* of the `motor` action, i.e. actions that led to the other rooms. It then adds the *count* of right turns of the incorrect *histogram* to the *count* of left turns of the correct *histogram* and vice-versa. The mode 2 turtlebot is thus attracted to the correct exit and repelled from incorrect exits. In addition, in mode 2 the turtlebot disables the turns when it thinks it is in the single exit rooms, 2, 3 and 6. When we re-run we see a large improvement,
 ```
 gazebo -u --verbose ~/turtlebot3_ws/src/TBOT01_ws/env009.model -s libgazebo_ros_init.so
 
@@ -2734,8 +2741,180 @@ sqrt(variance): 1318.15
 ```
 Now the z-score is -3.39, which is highly significant. The average journey time has decreased from 13 minutes to 6 minutes.
 
+Further progress with this mode could perhaps be made by reinforcement learning. The dataset of a mode 2 turtlebot's run would become the dataset given, along with the *model*, to a re-run of the mode 2 turtlebot. That is, the attraction/repulsion mode 2 behaviour would replace the random-turn turtlebot's behaviour, so increasing the differences in the *counts* between correct and incorrect actions. This could be repeated several times to increase the differences in probabilities.
 
+An alternative approach is to consider a discrete choice function of the differences between correct and incorrect actions, rather than a probabilistic choice function. That is, if the difference between turns is greater than a certain threshold then always choose the turn with the larger *count*, otherwise carry on straight ahead. A reasonable threshold is the fraction of random turns per record, i.e. `250 ms / 5000 ms = 0.05`. A mode 3 turtlebot subtracts the left turn *count* of the incorrect *histogram* from the left turn *count* of the correct *histogram*, and the same for the right turn *count*. (Note that the result can be negative, so is no longer a *histogram count*.) If the difference between the left turn and the right turn is greater than the threshold then the larger turn is always selected. In other words, in the mode 3 turtlebot the action is always determined for each *slice* for the given dataset and goal room. Mode 3 retains the do-nothing behaviour of mode 2 when in single exit rooms.
+```
+gazebo -u --verbose ~/turtlebot3_ws/src/TBOT01_ws/env009.model -s libgazebo_ros_init.so
 
+```
 
-model028_location not conditioned on substrate006
+```
+ros2 run TBOT01 controller data010.bin 250 5000
+
+```
+```
+ros2 run TBOT01 actor model028_location room5 1000 data009 0 mode003 0.05
+
+```
+
+```
+ros2 run TBOT01 commander room5 250
+
+```
+```
+./main room_expected data010 room5
+dataset: data010
+room_initial: room5
+room_seed: 17
+z: 45175
+counts: [1287,447,1387,2157,2621,2386,1876,1084,812,644,708,515,2033,284,191,64,411,673,2138,595,1253,435,2811,163,1499,3268,69,136,913,237,636,76,876,1442,478,758,1007,172,1630,144,533,926,3358]
+counts.size(): 43
+average: 1049.6
+sqrt(variance): 885.097
+```
+This run has a highly significant z-score of -4.39. The *model* 28 mode 3 turtlebot's average journey time is now 4 minutes 22 seconds.
+
+You can view a video of one of mode 3 turtlebot's journeys [here](https://github.com/caiks/TBOT01_ws/blob/master/actor_env010_model028_location_room6_data009_mode002.mp4). In this journey turtlebot begins in room 1 with a goal of room 6,
+```
+gazebo -u --verbose ~/turtlebot3_ws/src/TBOT01_ws/env010.model -s libgazebo_ros_init.so
+
+```
+```
+ros2 run TBOT01 controller data.bin 250 5000
+
+```
+```
+ros2 run TBOT01 actor model028_location room6 1000 data009 0 mode003 0.05
+
+```
+Note that this example is unusually fast for a 3 room journey at only 1 minute and 4 seconds. The turtlebot more typically tends to travel in the general direction of the correct exit but often fails to pass through it on the first attempt.
+
+Now that we are sure of a definite improvement in the turtlebot's ability to navigate around the turtlebot house, let's see how it's performance compares with the purely *induced model* 27,
+```
+gazebo -u --verbose ~/turtlebot3_ws/src/TBOT01_ws/env009.model -s libgazebo_ros_init.so
+
+```
+
+```
+ros2 run TBOT01 controller data011.bin 250 5000
+
+```
+```
+ros2 run TBOT01 actor model027 room5 1000 data009 5 mode003 0.05
+
+```
+
+```
+ros2 run TBOT01 commander room5 250
+
+```
+```
+./main room_expected data011 room5
+dataset: data011
+room_initial: room5
+room_seed: 17
+z: 42400
+counts: [211,558,1434,843,1469,4057,1193,3029,1015,987,2413,823,398,384,648,290,172,3976,1953,212,5581,496,1606,103,2611,1226,66,888,895,878,1127,21,559]
+counts.size(): 33
+average: 1276.42
+sqrt(variance): 1277.26
+```
+The *model* 27 mode 3 turtlebot has an average journey time of 5 minutes and 19 seconds. Clearly the lower `location` accuracy *model* 27 tends to increase the journey time, but we can see that a completely unsupervised *model* - obtained without requiring any label - can produce purposeful behaviour where there are *alignments* between the sensor *variables* and the motor and goodness *variables*.
+
+Modes 2 and 3 simply ignore the single exit rooms. Let us create a new *substrate* `substrate005` which adds to the `location` *values*  extra 'rooms' `room2z`, `room3z` and `room6z`. These form the last 1.5 m of each single exit room's dead end. Rooms `room2`, `room3` and `room6` are correspondingly truncated. The *substrate* `substrate005` adds the redefined `room_next` *variable*. Now when the turtlebot is in room 2, say, it can choose between a correct turn to `door12` or an incorrect turn to `room2z`. 
+
+Mode 4 is the same as mode 2, but with the *substrate* 6 and no special single exit handling,
+```
+gazebo -u --verbose ~/turtlebot3_ws/src/TBOT01_ws/env009.model -s libgazebo_ros_init.so
+
+```
+```
+ros2 run TBOT01 controller data014.bin 250 5000
+
+```
+```
+ros2 run TBOT01 actor model028_location room5 1000 data009 0 mode004
+
+```
+```
+ros2 run TBOT01 commander room5 250
+
+```
+```
+./main room_expected data014 room5
+dataset: data014
+room_initial: room5
+room_seed: 17
+z: 54748
+counts: [431,2093,4071,4103,2100,6895,2104,512,7785,625,1574,553,3872,283,1550,2133,1184,444,1038,704,10594]
+counts.size(): 21
+average: 2602.29
+sqrt(variance): 2704.62
+```
+In the case of the probabilistic choice mode 4, the new *substrate* appears to have decreased the performance considerably, although the run was not long enough to be statistically significant. Comparison of the mode 2 dataset `data013` and the mode 4 dataset `data014` shows that the time spent in the single exit rooms is unchanged. We may conjecture that the mode 2 turtlebot thought it was in a single exit room, when in fact it was not, suppressing incorrect turns in the larger rooms.
+
+Mode 5 is the same as mode 3, but with the *substrate* 6 and no special single exit handling,
+```
+gazebo -u --verbose ~/turtlebot3_ws/src/TBOT01_ws/env009.model -s libgazebo_ros_init.so
+
+```
+
+```
+ros2 run TBOT01 controller data015.bin 250 5000
+
+```
+```
+ros2 run TBOT01 actor model028_location room5 1000 data009 0 mode005 0.05 
+
+```
+
+```
+ros2 run TBOT01 commander room5 250
+
+```
+```
+./main room_expected data015 room5
+dataset: data015
+room_initial: room5
+room_seed: 17
+z: 57660
+counts: [231,691,1199,790,2612,1082,934,252,1550,440,495,1067,695,179,496,69,574,405,1947,538,405,630,1062,162,416,2730,77,966,766,331,322,85,523,409,152,356,1612,420,2774,104,543,1821,2386,514,270,1003,1962,1371,577,360,1130,261,545,1377,175,339,503,1049,108,624,1176,304,1299,566,1049,800,326,607,506,1272,446,1186]
+counts.size(): 72
+average: 791.708
+sqrt(variance): 638.188
+```
+In this highly significant run the average journey time has decreased to 3 minutes and 18 seconds, which is the quickest of all of these tests of the actor node. Comparison of the mode 3 dataset `data010` and the mode 5 dataset `data015` shows that the time spent in the single exit rooms has reduced by 4%. Note that this is the case in spite of the fact that *model* 28 was *conditioned* on the old definition of the `location` label.
+
+Lastly we re-run *model* 27 in mode 5,
+```
+gazebo -u --verbose ~/turtlebot3_ws/src/TBOT01_ws/env009.model -s libgazebo_ros_init.so
+
+```
+
+```
+ros2 run TBOT01 controller data016.bin 250 5000
+
+```
+```
+ros2 run TBOT01 actor model027 room5 1000 data009 5 mode005 0.05 
+
+```
+
+```
+ros2 run TBOT01 commander room5 250
+
+```
+```
+./main room_expected data016 room5
+dataset: data016
+room_initial: room5
+room_seed: 17
+z: 54186
+counts: [209,1062,1057,2963,4093,2466,1076,596,1725,1197,1462,968,414,159,448,449,2672,2020,1851,856,1910,2127,1526,212,2225,1013,361,214,519,1762,1950,141,1877,867,444,3331,2492,310]
+counts.size(): 38
+average: 1342.74
+sqrt(variance): 975.122
+```
+The average journey time increases a little to 5 minutes and 35 seconds, but this is not statistically significantly different from the mode 3 run of *model* 27. We may speculate that the *alignments* that would identify the single exit room's dead ends are weak.
 
