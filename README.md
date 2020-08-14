@@ -2884,7 +2884,7 @@ counts.size(): 72
 average: 791.708
 sqrt(variance): 638.188
 ```
-In this highly significant run the average journey time has decreased to 3 minutes and 18 seconds, which is the quickest of all of these tests of the actor node. Comparison of the mode 3 dataset `data010` and the mode 5 dataset `data015` shows that the time spent in the single exit rooms has reduced by 4%. Note that this is the case in spite of the fact that *model* 28 was *conditioned* on the old definition of the `location` label.
+This run is significantly differenct from the mode 3 run with *model* 28. The average journey time has decreased to 3 minutes and 18 seconds, which is the quickest of all of these tests of the actor node. Comparison of the mode 3 dataset `data010` and the mode 5 dataset `data015` shows that the time spent in the single exit rooms has reduced by 4%. Note that this is the case in spite of the fact that *model* 28 was *conditioned* on the old definition of the `location` label.
 
 Lastly we re-run *model* 27 in mode 5,
 ```
@@ -2916,5 +2916,6 @@ counts.size(): 38
 average: 1342.74
 sqrt(variance): 975.122
 ```
-The average journey time increases a little to 5 minutes and 35 seconds, but this is not statistically significantly different from the mode 3 run of *model* 27. We may speculate that the *alignments* that would identify the single exit room's dead ends are weak.
+The average journey time increases a little to 5 minutes and 35 seconds, but this is not statistically significantly different from the mode 3 run of *model* 27. A much longer run would be required to demonstrate any difference.
+
 
