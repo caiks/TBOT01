@@ -356,6 +356,32 @@ int main(int argc, char **argv)
 		EVAL(action_angular_dist);
 	}
 
+	if (argc >= 3 && string(argv[1]) == "dump")
+	{
+		string dataset = string(argc >= 3 ? argv[2] : "data002");
+		size_t start = argc >= 4 ? atoi(argv[3]) : 0;
+		size_t end = argc >= 5 ? atoi(argv[4]) : 0;
+		
+		EVAL(dataset);
+
+		std::ifstream in(dataset+".bin", std::ios::binary);
+		auto rr = persistentsRecordList(in);
+		in.close();
+		
+		end = end && end < rr->size() ? end : rr->size();
+
+		EVAL(rr->size());
+		EVAL(start);
+		EVAL(end);
+		for (std::size_t i = start; i < end; i++)
+		{
+			std::cout << (*rr)[i].id;
+			for (std::size_t j = 0; j < 7; j++)
+				std::cout << "," << (*rr)[i].sensor_pose[j];
+			std::cout << std::endl;
+		}
+	}
+	
 	if (argc >= 3 && string(argv[1]) == "bitmap")
 	{
 		auto hrsel = [](const HistoryRepa& hr, const SizeList& ll)
