@@ -2637,19 +2637,19 @@ The `TBOT01` [actor](https://github.com/caiks/TBOT01/blob/master/actor.h) node i
 
 In the simplest mode, `mode001`, this label *histogram* is *multiplied* by a *unit histogram* that defines the desired `room_next` given the goal room and the *slice's* probable `location`. For example, if the goal is room 6 and the `location` is room 1 then the `room_next` is room 4, rather than rooms 2 or 3. The turtlebot guesses `location` and then repeats the `motor` actions that tended in the past to lead to the desired goal. That is, the requested action is chosen at random according to the *probability histogram* implied by the *normalised reduction* to `motor`.
 
-In order to test whether `TBOT01` actor is navigating around the turtlebot house better than chance, it's goal will be set from a fixed sequence of randomly selected rooms. As soon as turtlebot has reached the current goal room, the next goal is set from the next room in the sequence. The turtlebot runs until we obtain a degree of statistical significance for the average journey time as measured by the z-score. First we obtain the distribution for the random-turn turtlebot by calculating the journey times in `data009`,
+In order to test whether `TBOT01` actor is navigating around the turtlebot house better than chance, it's goal will be set from a fixed sequence of randomly selected rooms. As soon as turtlebot has reached the current goal room, the next goal is set from the next room in the sequence. The turtlebot runs until we obtain a degree of statistical significance for the average journey time as measured by the standard score. First we obtain the distribution for the random-turn turtlebot by calculating the journey times in `data009`,
 ```
 ./main room_expected data009 room5
+...
 dataset: data009
-room_initial: room5
-room_seed: 17
 z: 172301
+n: 55
 counts: [141,10209,4340,1196,8987,1176,5103,712,2532,1887,379,1218,204,69,2584,1079,2296,15562,6697,443,1376,3717,7213,66,2610,852,675,984,1013,3090,2015,73,1242,3410,4143,3905,3806,2174,2906,496,8126,3280,4505,163,10837,3848,3272,1527,11867,619,115,218,7594,3393,180]
-counts.size(): 55
-average: 3129.53
+mean: 3129.53
 sqrt(variance): 3368.92
+sqrt(variance/n): 454.265
 ```
-The turtlebot was started in room 4 with a first goal of room 5. It travels to 55 rooms during the 12 hours of wandering around with random turns every 5 seconds or so. The average journey time is 3129.53 *events* at 4 fps, around 13 minutes.
+The turtlebot was started in room 4 with a first goal of room 5. It travels to 55 rooms during the 12 hours of wandering around with random turns every 5 seconds or so. The average journey time is 3129.53 *events* at 4 fps, around 13 minutes. The standard error is 454.265 *events* or around 2 minutes.
 
 To set the turtlebot's goal rooms in the same sequence we use the `TBOT01` [commander](https://github.com/caiks/TBOT01/blob/master/commander.h) node. This publishes the goals to which the actor node subscribes. The first test is with the actor in `mode001` using *conditioned model* 28,
 
@@ -2669,41 +2669,24 @@ ros2 run TBOT01 actor model028_location room5 1000 data009 0 mode001
 
 ```
 ros2 run TBOT01 commander room5 250
+
+```
+This shows the journeys taken -
+```
+./main room_expected data009 room5 17 data012
 ...
-Published goal: room2
-_counts.size(): 22
-average: 2436.41
-sqrt(variance): 3630.55
-```
-After 3 hours and 50 minutes, the z-score is
-```py
->>> (2436.41-3129.53)/math.sqrt(3368.92**2/55 + 3630.55**2/22)
--0.7722871675844271
-```
-which is not significant. The turtlebot was allowed to continue,
-```
-Published goal: room4
-_counts.size(): 75
-average: 2503.25
-sqrt(variance): 2960.02
-```
-After 13 hours and 5 minutes, the z-score is
-```py
->>> (2503.25-3129.53)/math.sqrt(3368.92**2/55 + 2960.02**2/75)
--1.1016573161045609
-```
-which is still not significant, but is better than one standard deviation. This shows the journeys taken -
-```
-./main room_expected data012 room5
-dataset: data012
-room_initial: room5
-room_seed: 17
+dataset2: data012
 z: 196722
+n: 75
 counts: [83,1838,1237,4332,1570,1041,1050,1294,16844,497,224,5599,7208,441,128,67,2955,2757,2083,222,1207,924,3175,1174,6362,4783,1288,2476,729,8118,2487,51,5613,2952,427,2292,771,1506,4346,458,11283,1096,5298,187,2115,1386,1067,2993,797,587,2700,109,1009,3067,3097,198,4091,172,91,6245,1773,982,1629,1547,4494,3399,863,1970,433,1059,12756,3682,459,1087,1413]
-counts.size(): 75
-average: 2503.24
+mean: 2503.24
 sqrt(variance): 2960.09
+sqrt(variance/n): 341.802
+sqrt(err1*err1 + err2*err2): 568.494
+(mean2-mean1)/sqrt(err1*err1 + err2*err2): -1.10166
 ```
+After a run of 13 hours and 5 minutes, the standard score is not still significant, but better than one standard deviation. The average journey time of the mode 1 turtlebot is now around ten and a half minutes, though with a standard error of over one and a half minutes.
+
 It is probable that the mode 1 turtlebot shows some improvement over chance. It works because it selects the behaviour of the random-turn turtlebot which led in the past to the correct next room given the goal. Observing the behaviour of the mode 1 turtlebot it appears that it works reasonably well when it is near the desired exit from the room. In these cases there is enough *history* so that the correct action, left, right or straight ahead, is more probable than the incorrect actions. When the turtlebot is far from the correct exit, however, the probabilities are not much different from chance and then the mode 1 turtlebot behaves no better than the random-turn turtlebot. In mode 2 we try to address this issue.
 
 Another issue concerns rooms with only one exit, i.e. rooms 2, 3 and 6. In these cases all actions lead to the correct next room, so the turtlebot always behaves like the random-turn turtlebot. The random turns slightly increase the time spent in the room compared to the simple collision avoidance turtlebot, so lengthening journey times. This can be seen by in the analysis of `data009` and `data003` above.
@@ -2729,17 +2712,19 @@ ros2 run TBOT01 commander room5 250
 ```
 
 ```
-./main room_expected data013 room5
-dataset: data013
-room_initial: room5
-room_seed: 17
+./main room_expected data009 room5 17 data013
+...
+dataset2: data013
 z: 57890
+n: 40
 counts: [322,4499,1716,2010,1299,793,698,772,1876,1547,312,779,279,307,1616,580,1556,5915,1018,548,2873,495,1978,315,1818,4368,138,1960,4019,2736,1770,84,473,1601,103,868,942,725,1436,242]
-counts.size(): 40
-average: 1434.65
+mean: 1434.65
 sqrt(variance): 1318.15
+sqrt(variance/n): 208.417
+sqrt(err1*err1 + err2*err2): 499.795
+(mean2-mean1)/sqrt(err1*err1 + err2*err2): -3.39115
 ```
-Now the z-score is -3.39, which is highly significant. The average journey time has decreased from 13 minutes to 6 minutes.
+Now the standard score is -3.39, which is highly significant. The average journey time has decreased from 13 minutes to 6 minutes plus or minus 52 seconds.
 
 Further progress with this mode could perhaps be made by reinforcement learning. The dataset of a mode 2 turtlebot's run would become the dataset given, along with the *model*, to a re-run of the mode 2 turtlebot. That is, the attraction/repulsion mode 2 behaviour would replace the random-turn turtlebot's behaviour, so increasing the differences in the *counts* between correct and incorrect actions. This could be repeated several times to increase the differences in probabilities.
 
@@ -2763,17 +2748,19 @@ ros2 run TBOT01 commander room5 250
 
 ```
 ```
-./main room_expected data010 room5
-dataset: data010
-room_initial: room5
-room_seed: 17
+./main room_expected data009 room5 17 data010
+...
+dataset2: data010
 z: 45175
+n: 43
 counts: [1287,447,1387,2157,2621,2386,1876,1084,812,644,708,515,2033,284,191,64,411,673,2138,595,1253,435,2811,163,1499,3268,69,136,913,237,636,76,876,1442,478,758,1007,172,1630,144,533,926,3358]
-counts.size(): 43
-average: 1049.6
+mean: 1049.6
 sqrt(variance): 885.097
+sqrt(variance/n): 134.976
+sqrt(err1*err1 + err2*err2): 473.894
+(mean2-mean1)/sqrt(err1*err1 + err2*err2): -4.389
 ```
-This run has a highly significant z-score of -4.39. The *model* 28 mode 3 turtlebot's average journey time is now 4 minutes 22 seconds.
+This run has a highly significant standard score of -4.39. The *model* 28 mode 3 turtlebot's average journey time is now 4 minutes 22 seconds, plus or minus 34 seconds.
 
 You can view a video of one of mode 3 turtlebot's journeys [here](https://github.com/caiks/TBOT01_ws/blob/master/actor_env010_model028_location_room6_data009_mode002.mp4). In this journey turtlebot begins in room 1 with a goal of room 6,
 ```
@@ -2810,17 +2797,19 @@ ros2 run TBOT01 commander room5 250
 
 ```
 ```
-./main room_expected data011 room5
-dataset: data011
-room_initial: room5
-room_seed: 17
+./main room_expected data009 room5 17 data011
+...
+dataset2: data011
 z: 42400
+n: 33
 counts: [211,558,1434,843,1469,4057,1193,3029,1015,987,2413,823,398,384,648,290,172,3976,1953,212,5581,496,1606,103,2611,1226,66,888,895,878,1127,21,559]
-counts.size(): 33
-average: 1276.42
+mean: 1276.42
 sqrt(variance): 1277.26
+sqrt(variance/n): 222.342
+sqrt(err1*err1 + err2*err2): 505.76
+(mean2-mean1)/sqrt(err1*err1 + err2*err2): -3.664
 ```
-The *model* 27 mode 3 turtlebot has an average journey time of 5 minutes and 19 seconds. Clearly the lower `location` accuracy *model* 27 tends to increase the journey time, but we can see that a completely unsupervised *model* - obtained without requiring any label - can produce purposeful behaviour where there are *alignments* between the sensor *variables* and the motor and goodness *variables*.
+The *model* 27 mode 3 turtlebot has an average journey time of 5 minutes and 19 seconds, plus or minus 56 seconds. Clearly the lower `location` accuracy *model* 27 tends to increase the journey time, but we can see that a completely unsupervised *model* - obtained without requiring any label - can produce purposeful behaviour where there are *alignments* between the sensor *variables* and the motor and goodness *variables*.
 
 Modes 2 and 3 simply ignore the single exit rooms. Let us create a new *substrate* `substrate005` which adds to the `location` *values*  extra 'rooms' `room2z`, `room3z` and `room6z`. These form the last 1.5 m of each single exit room's dead end. Rooms `room2`, `room3` and `room6` are correspondingly truncated. The *substrate* `substrate005` adds the redefined `room_next` *variable*. Now when the turtlebot is in room 2, say, it can choose between a correct turn to `door12` or an incorrect turn to `room2z`. 
 
@@ -2842,15 +2831,24 @@ ros2 run TBOT01 commander room5 250
 
 ```
 ```
-./main room_expected data014 room5
-dataset: data014
-room_initial: room5
-room_seed: 17
+./main room_expected data013 room5 17 data014
+...
+dataset: data013
+z: 57890
+n: 40
+counts: [322,4499,1716,2010,1299,793,698,772,1876,1547,312,779,279,307,1616,580,1556,5915,1018,548,2873,495,1978,315,1818,4368,138,1960,4019,2736,1770,84,473,1601,103,868,942,725,1436,242]
+mean: 1434.65
+sqrt(variance): 1318.15
+sqrt(variance/n): 208.417
+dataset2: data014
 z: 54748
+n: 21
 counts: [431,2093,4071,4103,2100,6895,2104,512,7785,625,1574,553,3872,283,1550,2133,1184,444,1038,704,10594]
-counts.size(): 21
-average: 2602.29
+mean: 2602.29
 sqrt(variance): 2704.62
+sqrt(variance/n): 590.196
+sqrt(err1*err1 + err2*err2): 625.914
+(mean2-mean1)/sqrt(err1*err1 + err2*err2): 1.86549
 ```
 In the case of the probabilistic choice mode 4, the new *substrate* appears to have decreased the performance considerably, although the run was not long enough to be statistically significant. Comparison of the mode 2 dataset `data013` and the mode 4 dataset `data014` shows that the time spent in the single exit rooms is unchanged. We may conjecture that the mode 2 turtlebot thought it was in a single exit room, when in fact it was not, suppressing incorrect turns in the larger rooms.
 
@@ -2874,17 +2872,30 @@ ros2 run TBOT01 commander room5 250
 
 ```
 ```
-./main room_expected data015 room5
-dataset: data015
+./main room_expected data010 room5 17 data015
+...
+dataset: data010
 room_initial: room5
 room_seed: 17
+dataset2: data015
+dataset: data010
+z: 45175
+n: 43
+counts: [1287,447,1387,2157,2621,2386,1876,1084,812,644,708,515,2033,284,191,64,411,673,2138,595,1253,435,2811,163,1499,3268,69,136,913,237,636,76,876,1442,478,758,1007,172,1630,144,533,926,3358]
+mean: 1049.6
+sqrt(variance): 885.097
+sqrt(variance/n): 134.976
+dataset2: data015
 z: 57660
+n: 72
 counts: [231,691,1199,790,2612,1082,934,252,1550,440,495,1067,695,179,496,69,574,405,1947,538,405,630,1062,162,416,2730,77,966,766,331,322,85,523,409,152,356,1612,420,2774,104,543,1821,2386,514,270,1003,1962,1371,577,360,1130,261,545,1377,175,339,503,1049,108,624,1176,304,1299,566,1049,800,326,607,506,1272,446,1186]
-counts.size(): 72
-average: 791.708
+mean: 791.708
 sqrt(variance): 638.188
+sqrt(variance/n): 75.2112
+sqrt(err1*err1 + err2*err2): 154.516
+(mean2-mean1)/sqrt(err1*err1 + err2*err2): -1.66906
 ```
-This run is significantly differenct from the mode 3 run with *model* 28. The average journey time has decreased to 3 minutes and 18 seconds, which is the quickest of all of these tests of the actor node. Comparison of the mode 3 dataset `data010` and the mode 5 dataset `data015` shows that the time spent in the single exit rooms has reduced by 4%. Note that this is the case in spite of the fact that *model* 28 was *conditioned* on the old definition of the `location` label.
+This run is significantly different from the mode 3 run with *model* 28. The average journey time has decreased to 3 minutes and 18 seconds, plus or minus 19 seconds, which is the quickest of all of these tests of the actor node. Comparison of the mode 3 dataset `data010` and the mode 5 dataset `data015` shows that the time spent in the single exit rooms has reduced by 4%. Note that this is the case in spite of the fact that *model* 28 was *conditioned* on the old definition of the `location` label.
 
 Lastly we re-run *model* 27 in mode 5,
 ```
@@ -2906,15 +2917,24 @@ ros2 run TBOT01 commander room5 250
 
 ```
 ```
-./main room_expected data016 room5
-dataset: data016
-room_initial: room5
-room_seed: 17
+./main room_expected data011 room5 17 data016
+...
+dataset: data011
+z: 42400
+n: 33
+counts: [211,558,1434,843,1469,4057,1193,3029,1015,987,2413,823,398,384,648,290,172,3976,1953,212,5581,496,1606,103,2611,1226,66,888,895,878,1127,21,559]
+mean: 1276.42
+sqrt(variance): 1277.26
+sqrt(variance/n): 222.342
+dataset2: data016
 z: 54186
+n: 38
 counts: [209,1062,1057,2963,4093,2466,1076,596,1725,1197,1462,968,414,159,448,449,2672,2020,1851,856,1910,2127,1526,212,2225,1013,361,214,519,1762,1950,141,1877,867,444,3331,2492,310]
-counts.size(): 38
-average: 1342.74
+mean: 1342.74
 sqrt(variance): 975.122
+sqrt(variance/n): 158.186
+sqrt(err1*err1 + err2*err2): 272.871
+(mean2-mean1)/sqrt(err1*err1 + err2*err2): 0.243018
 ```
 The average journey time increases a little to 5 minutes and 35 seconds, but this is not statistically significantly different from the mode 3 run of *model* 27. A much longer run would be required to demonstrate any difference.
 

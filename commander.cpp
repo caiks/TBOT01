@@ -88,17 +88,19 @@ void Commander::command_callback()
 		auto u = rr[p];
 		if ((size_t)u == _room)
 		{
-			EVAL(_counts.size());
-			double average = 0.0;
+			auto n = _counts.size();
+			EVAL(n);
+			double mean = 0.0;
 			for (auto a : _counts)
-				average += a;
-			average /= _counts.size();
-			EVAL(average);
+				mean += a;
+			mean /= n;
+			EVAL(mean);
 			double variance = 0.0;
 			for (auto a : _counts)
-				variance += ((double)a - average)*((double)a - average);
-			variance /= _counts.size();
-			EVAL(sqrt(variance));			
+				variance += ((double)a - mean)*((double)a - mean);
+			variance /= n;
+			EVAL(sqrt(variance));		
+			EVAL(sqrt(variance/n));			
 			_counts.push_back(0);
 			while ((size_t)u == _room)
 				_room = (rand() % 6) + 5; 

@@ -6936,103 +6936,224 @@ int main(int argc, char **argv)
 		string dataset = string(argc >= 3 ? argv[2] : "data002");
 		string room_initial = string(argc >= 4 ? argv[3] : "room1");	
 		size_t room_seed = argc >= 5 ? atoi(argv[4]) : 17;
+		string dataset2 = string(argc >= 6 ? argv[5] : "");
 		
 		EVAL(dataset);
 		EVAL(room_initial);
 		EVAL(room_seed);
+		EVAL(dataset2);
 		
-		std::unique_ptr<Alignment::System> uu;
-		std::unique_ptr<Alignment::SystemRepa> ur;
-		std::unique_ptr<Alignment::HistoryRepa> hr;
+		double mean1 = 0.0;
+		double mean2 = 0.0;
+		double dev1 = 0.0;
+		double dev2 = 0.0;
+		double err1 = 0.0;
+		double err2 = 0.0;
 		{
-			std::vector<std::string> files{
-				"data002_room1.bin",
-				"data002_room2.bin",
-				"data002_room2_2.bin",
-				"data002_room3.bin",
-				"data002_room4.bin",
-				"data002_room5.bin",
-				"data002_room5_2.bin"
-			};
-			if (dataset == "data003")
+			std::unique_ptr<Alignment::System> uu;
+			std::unique_ptr<Alignment::SystemRepa> ur;
+			std::unique_ptr<Alignment::HistoryRepa> hr;
 			{
-				files.clear();
-				files.push_back("data003.bin");
+				std::vector<std::string> files{
+					"data002_room1.bin",
+					"data002_room2.bin",
+					"data002_room2_2.bin",
+					"data002_room3.bin",
+					"data002_room4.bin",
+					"data002_room5.bin",
+					"data002_room5_2.bin"
+				};
+				if (dataset == "data003")
+				{
+					files.clear();
+					files.push_back("data003.bin");
+				}
+				else if (dataset == "data004")
+				{
+					files.clear();
+					files.push_back("data003.bin");
+					files.push_back("data004_01.bin");
+					files.push_back("data004_02.bin");
+					files.push_back("data004_03.bin");
+					files.push_back("data004_04.bin");
+					files.push_back("data004_05.bin");
+				}
+				else if (dataset != "data002")
+				{
+					files.clear();
+					files.push_back(dataset+".bin");
+				}			
+				HistoryRepaPtrList ll;
+				for (auto& f : files)
+				{
+					std::ifstream in(f, std::ios::binary);
+					auto qq = persistentsRecordList(in);
+					in.close();
+					SystemHistoryRepaTuple xx;
+					xx = recordListsHistoryRepa_4(8, *qq);
+					uu = std::move(std::get<0>(xx));
+					ur = std::move(std::get<1>(xx));
+					ll.push_back(std::move(std::get<2>(xx)));
+				}
+				hr = vectorHistoryRepasConcat_u(ll);
 			}
-			else if (dataset == "data004")
-			{
-				files.clear();
-				files.push_back("data003.bin");
-				files.push_back("data004_01.bin");
-				files.push_back("data004_02.bin");
-				files.push_back("data004_03.bin");
-				files.push_back("data004_04.bin");
-				files.push_back("data004_05.bin");
-			}
-			else if (dataset != "data002")
-			{
-				files.clear();
-				files.push_back(dataset+".bin");
-			}			
-			HistoryRepaPtrList ll;
-			for (auto& f : files)
-			{
-				std::ifstream in(f, std::ios::binary);
-				auto qq = persistentsRecordList(in);
-				in.close();
-				SystemHistoryRepaTuple xx;
-				xx = recordListsHistoryRepa_4(8, *qq);
-				uu = std::move(std::get<0>(xx));
-				ur = std::move(std::get<1>(xx));
-				ll.push_back(std::move(std::get<2>(xx)));
-			}
-			hr = vectorHistoryRepasConcat_u(ll);
-		}
-//		EVAL(hr->size);
+	//		EVAL(hr->size);
 
-		vector<string> locations{ "door12", "door13", "door14", "door45", "door56", "room1", "room2", "room3", "room4", "room5", "room6", "unknown" };
-		size_t ug = 0;
-		while (ug < locations.size()-1)
-			if (locations[ug] == room_initial)
-				break;
-			else
-				ug++;
-			
-		auto& vvi = ur->mapVarSize();
-		auto z = hr->size;
-		auto rr = hr->arr;
-		auto& mvv = hr->mapVarInt();
-		auto p = mvv[vvi[Variable("location")]];		
-		srand(room_seed);
-		vector<size_t> counts {0};
-		for (size_t j = 0; j < z; j++)
-		{
-			auto u = rr[p*z + j];
-			if ((size_t)u == ug)
+			vector<string> locations{ "door12", "door13", "door14", "door45", "door56", "room1", "room2", "room3", "room4", "room5", "room6", "unknown" };
+			size_t ug = 0;
+			while (ug < locations.size()-1)
+				if (locations[ug] == room_initial)
+					break;
+				else
+					ug++;
+				
+			auto& vvi = ur->mapVarSize();
+			auto z = hr->size;
+			auto rr = hr->arr;
+			auto& mvv = hr->mapVarInt();
+			auto p = mvv[vvi[Variable("location")]];		
+			srand(room_seed);
+			vector<size_t> counts {0};
+			for (size_t j = 0; j < z; j++)
 			{
-				while ((size_t)u == ug)
-					ug = (rand() % 6) + 5; 
-				// EVAL(j);
-				// EVAL(locations[(size_t)u]);					
-				// EVAL(locations[ug]);
-				counts.push_back(0);
+				auto u = rr[p*z + j];
+				if ((size_t)u == ug)
+				{
+					while ((size_t)u == ug)
+						ug = (rand() % 6) + 5; 
+					// EVAL(j);
+					// EVAL(locations[(size_t)u]);					
+					// EVAL(locations[ug]);
+					counts.push_back(0);
+				}
+				counts.back()++;
 			}
-			counts.back()++;
+			counts.pop_back();
+			EVAL(dataset);
+			EVAL(z);
+			auto n = counts.size();
+			EVAL(n);
+			EVAL(counts);
+			double mean = 0.0;
+			for (auto a : counts)
+				mean += a;
+			mean /= n;
+			EVAL(mean);
+			double variance = 0.0;
+			for (auto a : counts)
+				variance += ((double)a - mean)*((double)a - mean);
+			variance /= n;
+			EVAL(sqrt(variance));
+			EVAL(sqrt(variance/n));
+			mean1 = mean;
+			dev1 = sqrt(variance);
+			err1 = sqrt(variance/n);
 		}
-		counts.pop_back();
-		EVAL(z);
-		EVAL(counts);
-		EVAL(counts.size());
-		double average = 0.0;
-		for (auto a : counts)
-			average += a;
-		average /= counts.size();
-		EVAL(average);
-		double variance = 0.0;
-		for (auto a : counts)
-			variance += ((double)a - average)*((double)a - average);
-		variance /= counts.size();
-		EVAL(sqrt(variance));
+
+		if (dataset2 != "")
+		{
+			std::unique_ptr<Alignment::System> uu;
+			std::unique_ptr<Alignment::SystemRepa> ur;
+			std::unique_ptr<Alignment::HistoryRepa> hr;
+			{
+				std::vector<std::string> files{
+					"data002_room1.bin",
+					"data002_room2.bin",
+					"data002_room2_2.bin",
+					"data002_room3.bin",
+					"data002_room4.bin",
+					"data002_room5.bin",
+					"data002_room5_2.bin"
+				};
+				if (dataset2 == "data003")
+				{
+					files.clear();
+					files.push_back("data003.bin");
+				}
+				else if (dataset2 == "data004")
+				{
+					files.clear();
+					files.push_back("data003.bin");
+					files.push_back("data004_01.bin");
+					files.push_back("data004_02.bin");
+					files.push_back("data004_03.bin");
+					files.push_back("data004_04.bin");
+					files.push_back("data004_05.bin");
+				}
+				else if (dataset2 != "data002")
+				{
+					files.clear();
+					files.push_back(dataset2+".bin");
+				}			
+				HistoryRepaPtrList ll;
+				for (auto& f : files)
+				{
+					std::ifstream in(f, std::ios::binary);
+					auto qq = persistentsRecordList(in);
+					in.close();
+					SystemHistoryRepaTuple xx;
+					xx = recordListsHistoryRepa_4(8, *qq);
+					uu = std::move(std::get<0>(xx));
+					ur = std::move(std::get<1>(xx));
+					ll.push_back(std::move(std::get<2>(xx)));
+				}
+				hr = vectorHistoryRepasConcat_u(ll);
+			}
+	//		EVAL(hr->size);
+
+			vector<string> locations{ "door12", "door13", "door14", "door45", "door56", "room1", "room2", "room3", "room4", "room5", "room6", "unknown" };
+			size_t ug = 0;
+			while (ug < locations.size()-1)
+				if (locations[ug] == room_initial)
+					break;
+				else
+					ug++;
+				
+			auto& vvi = ur->mapVarSize();
+			auto z = hr->size;
+			auto rr = hr->arr;
+			auto& mvv = hr->mapVarInt();
+			auto p = mvv[vvi[Variable("location")]];		
+			srand(room_seed);
+			vector<size_t> counts {0};
+			for (size_t j = 0; j < z; j++)
+			{
+				auto u = rr[p*z + j];
+				if ((size_t)u == ug)
+				{
+					while ((size_t)u == ug)
+						ug = (rand() % 6) + 5; 
+					// EVAL(j);
+					// EVAL(locations[(size_t)u]);					
+					// EVAL(locations[ug]);
+					counts.push_back(0);
+				}
+				counts.back()++;
+			}
+			counts.pop_back();
+			EVAL(dataset2);
+			EVAL(z);
+			auto n = counts.size();
+			EVAL(n);
+			EVAL(counts);
+			double mean = 0.0;
+			for (auto a : counts)
+				mean += a;
+			mean /= n;
+			EVAL(mean);
+			double variance = 0.0;
+			for (auto a : counts)
+				variance += ((double)a - mean)*((double)a - mean);
+			variance /= n;
+			EVAL(sqrt(variance));
+			EVAL(sqrt(variance/n));
+			mean2 = mean;
+			dev2 = sqrt(variance);
+			err2 = sqrt(variance/n);
+			
+			EVAL(sqrt(err1*err1 + err2*err2));
+			EVAL((mean2-mean1)/sqrt(err1*err1 + err2*err2));
+		}
 	}
 	
 	return 0;
