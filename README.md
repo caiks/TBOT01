@@ -2698,7 +2698,7 @@ gazebo -u --verbose ~/turtlebot3_ws/src/TBOT01_ws/env009.model -s libgazebo_ros_
 ```
 
 ```
-ros2 run TBOT01 controller data013.bin 250 5000
+ros2 run TBOT01 controller data019.bin 250 5000
 
 ```
 ```
@@ -2712,19 +2712,19 @@ ros2 run TBOT01 commander room5 250
 ```
 
 ```
-./main room_expected data009 room5 17 data013
+./main room_expected data009 room5 17 data019
 ...
-dataset2: data013
-z: 57890
-n: 40
-counts: [322,4499,1716,2010,1299,793,698,772,1876,1547,312,779,279,307,1616,580,1556,5915,1018,548,2873,495,1978,315,1818,4368,138,1960,4019,2736,1770,84,473,1601,103,868,942,725,1436,242]
-mean: 1434.65
-sqrt(variance): 1318.15
-sqrt(variance/n): 208.417
-sqrt(err1*err1 + err2*err2): 499.795
-(mean2-mean1)/sqrt(err1*err1 + err2*err2): -3.39115
+dataset2: data019
+z: 120305
+n: 60
+counts: [480,1690,4563,1666,930,13587,1299,2698,2560,877,1336,2090,3075,65,238,1109,924,4204,1320,246,2548,7330,4225,159,1261,1294,72,346,1968,1392,3849,79,2489,1900,41,1329,1154,1278,5447,171,5406,416,840,594,244,2102,3658,513,8933,173,1760,160,345,333,174,5623,2357,227,110,2627]
+mean: 1998.07
+sqrt(variance): 2409.78
+sqrt(variance/n): 311.101
+sqrt(err1*err1 + err2*err2): 550.582
+(mean2-mean1)/sqrt(err1*err1 + err2*err2): -2.05503
 ```
-Now the standard score is -3.39, which is highly significant. The average journey time has decreased from 13 minutes to 6 minutes plus or minus 52 seconds.
+Now the mean journey time is significantly different. The average journey time has decreased from 13 minutes to 8  minutes and 20 seconds plus or minus 1 minute and 17 seconds.
 
 Further progress with this mode could perhaps be made by reinforcement learning. The dataset of a mode 2 turtlebot's run would become the dataset given, along with the *model*, to a re-run of the mode 2 turtlebot. That is, the attraction/repulsion mode 2 behaviour would replace the random-turn turtlebot's behaviour, so increasing the differences in the *counts* between correct and incorrect actions. This could be repeated several times to increase the differences in probabilities.
 
@@ -2819,7 +2819,7 @@ gazebo -u --verbose ~/turtlebot3_ws/src/TBOT01_ws/env009.model -s libgazebo_ros_
 
 ```
 ```
-ros2 run TBOT01 controller data014.bin 250 5000
+ros2 run TBOT01 controller data018.bin 250 5000
 
 ```
 ```
@@ -2831,26 +2831,26 @@ ros2 run TBOT01 commander room5 250
 
 ```
 ```
-./main room_expected data013 room5 17 data014
+./main room_expected data019 room5 17 data018
 ...
-dataset: data013
-z: 57890
-n: 40
-counts: [322,4499,1716,2010,1299,793,698,772,1876,1547,312,779,279,307,1616,580,1556,5915,1018,548,2873,495,1978,315,1818,4368,138,1960,4019,2736,1770,84,473,1601,103,868,942,725,1436,242]
-mean: 1434.65
-sqrt(variance): 1318.15
-sqrt(variance/n): 208.417
-dataset2: data014
-z: 54748
-n: 21
-counts: [431,2093,4071,4103,2100,6895,2104,512,7785,625,1574,553,3872,283,1550,2133,1184,444,1038,704,10594]
-mean: 2602.29
-sqrt(variance): 2704.62
-sqrt(variance/n): 590.196
-sqrt(err1*err1 + err2*err2): 625.914
-(mean2-mean1)/sqrt(err1*err1 + err2*err2): 1.86549
+dataset: data019
+z: 120305
+n: 60
+counts: [480,1690,4563,1666,930,13587,1299,2698,2560,877,1336,2090,3075,65,238,1109,924,4204,1320,246,2548,7330,4225,159,1261,1294,72,346,1968,1392,3849,79,2489,1900,41,1329,1154,1278,5447,171,5406,416,840,594,244,2102,3658,513,8933,173,1760,160,345,333,174,5623,2357,227,110,2627]
+mean: 1998.07
+sqrt(variance): 2409.78
+sqrt(variance/n): 311.101
+dataset2: data018
+z: 113517
+n: 53
+counts: [365,986,3093,8565,1334,6748,2880,2004,3399,2756,805,3445,860,209,123,663,4583,8095,1021,801,2525,7264,1119,959,1417,684,165,3865,1626,644,374,304,530,2750,202,773,1120,113,1292,63,1598,643,1212,741,2697,7060,2590,3054,4627,375,145,1353,2445]
+mean: 2057.81
+sqrt(variance): 2133.86
+sqrt(variance/n): 293.108
+sqrt(err1*err1 + err2*err2): 427.43
+(mean2-mean1)/sqrt(err1*err1 + err2*err2): 0.139777
 ```
-In the case of the probabilistic choice mode 4, the new *substrate* appears to have decreased the performance considerably, although the run was not long enough to be statistically significant. Comparison of the mode 2 dataset `data013` and the mode 4 dataset `data014` shows that the time spent in the single exit rooms is unchanged. We may conjecture that the mode 2 turtlebot thought it was in a single exit room, when in fact it was not, suppressing incorrect turns in the larger rooms.
+In the case of the probabilistic choice mode 4, the new *substrate* appears to have decreased the performance slightly, but not significantly. 
 
 Mode 5 is the same as mode 3, but with the *substrate* 6 and no special single exit handling,
 ```
