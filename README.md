@@ -2895,7 +2895,21 @@ sqrt(variance/n): 75.2112
 sqrt(err1*err1 + err2*err2): 154.516
 (mean2-mean1)/sqrt(err1*err1 + err2*err2): -1.66906
 ```
-This run is significantly different from the mode 3 run with *model* 28. The average journey time has decreased to 3 minutes and 18 seconds, plus or minus 19 seconds, which is the quickest of all of these tests of the actor node. Comparison of the mode 3 dataset `data010` and the mode 5 dataset `data015` shows that the time spent in the single exit rooms has reduced by 4%. Note that this is the case in spite of the fact that *model* 28 was *conditioned* on the old definition of the `location` label.
+This run is significantly different from the mode 3 run with *model* 28. The average journey time has decreased to 3 minutes and 18 seconds, plus or minus 19 seconds, which is the quickest of all of these tests of the actor node. Comparison of the mode 3 dataset `data010` and the mode 5 dataset `data015` shows that the time spent in the single exit rooms has reduced by 4%. Note that this is the case in spite of the fact that *model* 28 was *conditioned* on the old definition of the `location` label. The improvement is less significant over a run of 14 hours,
+```
+./main room_expected data010 room5 17 data020
+...
+dataset2: data020
+z: 211517
+n: 242
+counts: [610,898,1401,1320,1802,1032,888,1110,1116,242,958,312,266,68,1827,82,53,2114,774,616,398,1444,1264,59,3662,2789,168,1003,965,650,1762,346,382,594,76,606,399,662,970,600,399,826,951,700,970,2234,729,1489,905,176,267,78,272,220,978,1643,785,350,911,1190,1577,582,1224,634,960,4916,285,692,508,1214,1256,525,231,2242,426,665,2282,424,75,331,704,123,1333,484,1886,348,565,146,2759,1683,82,531,139,1489,607,510,1309,317,883,544,706,2538,765,1514,890,72,1,113,834,1384,206,559,948,724,866,758,1989,97,659,1935,541,335,527,513,436,161,1137,1582,597,288,2696,935,1618,1417,224,572,1204,669,2809,325,142,189,530,892,238,327,765,178,222,32,421,446,220,1445,93,1696,1855,108,820,378,818,684,702,38,445,612,165,2895,648,855,562,1473,69,709,425,467,254,285,573,3855,764,835,329,2408,224,319,395,844,1107,971,1122,2602,661,521,624,1501,1245,1473,137,866,480,3756,2573,433,980,398,72,528,759,750,703,1024,402,448,1573,2161,93,511,244,688,756,412,790,291,837,467,852,1108,736,165,213,1083,94,1708,747,484,851,2495,2621,140,3150,345]
+mean: 873.537
+sqrt(variance): 778.033
+sqrt(variance/n): 50.0138
+sqrt(err1*err1 + err2*err2): 143.944
+(mean2-mean1)/sqrt(err1*err1 + err2*err2): -1.22317
+```
+Here the average journey time is 3 minutes and 38 seconds plus or minus 13 seconds.
 
 Lastly we re-run *model* 27 in mode 5,
 ```
