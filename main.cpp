@@ -356,6 +356,69 @@ int main(int argc, char **argv)
 		EVAL(action_angular_dist);
 	}
 
+	if (argc >= 3 && string(argv[1]) == "concat")
+	{
+		typedef std::vector<State> SList;	
+		
+		auto uvars = systemsSetVar;
+		auto state = [](const Variable& v, const Value& u)
+		{
+			return State(VarValPairList{VarValPair(v, u)});
+		};
+		auto single = histogramSingleton_u;		
+		auto mul = pairHistogramsMultiply;
+		auto size = [](const Histogram& aa)
+		{
+			return (double)histogramsSize(aa).getNumerator();
+		};		
+		auto trim = histogramsTrim;
+		auto aall = histogramsList;
+		auto smax = [](const Histogram& aa)
+		{
+			std::vector<std::pair<Rational,State>> ll;
+			auto ll0 = *histogramsList(aa);
+			for (auto p : ll0)
+				ll.push_back(std::pair<Rational,State>(p.second,p.first));
+			auto ll1 = sorted(ll);
+			return ll1.back().second;
+		};		
+		auto ared = [](const Histogram& aa, const VarUSet& vv)
+		{
+			return setVarsHistogramsReduce(vv, aa);
+		};		
+		auto add = pairHistogramsAdd_u;
+		auto ent = histogramsEntropy;
+		auto araa = systemsHistogramRepasHistogram_u;
+		auto hrsel = eventsHistoryRepasHistoryRepaSelection_u;
+		auto hrhrred = setVarsHistoryRepasHistoryRepaReduced_u;
+		auto hrred = setVarsHistoryRepasReduce_u;
+		auto frmul = historyRepasFudRepasMultiply_u;
+		auto frvars = fudRepasSetVar;
+		auto frder = fudRepasDerived;
+		auto frund = fudRepasUnderlying;
+		auto frdep = fudRepasSetVarsDepends;
+
+		string dataset = string(argc >= 3 ? argv[2] : "data002");
+		
+		EVAL(dataset);
+		std::vector<std::string> files;
+		for (int i = 3; i < argc; i++)
+			files.push_back(string(argv[i])+".bin");
+		RecordList rr;
+		for (auto& f : files)
+		{
+			std::ifstream in(f, std::ios::binary);
+			auto qq = persistentsRecordList(in);
+			in.close();
+			rr.insert(rr.end(), qq->begin(), qq->end());
+
+		}
+		EVAL(rr.size());
+		std::ofstream out(dataset+".bin", std::ios::binary);
+		recordListsPersistent(rr, out); 
+		out.close();
+	}
+
 	if (argc >= 3 && string(argv[1]) == "dump")
 	{
 		string dataset = string(argc >= 3 ? argv[2] : "data002");
