@@ -833,7 +833,7 @@ Here is the image for `data002_room1`,
 
 ![data002_room1](images/data002_room1.jpg?raw=true)
 
-You can view a short video [here](https://github.com/caiks/TBOT01_ws/blob/master/data002_room1.mp4). In this simulation turtlebot leaves room 1 and goes into room 2.
+You can view a short video [here](https://github.com/caiks/TBOT01_ws/blob/master/data002_room1.mp4?raw=true). In this simulation turtlebot leaves room 1 and goes into room 2.
 
 We repeat for the various rooms in the turtlebot house.
 
