@@ -1,6 +1,6 @@
 # TBOT01 - TurtleBot3 controller
 
-[TurtleBot3](http://emanual.robotis.com/docs/en/platform/turtlebot3/overview/) is a [Robot Operating System](https://www.ros.org/about-ros/) standard platform robot. Here we develop a TurtleBot3 controller that has at its core an *alignment induced model*. 
+[TurtleBot3](http://emanual.robotis.com/docs/en/platform/turtlebot3/overview/) is a [Robot Operating System](https://www.ros.org/about-ros/) standard platform robot. Here we develop a TurtleBot3 controlled by an *alignment induced model*. 
 
 The *model* is trained using the *inducers* and *conditioners* implemented in the [AlignmentRepaC repository](https://github.com/caiks/AlignmentRepaC). The AlignmentRepaC repository is a fast C++ implementation of some of the *practicable inducers* described in the paper *The Theory and Practice of Induction by Alignment* at https://greenlake.co.uk/. The *models* are *induced* in the main executable, which can run without the need to install TurtleBot3.
 
@@ -10,7 +10,7 @@ The *history* (training data) is collected by running various controllers in the
 
 [Download, build and run main executable](#main)
 
-[Download, build and run controller executable](#controller)
+[Download, build and run TurtleBot3 nodes](#controller)
 
 [Discussion](#Discussion)
 
@@ -58,7 +58,7 @@ cmake -DCMAKE_BUILD_TYPE=RELEASE ../TBOT01
 make
 
 ```
-
+The `main` executable has various modes. Note that the `induce` and `condition` *modelling* modes can require up to 24GB of memory depending on the parameterisation,
 ```
 cd ../TBOT01_ws
 ln -s ../TBOT01_build/main main
@@ -124,7 +124,6 @@ ln -s ../TBOT01_build/main main
 ./main induce model024 8 7 2  >model024.log
 ./main induce model026 8 >model026.log
 ./main induce model027 32 >model027.log
-./main induce model027 8 >model027.log
 
 ./main condition model006 4 location >model006_location.log
 ./main condition model006 4 motor >model006_motor.log
@@ -318,21 +317,29 @@ ln -s ../TBOT01_build/main main
 ./main room_expected data008 room5
 ./main room_expected data009 room1
 ./main room_expected data009 room5
+./main room_expected data009 room5 17 data010
+./main room_expected data009 room5 17 data011
+./main room_expected data009 room5 17 data012
+./main room_expected data009 room5 17 data019
+./main room_expected data010 room5 17 data020
 ./main room_expected data010 room5
+./main room_expected data010 room5 17 data015
 ./main room_expected data011 room5
+./main room_expected data011 room5 17 data016
+./main room_expected data019 room5 17 data018
 
 ```
 <a name = "controller"></a>
 
-## Download, build and run controller executable
+## Download, build and run TurtleBot3 nodes
+
+To run the turtlebot it is necessary to install [ROS2](https://index.ros.org/doc/ros2/), [Gazebo](http://gazebosim.org/tutorials?cat=install) and [TurtleBot3](http://emanual.robotis.com/docs/en/platform/turtlebot3/ros2_simulation/#simulation) on a machine with a GPU and at least 4GB of memory.
 
 [AWS EC2 instance](#AWS)
 
 [Windows 10 WSL2 instance](#Windows)
 
 [Installation](#Installation)
-
-To run the controller it is necessary to install [ROS2](https://index.ros.org/doc/ros2/), [Gazebo](http://gazebosim.org/tutorials?cat=install) and [TurtleBot3](http://emanual.robotis.com/docs/en/platform/turtlebot3/ros2_simulation/#simulation) on a machine with a GPU.
 
 <a name = "AWS"></a>
 
@@ -563,6 +570,8 @@ ln -s ~/TBOT01_build/main main
 
 ## Discussion
 
+Now let us investigate various turtlebot *models* and controllers. 
+
 [Sensors, motors, environment and the collision avoidance controller](#Sensors)
 
 [Models of the scan substrate](#Models)
@@ -579,7 +588,8 @@ ln -s ~/TBOT01_build/main main
 
 [Actor node](#Actor)
 
-Now let us investigate various turtlebot3 controllers. 
+[Summary](#Summary)
+
 
 <a name = "Sensors"></a>
 
@@ -2985,4 +2995,36 @@ sqrt(err1*err1 + err2*err2): 272.871
 ```
 The average journey time increases a little to 5 minutes and 35 seconds, but this is not statistically significantly different from the mode 3 run of *model* 27. A much longer run would be required to demonstrate any difference.
 
+TODO
+
+experiment with threshold parameterisation
+
+more experience with existing models, perhaps gained from probabilistic actors
+
+bigger models based on more experience
+
+could condition on substrate005 definition of location
+
+mode006 shortest path the room
+
+discounted expected distance to room
+
+more details in rooms to make more easily identifiable (within the 8 buckets)
+
+short term memory, with past turns, to aid when lidar out of range of the walls
+
+condition on global coordinate and orientation to determine an angle to turn to next coordinate and orientation (given goal room) rather than relying on random turns
+
+
+
+
+<a name = "Summary"></a>
+
+### Summary
+
+TODO 
+
+summary Unsupervised can choose labels or goals after
+
+look forward to TBOT02. We (i) experience - obtain the history, (ii) modelling - induce/condition the model, (iii) action - apply the model and the history to the current event and decide motor actions given the labels. There are 3 separate stages. In dynamic TBOT02, all three occur at once. 
 
