@@ -2637,7 +2637,7 @@ The `TBOT01` [actor](https://github.com/caiks/TBOT01/blob/master/actor.h) node i
 
 In the simplest mode, `mode001`, this label *histogram* is *multiplied* by a *unit histogram* that defines the desired `room_next` given the goal room and the *slice's* `location`. For example, if the goal is room 6 and the `location` is room 1 then the `room_next` is room 4, rather than rooms 2 or 3. The turtlebot guesses `location` and then repeats the `motor` actions that tended in the past to lead to the desired goal. That is, the requested action is chosen at random according to the *probability histogram* implied by the *normalised reduction* to `motor`.
 
-In order to test whether `TBOT01` actor is navigating around the turtlebot house better than chance, it's goal will be set from a fixed sequence of randomly selected rooms. As soon as turtlebot has reached the current goal room, the next goal is set from the next room in the infinite sequence. We will let the turtlebot run until we obtain a degree of statistical significance for the average journey time as measured by the standard score. First we obtain the distribution for the random-turn turtlebot by calculating the journey times in `data009`,
+In order to test whether `TBOT01` actor is navigating around the turtlebot house better than chance, its goal will be set from a fixed sequence of randomly selected rooms. As soon as turtlebot has reached the current goal room, the next goal is set from the next room in the infinite sequence. We will let the turtlebot run until we obtain a degree of statistical significance for the average journey time as measured by the standard score. First we obtain the distribution for the random-turn turtlebot by calculating the journey times in `data009`,
 ```
 ./main room_expected data009 room5
 ...
@@ -2671,7 +2671,7 @@ ros2 run TBOT01 actor model028_location room5 1000 data009 0 mode001
 ros2 run TBOT01 commander room5 250
 
 ```
-This shows the journeys taken -
+This shows the statistics of the journeys taken -
 ```
 ./main room_expected data009 room5 17 data012
 ...
@@ -2777,7 +2777,7 @@ ros2 run TBOT01 actor model028_location room6 1000 data009 0 mode003 0.05
 ```
 Note that this example is unusually fast for a 3 room journey at only 1 minute and 4 seconds. The turtlebot more typically tends to travel in the general direction of the correct exit but often fails to pass through it on the first attempt.
 
-Now that we are sure of a definite improvement in the turtlebot's ability to navigate around the turtlebot house, let's see how it's performance compares with the purely *induced model* 27,
+Now that we are sure of a definite improvement in the turtlebot's ability to navigate around the turtlebot house, let us compare the performance  of the partly *conditioned model* 28 and the purely *induced model* 27,
 ```
 gazebo -u --verbose ~/turtlebot3_ws/src/TBOT01_ws/env009.model -s libgazebo_ros_init.so
 
@@ -2809,11 +2809,44 @@ sqrt(variance/n): 222.342
 sqrt(err1*err1 + err2*err2): 505.76
 (mean2-mean1)/sqrt(err1*err1 + err2*err2): -3.664
 ```
-The *model* 27 mode 3 turtlebot has an average journey time of 5 minutes and 19 seconds, plus or minus 56 seconds. Clearly the lower `location` accuracy *model* 27 tends to increase the journey time, but we can see that a completely unsupervised *model* - obtained without requiring any label - can produce purposeful behaviour where there are *alignments* between the sensor *variables* and the motor and goodness *variables*.
+The *model* 27 mode 3 turtlebot has an average journey time of 5 minutes and 19 seconds, plus or minus 56 seconds. Although the lower `location` accuracy of *model* 27 tends to increase the journey time, we can still see that a completely unsupervised *model* - obtained without requiring any label - can produce purposeful behaviour in the case where there are *alignments* between the sensor *variables* and the motor and goal *variables*.
 
-Modes 2 and 3 simply ignore the single exit rooms. Let us create a new *substrate* `substrate005` which adds to the `location` *values*  extra 'rooms' `room2z`, `room3z` and `room6z`. These form the last 1.5 m of each single exit room's dead end. Rooms `room2`, `room3` and `room6` are correspondingly truncated. The *substrate* `substrate005` adds the redefined `room_next` *variable*. Now when the turtlebot is in room 2, say, it can choose between a correct turn to `door12` or an incorrect turn to `room2z`. 
+Modes 2 and 3 simply ignore the single exit rooms. Let us create a new *substrate* `substrate005` which adds to the `location` *values*  extra 'rooms' `room2z`, `room3z` and `room6z`. These form the last 1.5 m of each single exit room's dead end. Rooms `room2`, `room3` and `room6` are correspondingly truncated, 
+```
+./main analyse data009 substrate005
+({(location,door12)},2067 % 1)
+({(location,door13)},2365 % 1)
+({(location,door14)},2012 % 1)
+({(location,door45)},1288 % 1)
+({(location,door56)},2314 % 1)
+({(location,room1)},42708 % 1)
+({(location,room2)},13102 % 1)
+({(location,room2z)},6873 % 1)
+({(location,room3)},10362 % 1)
+({(location,room3z)},6748 % 1)
+({(location,room4)},45058 % 1)
+({(location,room5)},16658 % 1)
+({(location,room6)},13108 % 1)
+({(location,room6z)},7638 % 1)
+```
+The *substrate* `substrate006` adds the redefined `room_next` *variable*,
+```
+./main analyse data009 substrate006
+...
+({(room_next,room1)},25554 % 1)
+({(room_next,room2)},16927 % 1)
+({(room_next,room2z)},10143 % 1)
+({(room_next,room3)},26493 % 1)
+({(room_next,room3z)},6400 % 1)
+({(room_next,room4)},27741 % 1)
+({(room_next,room5)},34850 % 1)
+({(room_next,room6)},14462 % 1)
+({(room_next,room6z)},9659 % 1)
+({(room_next,unknown)},72 % 1)
+```
+Now when the turtlebot is in room 2, say, it can choose between a correct turn to `room1` or an incorrect turn to `room2z`. Note that there is no requirement to change the *model*, merely the definitions of the label *variables* upon which the actions are decided.
 
-Mode 4 is the same as mode 2, but with the *substrate* 6 and no special single exit handling,
+Mode 4 is the same as the probabilistic mode 2, but with the *substrate* 6 and no special single exit handling,
 ```
 gazebo -u --verbose ~/turtlebot3_ws/src/TBOT01_ws/env009.model -s libgazebo_ros_init.so
 
@@ -2852,7 +2885,7 @@ sqrt(err1*err1 + err2*err2): 427.43
 ```
 In the case of the probabilistic choice mode 4, the new *substrate* appears to have decreased the performance slightly, but not significantly. 
 
-Mode 5 is the same as mode 3, but with the *substrate* 6 and no special single exit handling,
+Mode 5 is the same as threshold mode 3, but with the *substrate* 6 and no special single exit handling,
 ```
 gazebo -u --verbose ~/turtlebot3_ws/src/TBOT01_ws/env009.model -s libgazebo_ros_init.so
 
