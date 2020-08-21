@@ -1,6 +1,6 @@
 # TBOT01 - TurtleBot3 controller
 
-[TurtleBot3](http://emanual.robotis.com/docs/en/platform/turtlebot3/overview/) is a [Robot Operating System](https://www.ros.org/about-ros/) standard platform robot. Here we develop a TurtleBot3 controlled by unsupervised *induced models*, as well as partially or wholly supervised *conditioned models*. We demonstrate that it is possible for the TurtleBot3 to learn about its environment without any predefined label or goal, and then to apply this knowledge to accomplish a task.
+[TurtleBot3](http://emanual.robotis.com/docs/en/platform/turtlebot3/overview/) is a [Robot Operating System](https://www.ros.org/about-ros/) standard platform robot. Here we develop a TurtleBot3 controlled by unsupervised *induced models*, as well as by partially or wholly supervised *conditioned models*. We demonstrate that it is possible for the TurtleBot3 to learn about its environment without any predefined label or goal, and then to apply this knowledge to accomplish a [task](https://github.com/caiks/TBOT01_ws/blob/master/actor_env010_model028_location_room6_data009_mode002.mp4?raw=true).
 
 The *model* is trained using the *inducers* and *conditioners* implemented in the [AlignmentRepaC repository](https://github.com/caiks/AlignmentRepaC). The AlignmentRepaC repository is a fast C++ implementation of some of the *practicable inducers* described in the paper *The Theory and Practice of Induction by Alignment* at https://greenlake.co.uk/. The *models* are *induced* in the main executable, which can run without the need to install TurtleBot3.
 
