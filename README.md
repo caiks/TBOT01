@@ -2992,6 +2992,20 @@ sqrt(err1*err1 + err2*err2): 272.871
 ```
 The average journey time increases a little to 5 minutes and 35 seconds, but this is not significantly different from the mode 3 run of *model* 27. A much longer run would be required to demonstrate any difference.
 
+This table summarises the results,
+
+model|mode|rooms|mean|std err
+---|---|---|---|---
+none|random|55|3129|454
+model028_location|1|75|2503|341
+model028_location|2|60|2409|311
+model028_location|3|43|1049|134
+model027|3|33|1276|222
+model028_location|4|53|2057|293
+model028_location|5|242|873|50
+model027|5|38|1342|158
+
+
 There are many possible ways to improve the performance of TBOT01. We could experiment with various parameters -
 
 * turtlebot controller parameters, e.g. the random-turn interval, or the mode 3/5 turn threshold.  
